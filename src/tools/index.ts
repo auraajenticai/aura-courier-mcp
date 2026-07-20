@@ -40,7 +40,8 @@ export function registerTools(server: McpServer, registry: CourierRegistry): voi
       title: "Create a courier parcel (book a delivery)",
       description:
         "Book a delivery with a Bangladesh courier. Returns the consignment id and tracking code. " +
-        "COD amount is in BDT (use 0 for prepaid). The invoice must be unique per order.",
+        "COD amount is in BDT (use 0 for prepaid). The invoice must be unique per order. " +
+        "Pathao also needs meta:{ storeId, cityId, zoneId, areaId } — resolve the IDs with get_courier_locations.",
       inputSchema: {
         courier: courierEnum.default("steadfast").describe("Which courier to book with."),
         invoice: z.string().min(1).describe("Your unique order/invoice id (idempotency key)."),
@@ -52,6 +53,10 @@ export function registerTools(server: McpServer, registry: CourierRegistry): voi
         codAmount: z.number().min(0).describe("Cash-on-delivery amount in BDT (0 = prepaid)."),
         itemDescription: z.string().optional(),
         note: z.string().optional(),
+        meta: z
+          .record(z.any())
+          .optional()
+          .describe("Courier-specific extras. Pathao: { storeId, cityId, zoneId, areaId }."),
       },
     },
     async (args) => {
@@ -108,6 +113,39 @@ export function registerTools(server: McpServer, registry: CourierRegistry): voi
           throw new CourierError("unsupported", `${adapter.label} has no balance endpoint.`);
         }
         return ok(await adapter.getBalance());
+      } catch (err) {
+        return fail(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_courier_locations",
+    {
+      title: "Resolve courier location IDs (city / zone / area)",
+      description:
+        "For couriers that address by structured location IDs (e.g. Pathao). Get the list of " +
+        "cities, or the zones of a city (parentId = city id), or the areas of a zone (parentId = " +
+        "zone id). Use the returned ids in create_parcel's meta for Pathao.",
+      inputSchema: {
+        courier: courierEnum.default("pathao"),
+        level: z.enum(["city", "zone", "area"]),
+        parentId: z
+          .number()
+          .optional()
+          .describe("Required for zone (city id) and area (zone id)."),
+      },
+    },
+    async (args) => {
+      try {
+        const adapter = registry.get(args.courier);
+        if (!adapter.getLocations) {
+          throw new CourierError(
+            "unsupported",
+            `${adapter.label} addresses by free text — no location IDs needed.`,
+          );
+        }
+        return ok({ locations: await adapter.getLocations(args.level, args.parentId) });
       } catch (err) {
         return fail(err);
       }

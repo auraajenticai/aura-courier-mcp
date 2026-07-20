@@ -35,6 +35,22 @@ export interface CreateParcelInput {
   codAmount: number;
   itemDescription?: string;
   note?: string;
+  /**
+   * Courier-specific extras that don't fit the universal fields.
+   * Pathao, for example, needs `storeId`, `cityId`, `zoneId`, `areaId`
+   * (numeric IDs — resolve them with the `get_courier_locations` tool).
+   * Steadfast ignores this entirely.
+   */
+  meta?: Record<string, unknown>;
+}
+
+/** Location hierarchy level, for couriers that require structured addresses (e.g. Pathao). */
+export type LocationLevel = "city" | "zone" | "area";
+
+/** A resolved location id + name (city/zone/area). */
+export interface CourierLocation {
+  id: number;
+  name: string;
 }
 
 /** A booked parcel, normalized. */

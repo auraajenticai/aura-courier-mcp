@@ -5,6 +5,7 @@
  */
 import { CourierError, type CourierAdapter } from "./base.js";
 import { SteadfastAdapter } from "./steadfast.js";
+import { PathaoAdapter } from "./pathao.js";
 import type { AppConfig } from "../config.js";
 import type { CourierId } from "../types.js";
 
@@ -13,7 +14,7 @@ export class CourierRegistry {
 
   constructor(config: AppConfig) {
     this.register(new SteadfastAdapter(config.steadfast));
-    // Next: this.register(new PathaoAdapter(config.pathao));
+    this.register(new PathaoAdapter(config.pathao));
   }
 
   private register(adapter: CourierAdapter): void {

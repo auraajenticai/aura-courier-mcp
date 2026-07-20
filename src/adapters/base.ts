@@ -8,7 +8,9 @@
 import type {
   BalanceResult,
   CourierId,
+  CourierLocation,
   CreateParcelInput,
+  LocationLevel,
   Parcel,
   TrackRef,
   TrackingResult,
@@ -26,6 +28,13 @@ export interface CourierAdapter {
 
   /** Optional — not every courier exposes a balance endpoint. */
   getBalance?(): Promise<BalanceResult>;
+
+  /**
+   * Optional — for couriers that address by structured location IDs
+   * (e.g. Pathao's city → zone → area). `parentId` is the city id for
+   * zones and the zone id for areas.
+   */
+  getLocations?(level: LocationLevel, parentId?: number): Promise<CourierLocation[]>;
 }
 
 /** A typed error so tools can report clean, actionable messages instead of raw crashes. */

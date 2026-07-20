@@ -18,6 +18,7 @@ A merchant uses several couriers. They should not need a different tool for each
 | `create_parcel` | Book a delivery (`courier: "steadfast" \| "pathao" \| ...`) |
 | `track_parcel`  | Get delivery status by consignment id / invoice / tracking code |
 | `get_balance`   | Merchant account balance with a courier |
+| `get_courier_locations` | Resolve city / zone / area IDs (needed by Pathao) |
 
 You pick the courier per parcel; the connector routes to the right adapter and returns a **normalized** result — same shape no matter which courier is underneath.
 
@@ -28,7 +29,7 @@ You pick the courier per parcel; the connector routes to the right adapter and r
 ```
 MCP tools  ──►  Registry (gateway)  ──►  Courier adapters
                                           ├── Steadfast  (live)
-                                          ├── Pathao     (next)
+                                          ├── Pathao     (live)
                                           ├── RedX        (planned)
                                           └── Paperfly    (planned)
 ```
@@ -94,7 +95,7 @@ Built to the documented Steadfast Courier Limited API v1: base `https://portal.p
 
 - [x] Core gateway + normalized model
 - [x] Steadfast adapter (`create_parcel`, `track_parcel`, `get_balance`)
-- [ ] Pathao adapter
+- [x] Pathao adapter (OAuth + city/zone/area resolution via `get_courier_locations`)
 - [ ] Webhook status updates (delivery-status callbacks)
 - [ ] RedX + Paperfly adapters
 - [ ] Hosted multi-tenant SaaS (per-merchant credentials + usage billing)

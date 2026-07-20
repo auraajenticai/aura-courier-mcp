@@ -4,6 +4,7 @@
  * and that an unconfigured call fails cleanly (typed error, not a crash).
  */
 import { mapSteadfastStatus } from "../src/adapters/steadfast.js";
+import { mapPathaoStatus } from "../src/adapters/pathao.js";
 import { CourierRegistry } from "../src/adapters/registry.js";
 import { loadConfig } from "../src/config.js";
 import { CourierError } from "../src/adapters/base.js";
@@ -42,6 +43,25 @@ check(
   list.find((c) => c.id === "steadfast")?.configured === false,
 );
 
+// 2b) Pathao registered + status normalization (different-shaped courier)
+check("pathao is registered", list.some((c) => c.id === "pathao"));
+check(
+  "pathao unconfigured without env",
+  list.find((c) => c.id === "pathao")?.configured === false,
+);
+check("pathao Delivered -> delivered", mapPathaoStatus("Delivered") === "delivered");
+check(
+  "pathao Partial_Delivery -> partial_delivered",
+  mapPathaoStatus("Partial_Delivery") === "partial_delivered",
+);
+check("pathao In_Transit -> in_transit", mapPathaoStatus("In_Transit") === "in_transit");
+check(
+  "pathao Delivery_Failed -> unknown (NOT delivered)",
+  mapPathaoStatus("Delivery_Failed") === "unknown",
+);
+check("pathao Returned -> returned", mapPathaoStatus("Returned") === "returned");
+check("pathao Pending -> pending", mapPathaoStatus("Pending") === "pending");
+
 // 3) Clean typed error when not configured (no network hit)
 let threw: unknown = null;
 try {
@@ -63,11 +83,22 @@ check(
 
 // 4) Configured detection with env present
 const reg2 = new CourierRegistry(
-  loadConfig({ STEADFAST_API_KEY: "k", STEADFAST_SECRET_KEY: "s" } as NodeJS.ProcessEnv),
+  loadConfig({
+    STEADFAST_API_KEY: "k",
+    STEADFAST_SECRET_KEY: "s",
+    PATHAO_CLIENT_ID: "id",
+    PATHAO_CLIENT_SECRET: "sec",
+    PATHAO_USERNAME: "u",
+    PATHAO_PASSWORD: "p",
+  } as NodeJS.ProcessEnv),
 );
 check(
   "steadfast configured when env present",
   reg2.list().find((c) => c.id === "steadfast")?.configured === true,
+);
+check(
+  "pathao configured when env present",
+  reg2.list().find((c) => c.id === "pathao")?.configured === true,
 );
 
 console.log(`\n${pass} passed, ${fail} failed`);
