@@ -1,0 +1,39 @@
+{
+  "name": "aura-courier-mcp",
+  "version": "2.0.0",
+  "description": "Universal Bangladesh Courier MCP Server (Steadfast, Pathao & Fraud Engine) for Claude, Antigravity, Cursor & AI Agents",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "aura-courier-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "courier",
+    "steadfast",
+    "pathao",
+    "bangladesh",
+    "antigravity",
+    "claude",
+    "ecommerce"
+  ],
+  "author": "Aura Agentic AI <khondokartowsif171@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.0",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
