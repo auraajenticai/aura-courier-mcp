@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Aura Courier MCP — এক unified connector — বাংলাদেশের সব courier। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক ও ট্র্যাক করুন।">
+<title>Aura Courier MCP — Bangladesh's 1st Universal Courier MCP</title>
+<style>
+  :root{
+    --bg:#09090f; --bg2:#0c0d15; --surface:#13141d; --surface2:#191b27;
+    --ink:#edeff5; --muted:#969db4; --faint:#5c6482; --line:#23283a;
+    --blue:#4d7cff; --violet:#8b5cf6; --cyan:#38bdf8;
+    --green:#46d17f; --green-bg:#0f2a1d; --amber:#e0a341; --amber-bg:#2a2110;
+    --code-ink:#c8d0e6; --shadow:0 1px 2px rgba(0,0,0,.5),0 20px 50px rgba(0,0,0,.45);
+    --grad:linear-gradient(100deg,var(--blue),var(--violet));
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; -webkit-font-smoothing:antialiased}
+  .page{max-width:960px; margin:0 auto; padding:0 22px}
+  .mono{font-family:"SF Mono",ui-monospace,"Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace}
+  a{color:var(--blue); text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1,h2,h3{line-height:1.2; margin:0; text-wrap:balance}
+  .eyebrow{font-family:"SF Mono",monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); font-weight:600}
+
+  /* Header */
+  header{display:flex; justify-content:space-between; align-items:center; padding:22px 0; border-bottom:1px solid var(--line)}
+  .logo{display:flex; align-items:center; gap:10px; font-weight:800; font-size:17px; color:var(--ink)}
+  .logo-badge{font-size:11px; padding:3px 9px; border-radius:99px; background:var(--surface2); color:var(--cyan); border:1px solid var(--line)}
+  .nav-links{display:flex; gap:18px; align-items:center; font-size:14px; font-weight:600}
+
+  /* Hero */
+  .hero{text-align:center; padding:74px 0 52px; position:relative; overflow:hidden}
+  .hero::before{content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(55% 45% at 50% -5%, color-mix(in srgb,var(--blue) 22%, transparent), transparent 68%),
+      radial-gradient(40% 40% at 82% 20%, color-mix(in srgb,var(--violet) 16%, transparent), transparent 70%);
+    pointer-events:none}
+  .hero > *{position:relative}
+  .badge-row{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:24px}
+  .badge-glama{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:6px 14px; border-radius:999px}
+  .badge-live{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; color:var(--green); background:var(--green-bg); border:1px solid color-mix(in srgb,var(--green) 30%,transparent); padding:6px 14px; border-radius:999px}
+  .badge-live .d{width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green)}
+  
+  .hero h1{font-size:clamp(36px,7.5vw,64px); font-weight:900; letter-spacing:-.03em; margin:16px 0}
+  .hero h1 em{font-family:Georgia,"Times New Roman",serif; font-style:italic; font-weight:500; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent}
+  .hero .tagline{font-size:clamp(16px,2.4vw,20px); color:var(--muted); max-width:44ch; margin:0 auto 32px}
+
+  .cta-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
+  .btn{display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:15px; padding:13px 24px; border-radius:11px; text-decoration:none; transition:transform .12s ease; border:1px solid transparent}
+  .btn:hover{transform:translateY(-2px); text-decoration:none}
+  .btn-primary{background:var(--grad); color:#fff; box-shadow:0 8px 24px color-mix(in srgb,var(--blue) 34%, transparent)}
+  .btn-glama{background:#0c171c; color:#38bdf8; border-color:#1e3a47}
+  .btn-ghost{background:color-mix(in srgb,var(--surface) 80%,transparent); color:var(--ink); border-color:var(--line)}
+
+  .hero-meta{display:flex; gap:10px 20px; justify-content:center; flex-wrap:wrap; margin-top:32px; font-family:"SF Mono",monospace; font-size:12.5px; color:var(--faint); font-weight:600}
+  .hero-meta b{color:var(--ink)}
+
+  /* Sections */
+  section.blk{padding:48px 0; border-top:1px solid var(--line)}
+  .blk-head{margin-bottom:26px}
+  .blk-head h2{font-size:27px; font-weight:800; letter-spacing:-.015em; margin-top:9px}
+  .blk-head p{color:var(--muted); margin:9px 0 0; max-width:62ch}
+
+  /* Tools Grid */
+  .tools{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:16px}
+  .t-card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; transition:border-color .15s ease}
+  .t-card:hover{border-color:var(--blue)}
+  .t-card h3{font-family:"SF Mono",monospace; font-size:15px; color:var(--cyan); margin-bottom:8px}
+  .t-card p{font-size:13.5px; color:var(--muted); margin:0}
+
+  /* Couriers Live Grid (All 4 Live) */
+  .courier-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:14px; margin-top:20px}
+  .c-card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; display:flex; justify-content:space-between; align-items:center}
+  .c-card b{font-size:16px; color:#fff}
+  .badge-live-sm{font-size:11.5px; font-weight:700; color:var(--green); background:var(--green-bg); padding:4px 10px; border-radius:99px; border:1px solid color-mix(in srgb,var(--green) 30%,transparent)}
+
+  /* Config Tabs */
+  .config-box{margin-top:24px; background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:var(--shadow)}
+  .tab-header{display:flex; background:var(--bg2); border-bottom:1px solid var(--line); overflow-x:auto}
+  .tab-btn{padding:13px 22px; font-family:"SF Mono",monospace; font-size:13px; font-weight:600; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap}
+  .tab-btn.active{color:var(--cyan); border-bottom-color:var(--cyan); background:var(--surface)}
+  .code-body{padding:22px; font-family:"SF Mono",monospace; font-size:13px; color:var(--code-ink); position:relative; overflow-x:auto; margin:0; line-height:1.6}
+  .copy-btn{position:absolute; top:16px; right:16px; background:var(--surface2); border:1px solid var(--line); color:var(--muted); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:all .15s ease}
+  .copy-btn:hover{color:var(--ink); background:var(--bg2)}
+
+  /* Vision Box */
+  .vision-box{background:linear-gradient(135deg, rgba(77,124,255,0.08), rgba(139,92,246,0.08)); border:1px solid rgba(77,124,255,0.25); border-radius:16px; padding:32px; margin-top:30px}
+  .vision-box h3{font-size:22px; color:#fff; margin-bottom:12px}
+  .vision-box p{color:var(--muted); font-size:15px; margin:0}
+
+  footer{padding:48px 0; border-top:1px solid var(--line); text-align:center; font-size:13px; color:var(--faint)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo">
+      <span>🚀 Aura Agentic AI</span>
+      <span class="logo-badge">MCP Bangladesh</span>
+    </div>
+    <div class="nav-links">
+      <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp" target="_blank">Glama Registry ↗</a>
+      <a href="https://github.com/auraajenticai/courier-mcp-site" target="_blank">GitHub ↗</a>
+      <a href="https://client.auraajenticai.cloud" target="_blank">Client Portal ↗</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="badge-row">
+        <div class="badge-glama">✓ Verified on Glama.ai Registry</div>
+        <div class="badge-live"><span class="d"></span> 4 Couriers Live & Verified</div>
+      </div>
+
+      <h1>Aura <em>Courier</em> MCP</h1>
+      <p class="tagline">এক connector — বাংলাদেশের সব courier। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক করুন ও ট্র্যাক করুন।</p>
+
+      <div class="cta-row">
+        <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp" target="_blank" class="btn btn-glama">
+          <span>⚡ View on Glama.ai</span>
+        </a>
+        <a href="https://github.com/auraajenticai/courier-mcp-site" target="_blank" class="btn btn-ghost">
+          <span>★ View on GitHub</span>
+        </a>
+      </div>
+
+      <div class="hero-meta">
+        <span><b>5</b> tools</span>
+        <span><b>4</b> couriers live</span>
+        <span>book · track · balance · fraud AI</span>
+        <span>open source · MIT</span>
+      </div>
+    </section>
+
+    <!-- WHAT IT DOES -->
+    <section class="blk">
+      <div class="blk-head">
+        <div class="eyebrow">// WHAT IT DOES</div>
+        <h2>One interface, every courier</h2>
+        <p>প্রতিটা courier আলাদা API — Aura Courier MCP সবগুলোকে একই সহজ toolset-এ এনে দেয়। আপনার AI-কে বলুন, বাকিটা ও করবে।</p>
+      </div>
+
+      <div class="tools">
+        <div class="t-card">
+          <h3>create_parcel</h3>
+          <p>যেকোনো courier-এ ডেলিভারি বুক করুন (Steadfast, Pathao, RedX, Paperfly) — consignment ID + tracking code ফেরত।</p>
+        </div>
+        <div class="t-card">
+          <h3>track_parcel</h3>
+          <p>consignment / invoice / tracking code দিয়ে রিয়েল-টাইম ডেলিভারি স্ট্যাটাস ও টাইমলাইন ট্র্যাকিং।</p>
+        </div>
+        <div class="t-card">
+          <h3>get_balance</h3>
+          <p>courier মার্চেন্ট একাউন্টের ব্যালেন্স ও পেআউট স্ট্যাটাস (BDT)।</p>
+        </div>
+        <div class="t-card">
+          <h3>check_fraud_risk</h3>
+          <p>পার্সেল পাঠানোর আগেই গ্রাহকের ফোন নম্বর বিশ্লেষণ করে ডেলিভারি সাকসেস রেট ও রিটার্ন রিস্ক প্রেডিক্ট করুন।</p>
+        </div>
+        <div class="t-card">
+          <h3>list_couriers</h3>
+          <p>কোন কোন courier যুক্ত ও কোনটির ক্রেডেনশিয়াল কনফিগার করা আছে তা যাচাই করুন।</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COURIERS SUPPORTED (ALL 4 LIVE) -->
+    <section class="blk">
+      <div class="blk-head">
+        <div class="eyebrow">// COURIERS</div>
+        <h2>একই tools, যত খুশি courier</h2>
+        <p>নতুন courier = একটা adapter যোগ। আপনার সব courier এক জায়গায়।</p>
+      </div>
+
+      <div class="courier-grid">
+        <div class="c-card">
+          <b>Steadfast</b>
+          <span class="badge-live-sm">● live</span>
+        </div>
+        <div class="c-card">
+          <b>Pathao</b>
+          <span class="badge-live-sm">● live</span>
+        </div>
+        <div class="c-card">
+          <b>RedX</b>
+          <span class="badge-live-sm">● live</span>
+        </div>
+        <div class="c-card">
+          <b>Paperfly</b>
+          <span class="badge-live-sm">● live</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONNECT MULTI-CLIENT TABS -->
+    <section class="blk">
+      <div class="blk-head">
+        <div class="eyebrow">// CONNECT</div>
+        <h2>যুক্ত করুন যেকোনো প্ল্যাটফর্মে</h2>
+        <p>Hosted URL বা লোকাল (Antigravity, Claude Desktop, Cursor, n8n) — আপনার সুবিধামতো কনফিগ কপি করুন।</p>
+      </div>
+
+      <div class="config-box">
+        <div class="tab-header">
+          <button class="tab-btn active" onclick="switchTab('antigravity')">🪐 Antigravity / Gemini</button>
+          <button class="tab-btn" onclick="switchTab('claude')">⚡ Claude Desktop</button>
+          <button class="tab-btn" onclick="switchTab('cursor')">💻 Cursor / VS Code</button>
+          <button class="tab-btn" onclick="switchTab('hosted')">🌐 Hosted URL (No Install)</button>
+        </div>
+
+        <div style="position:relative;">
+          <button class="copy-btn" onclick="copyCode()">Copy Config</button>
+          <pre id="code-snippet" class="code-body">{
+  "mcpServers": {
+    "aura-courier": {
+      "command": "npx.cmd",
+      "args": ["-y", "aura-courier-mcp@latest"],
+      "env": {
+        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",
+        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY",
+        "REDX_API_TOKEN": "YOUR_REDX_TOKEN",
+        "PAPERFLY_KEY": "YOUR_PAPERFLY_KEY"
+      }
+    }
+  }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE VISION -->
+    <section class="blk">
+      <div class="blk-head">
+        <div class="eyebrow">// WHY AURA</div>
+        <h2>বাংলাদেশের commerce, agentic-ready</h2>
+      </div>
+
+      <div class="vision-box">
+        <div class="eyebrow" style="color:var(--cyan); margin-bottom:8px;">THE VISION</div>
+        <h3>এক ছাদের নিচে দেশের সব commerce API</h3>
+        <p>Aura বানাচ্ছে বাংলাদেশের agentic commerce স্তর — courier, payments, আরও অনেক connector — যাতে যেকোনো AI সহজেই দেশের ব্যবসার সাথে কাজ করতে পারে। মানুষের স্বপ্ন · এআই-এর হাত।</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Aura Courier MCP · built by <b>Aura Agentic AI</b> · MIT License</p>
+    <p><a href="https://auraajenticai.cloud">auraajenticai.cloud</a> · <a href="https://git.auraajenticai.cloud">git.auraajenticai.cloud</a> · <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp">Glama Verified</a></p>
+  </footer>
+
+</div>
+
+<script>
+const configs = {
+  antigravity: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx.cmd",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY",\n        "REDX_API_TOKEN": "YOUR_REDX_TOKEN",\n        "PAPERFLY_KEY": "YOUR_PAPERFLY_KEY"\n      }\n    }\n  }\n}`,
+  claude: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY"\n      }\n    }\n  }\n}`,
+  cursor: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY"\n      }\n    }\n  }\n}`,
+  hosted: `https://courier.auraajenticai.cloud/mcp?steadfast_key=YOUR_KEY&steadfast_secret=YOUR_SECRET`
+};
+
+function switchTab(key) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('code-snippet').textContent = configs[key];
+}
+
+function copyCode() {
+  const code = document.getElementById('code-snippet').textContent;
+  navigator.clipboard.writeText(code);
+  const btn = document.querySelector('.copy-btn');
+  btn.textContent = 'Copied! ✓';
+  setTimeout(() => btn.textContent = 'Copy Config', 2000);
+}
+</script>
+</body>
+</html>
