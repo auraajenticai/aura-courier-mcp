@@ -1,16 +1,15 @@
 {
   "name": "aura-courier-mcp",
   "version": "2.1.0",
-  "description": "Universal Bangladesh Courier MCP Server (Steadfast, Pathao, RedX, Paperfly & Fraud AI) for Claude, Antigravity, Cursor & n8n AI Agents",
+  "description": "Universal Bangladesh courier MCP server — Steadfast & Pathao with a built-in fraud-risk engine — for Claude, Antigravity, Cursor & n8n AI agents. Runs as a local npx (STDIO) server or a remote HTTP endpoint.",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "aura-courier-mcp": "./dist/index.js"
+    "aura-courier-mcp": "dist/index.js"
   },
   "files": [
     "dist",
-    "README.md",
-    "package.json"
+    "README.md"
   ],
   "publishConfig": {
     "access": "public"
@@ -19,6 +18,7 @@
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "start": "node dist/index.js",
+    "start:http": "node dist/http.js",
     "dev": "tsx src/index.ts"
   },
   "keywords": [
@@ -27,8 +27,6 @@
     "courier",
     "steadfast",
     "pathao",
-    "redx",
-    "paperfly",
     "bangladesh",
     "antigravity",
     "claude",
@@ -39,15 +37,17 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/auraajenticai/aura-courier-mcp.git"
+    "url": "git+https://github.com/auraajenticai/aura-courier-mcp.git"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.6.0",
+    "@modelcontextprotocol/sdk": "^1.12.0",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^22.13.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
