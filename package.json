@@ -1,7 +1,7 @@
 {
   "name": "aura-courier-mcp",
-  "version": "2.2.0",
-  "description": "Universal Bangladesh courier MCP server — Steadfast, Pathao & RedX with a built-in fraud-risk engine — for Claude, Antigravity, Cursor & n8n AI agents. Runs as a local npx (STDIO) server or a remote HTTP endpoint.",
+  "version": "2.3.0",
+  "description": "Universal Bangladesh courier MCP server — Steadfast, Pathao, RedX & Paperfly with a built-in fraud-risk engine — for Claude, Antigravity, Cursor & n8n AI agents. Runs as a local npx (STDIO) server or a remote HTTP endpoint.",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
@@ -28,6 +28,7 @@
     "steadfast",
     "pathao",
     "redx",
+    "paperfly",
     "bangladesh",
     "antigravity",
     "claude",
