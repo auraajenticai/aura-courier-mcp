@@ -22,7 +22,7 @@ export class PaperflyAdapter implements CourierAdapter {
     this.username = username;
     this.password = password;
     this.storeName = storeName;
-    this.enabled = Boolean(apiKey && storeName);
+    this.enabled = Boolean(apiKey && username && password);
     this.client = axios.create({
       baseURL: baseUrl,
       timeout: 15000,
@@ -36,7 +36,10 @@ export class PaperflyAdapter implements CourierAdapter {
 
   async createParcel(req: ParcelCreateRequest): Promise<ParcelResponse> {
     if (!this.enabled) {
-      throw new Error("Paperfly credentials (paperflykey + store name) are not configured.");
+      throw new Error("Paperfly credentials (paperflykey + merchant username & password) are not configured.");
+    }
+    if (!this.storeName) {
+      throw new Error("Paperfly store name is required to create a parcel.");
     }
     const payload = {
       merchantOrderReference: req.invoice,
@@ -50,6 +53,7 @@ export class PaperflyAdapter implements CourierAdapter {
     };
     const response = await this.client.post("/merchant/api/service/new_order_v2.php", payload, {
       headers: { paperflykey: this.apiKey },
+      auth: { username: this.username, password: this.password },
     });
     const data = response.data;
     const ok = data?.success;
@@ -82,7 +86,7 @@ export class PaperflyAdapter implements CourierAdapter {
     const response = await this.client.post(
       "/API-Order-Tracking",
       { ReferenceNumber: trackingCode },
-      { auth: { username: this.username, password: this.password } }
+      { headers: { paperflykey: this.apiKey }, auth: { username: this.username, password: this.password } }
     );
     const data = response.data;
     const st = data?.success?.trackingStatus?.[0] || {};
