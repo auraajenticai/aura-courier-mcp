@@ -1,10 +1,8 @@
 import { CourierAdapter } from "./adapters/base.js";
 import { SteadfastAdapter } from "./adapters/steadfast.js";
 import { PathaoAdapter } from "./adapters/pathao.js";
-import { RedXAdapter } from "./adapters/redx.js";
-import { PaperflyAdapter } from "./adapters/paperfly.js";
 import { FraudRiskEngine } from "./adapters/fraud_engine.js";
-import { loadConfig } from "./config.js";
+import { loadConfig, CourierConfig } from "./config.js";
 import {
   BalanceResponse,
   FraudRiskScoreResponse,
@@ -17,9 +15,7 @@ import {
 export class CourierRegistry {
   private adapters: Map<SupportedCourier, CourierAdapter> = new Map();
 
-  constructor() {
-    const config = loadConfig();
-
+  constructor(config: CourierConfig = loadConfig()) {
     const steadfast = new SteadfastAdapter(
       config.steadfast.apiKey,
       config.steadfast.secretKey,
@@ -36,17 +32,6 @@ export class CourierRegistry {
       config.pathao.baseUrl
     );
     this.adapters.set("pathao", pathao);
-
-    const redx = new RedXAdapter(config.redx.apiToken, config.redx.baseUrl);
-    this.adapters.set("redx", redx);
-
-    const paperfly = new PaperflyAdapter(
-      config.paperfly.user,
-      config.paperfly.pass,
-      config.paperfly.key,
-      config.paperfly.baseUrl
-    );
-    this.adapters.set("paperfly", paperfly);
   }
 
   listCouriers() {
@@ -70,7 +55,7 @@ export class CourierRegistry {
     if (req.courier && req.courier !== "auto") {
       courierName = req.courier;
     } else {
-      // Smart routing heuristic across all 4 couriers
+      // Smart routing heuristic
       const addr = req.recipient_address.toLowerCase();
       if (
         addr.includes("dhaka") &&
@@ -80,21 +65,9 @@ export class CourierRegistry {
           addr.includes("uttara") ||
           addr.includes("mirpur"))
       ) {
-        if (this.adapters.get("pathao")?.isConfigured()) {
-          courierName = "pathao";
-        } else if (this.adapters.get("redx")?.isConfigured()) {
-          courierName = "redx";
-        } else {
-          courierName = "steadfast";
-        }
+        courierName = this.adapters.get("pathao")?.isConfigured() ? "pathao" : "steadfast";
       } else {
-        if (this.adapters.get("steadfast")?.isConfigured()) {
-          courierName = "steadfast";
-        } else if (this.adapters.get("paperfly")?.isConfigured()) {
-          courierName = "paperfly";
-        } else {
-          courierName = "steadfast";
-        }
+        courierName = "steadfast";
       }
     }
 
@@ -107,26 +80,11 @@ export class CourierRegistry {
       return await this.getAdapter(courierName).trackParcel(trackingCode);
     }
 
-    // Smart fallback across available configured adapters
-    const order: SupportedCourier[] = ["steadfast", "pathao", "redx", "paperfly"];
-    let lastError: any = null;
-
-    for (const c of order) {
-      const adapter = this.adapters.get(c);
-      if (adapter && adapter.isConfigured()) {
-        try {
-          return await adapter.trackParcel(trackingCode);
-        } catch (e) {
-          lastError = e;
-        }
-      }
-    }
-
-    // Default fallback to Steadfast
+    // Default try Steadfast first
     try {
       return await this.getAdapter("steadfast").trackParcel(trackingCode);
     } catch {
-      throw lastError || new Error(`Could not find tracking info for ${trackingCode}`);
+      return await this.getAdapter("pathao").trackParcel(trackingCode);
     }
   }
 
