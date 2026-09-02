@@ -18,6 +18,12 @@ export interface CourierConfig {
     baseUrl: string;
     enabled: boolean;
   };
+  redx: {
+    apiToken: string;
+    baseUrl: string;
+    pickupStoreId: string;
+    enabled: boolean;
+  };
 }
 
 export type EnvSource = Record<string, string | undefined>;
@@ -49,6 +55,12 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
       storeId: src.PATHAO_STORE_ID || "",
       baseUrl: src.PATHAO_BASE_URL || "https://api-hermes.pathao.com",
       enabled: Boolean(pathaoClientId && pathaoClientSecret),
+    },
+    redx: {
+      apiToken: src.REDX_API_TOKEN || "",
+      baseUrl: src.REDX_BASE_URL || "https://openapi.redx.com.bd/v1.0.0-beta",
+      pickupStoreId: src.REDX_PICKUP_STORE_ID || "",
+      enabled: Boolean(src.REDX_API_TOKEN),
     },
   };
 }

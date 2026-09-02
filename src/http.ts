@@ -32,6 +32,9 @@ function keysFromRequest(req: Request): EnvSource {
     PATHAO_PASSWORD: pick("x-pathao-password", "pathao_password"),
     PATHAO_STORE_ID: pick("x-pathao-store-id", "pathao_store_id"),
     PATHAO_BASE_URL: pick("x-pathao-base-url", "pathao_base_url"),
+    REDX_API_TOKEN: pick("x-redx-api-token", "redx_token"),
+    REDX_BASE_URL: pick("x-redx-base-url", "redx_base_url"),
+    REDX_PICKUP_STORE_ID: pick("x-redx-pickup-store-id", "redx_pickup_store_id"),
   };
 }
 
@@ -43,7 +46,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
-    "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url"
+    "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url, x-redx-api-token, x-redx-base-url, x-redx-pickup-store-id"
   );
   res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.header("Access-Control-Expose-Headers", "mcp-session-id");

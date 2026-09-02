@@ -10,6 +10,11 @@ export interface ParcelCreateRequest {
   note?: string;
   item_type?: string;
   item_weight?: number; // in KG
+  item_category?: string;
+  value?: number | string;
+  delivery_area?: string;
+  delivery_area_id?: number | string;
+  pickup_store_id?: number | string;
 }
 
 export interface ParcelResponse {

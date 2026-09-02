@@ -2,6 +2,7 @@ import { CourierAdapter } from "./adapters/base.js";
 import { SteadfastAdapter } from "./adapters/steadfast.js";
 import { PathaoAdapter } from "./adapters/pathao.js";
 import { FraudRiskEngine } from "./adapters/fraud_engine.js";
+import { RedxAdapter } from "./adapters/redx.js";
 import { loadConfig, CourierConfig } from "./config.js";
 import {
   BalanceResponse,
@@ -32,6 +33,9 @@ export class CourierRegistry {
       config.pathao.baseUrl
     );
     this.adapters.set("pathao", pathao);
+
+    const redx = new RedxAdapter(config.redx.apiToken, config.redx.baseUrl, config.redx.pickupStoreId);
+    this.adapters.set("redx", redx);
   }
 
   listCouriers() {
