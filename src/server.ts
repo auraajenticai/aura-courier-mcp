@@ -16,11 +16,11 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "create_parcel",
-    description: "Book a new parcel delivery across Bangladesh (Steadfast, Pathao or RedX) with normalized response.",
+    description: "Book a new parcel delivery across Bangladesh (Steadfast, Pathao, RedX or Paperfly) with normalized response.",
     inputSchema: {
       type: "object",
       properties: {
-        courier: { type: "string", enum: ["steadfast", "pathao", "redx", "auto"], description: "Target courier or 'auto' for AI smart routing (default: auto)" },
+        courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly", "auto"], description: "Target courier or 'auto' for AI smart routing (default: auto)" },
         invoice: { type: "string", description: "Unique order invoice number (e.g. INV-1002)" },
         recipient_name: { type: "string", description: "Customer full name" },
         recipient_phone: { type: "string", description: "11-digit Bangladeshi mobile number (e.g. 017XXXXXXXX)" },
@@ -43,7 +43,7 @@ export const TOOLS: Tool[] = [
       type: "object",
       properties: {
         tracking_code: { type: "string", description: "Consignment ID or tracking code" },
-        courier: { type: "string", enum: ["steadfast", "pathao", "redx"], description: "Optional courier name if known" },
+        courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly"], description: "Optional courier name if known" },
       },
       required: ["tracking_code"],
     },

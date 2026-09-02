@@ -3,6 +3,7 @@ import { SteadfastAdapter } from "./adapters/steadfast.js";
 import { PathaoAdapter } from "./adapters/pathao.js";
 import { FraudRiskEngine } from "./adapters/fraud_engine.js";
 import { RedxAdapter } from "./adapters/redx.js";
+import { PaperflyAdapter } from "./adapters/paperfly.js";
 import { loadConfig, CourierConfig } from "./config.js";
 import {
   BalanceResponse,
@@ -36,6 +37,15 @@ export class CourierRegistry {
 
     const redx = new RedxAdapter(config.redx.apiToken, config.redx.baseUrl, config.redx.pickupStoreId);
     this.adapters.set("redx", redx);
+
+    const paperfly = new PaperflyAdapter(
+      config.paperfly.apiKey,
+      config.paperfly.username,
+      config.paperfly.password,
+      config.paperfly.storeName,
+      config.paperfly.baseUrl
+    );
+    this.adapters.set("paperfly", paperfly);
   }
 
   listCouriers() {

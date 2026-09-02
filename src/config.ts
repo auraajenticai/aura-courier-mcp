@@ -24,6 +24,14 @@ export interface CourierConfig {
     pickupStoreId: string;
     enabled: boolean;
   };
+  paperfly: {
+    apiKey: string;
+    username: string;
+    password: string;
+    storeName: string;
+    baseUrl: string;
+    enabled: boolean;
+  };
 }
 
 export type EnvSource = Record<string, string | undefined>;
@@ -61,6 +69,14 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
       baseUrl: src.REDX_BASE_URL || "https://openapi.redx.com.bd/v1.0.0-beta",
       pickupStoreId: src.REDX_PICKUP_STORE_ID || "",
       enabled: Boolean(src.REDX_API_TOKEN),
+    },
+    paperfly: {
+      apiKey: src.PAPERFLY_API_KEY || "",
+      username: src.PAPERFLY_USERNAME || "",
+      password: src.PAPERFLY_PASSWORD || "",
+      storeName: src.PAPERFLY_STORE_NAME || "",
+      baseUrl: src.PAPERFLY_BASE_URL || "https://api.paperfly.com.bd",
+      enabled: Boolean(src.PAPERFLY_API_KEY && src.PAPERFLY_STORE_NAME),
     },
   };
 }

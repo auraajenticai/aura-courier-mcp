@@ -35,6 +35,10 @@ function keysFromRequest(req: Request): EnvSource {
     REDX_API_TOKEN: pick("x-redx-api-token", "redx_token"),
     REDX_BASE_URL: pick("x-redx-base-url", "redx_base_url"),
     REDX_PICKUP_STORE_ID: pick("x-redx-pickup-store-id", "redx_pickup_store_id"),
+    PAPERFLY_API_KEY: pick("x-paperfly-api-key", "paperfly_key"),
+    PAPERFLY_USERNAME: pick("x-paperfly-username", "paperfly_username"),
+    PAPERFLY_PASSWORD: pick("x-paperfly-password", "paperfly_password"),
+    PAPERFLY_STORE_NAME: pick("x-paperfly-store-name", "paperfly_store"),
   };
 }
 
@@ -46,7 +50,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
-    "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url, x-redx-api-token, x-redx-base-url, x-redx-pickup-store-id"
+    "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url, x-redx-api-token, x-redx-base-url, x-redx-pickup-store-id, x-paperfly-api-key, x-paperfly-username, x-paperfly-password, x-paperfly-store-name"
   );
   res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.header("Access-Control-Expose-Headers", "mcp-session-id");
