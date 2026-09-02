@@ -16,11 +16,11 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "create_parcel",
-    description: "Book a new parcel delivery across Bangladesh (Steadfast or Pathao) with normalized response.",
+    description: "Book a new parcel delivery across Bangladesh (Steadfast, Pathao or RedX) with normalized response.",
     inputSchema: {
       type: "object",
       properties: {
-        courier: { type: "string", enum: ["steadfast", "pathao", "auto"], description: "Target courier or 'auto' for AI smart routing (default: auto)" },
+        courier: { type: "string", enum: ["steadfast", "pathao", "redx", "auto"], description: "Target courier or 'auto' for AI smart routing (default: auto)" },
         invoice: { type: "string", description: "Unique order invoice number (e.g. INV-1002)" },
         recipient_name: { type: "string", description: "Customer full name" },
         recipient_phone: { type: "string", description: "11-digit Bangladeshi mobile number (e.g. 017XXXXXXXX)" },
@@ -28,6 +28,10 @@ export const TOOLS: Tool[] = [
         cod_amount: { type: "number", description: "Cash on delivery amount in BDT (0 if prepaid)" },
         note: { type: "string", description: "Special instructions for delivery rider" },
         item_weight: { type: "number", description: "Parcel weight in KG (default: 0.5)" },
+        item_type: { type: "string", description: "What's inside the parcel (used by RedX)" },
+        value: { type: "number", description: "Declared parcel value in BDT (used by RedX; defaults to the COD amount)" },
+        delivery_area_id: { type: "number", description: "RedX only: numeric delivery-area id (auto-resolved from the address if omitted)" },
+        pickup_store_id: { type: "number", description: "RedX only: your pickup store id (optional)" },
       },
       required: ["invoice", "recipient_name", "recipient_phone", "recipient_address", "cod_amount"],
     },
@@ -39,7 +43,7 @@ export const TOOLS: Tool[] = [
       type: "object",
       properties: {
         tracking_code: { type: "string", description: "Consignment ID or tracking code" },
-        courier: { type: "string", enum: ["steadfast", "pathao"], description: "Optional courier name if known" },
+        courier: { type: "string", enum: ["steadfast", "pathao", "redx"], description: "Optional courier name if known" },
       },
       required: ["tracking_code"],
     },
