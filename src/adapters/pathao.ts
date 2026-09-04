@@ -83,9 +83,6 @@ export class PathaoAdapter implements CourierAdapter {
       recipient_name: req.recipient_name,
       recipient_phone: req.recipient_phone,
       recipient_address: req.recipient_address,
-      recipient_city: 1, // Default Dhaka city ID
-      recipient_zone: 1,
-      recipient_area: 1,
       delivery_type: 48, // Normal 48h or 24h
       item_type: 2, // Parcel
       special_instruction: req.note || "Aura AI automated dispatch",
