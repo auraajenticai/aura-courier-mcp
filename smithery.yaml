@@ -1,0 +1,77 @@
+# Smithery configuration for Aura Courier MCP
+# https://smithery.ai/docs/config  — how the server is launched + what config it needs.
+# Every courier's keys are optional: you connect only the couriers you use, and
+# `check_fraud_risk` works with no keys at all. Keys are read per-process (STDIO) or
+# per-request (the remote HTTP endpoint) and are never stored by Aura.
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    title: Aura Courier MCP configuration
+    description: Provide the API credentials for the Bangladeshi couriers you want to use. All fields are optional.
+    properties:
+      steadfastApiKey:
+        type: string
+        title: Steadfast API Key
+      steadfastSecretKey:
+        type: string
+        title: Steadfast Secret Key
+      pathaoClientId:
+        type: string
+        title: Pathao Client ID
+      pathaoClientSecret:
+        type: string
+        title: Pathao Client Secret
+      pathaoUsername:
+        type: string
+        title: Pathao Username
+      pathaoPassword:
+        type: string
+        title: Pathao Password
+      pathaoStoreId:
+        type: string
+        title: Pathao Store ID
+      redxApiToken:
+        type: string
+        title: RedX API Access Token
+      redxPickupStoreId:
+        type: string
+        title: RedX Pickup Store ID
+      paperflyApiKey:
+        type: string
+        title: Paperfly API Key
+      paperflyUsername:
+        type: string
+        title: Paperfly Merchant Username
+      paperflyPassword:
+        type: string
+        title: Paperfly Merchant Password
+      paperflyStoreName:
+        type: string
+        title: Paperfly Store Name
+    required: []
+  commandFunction: |-
+    (config) => ({
+      command: 'node',
+      args: ['dist/index.js'],
+      env: {
+        STEADFAST_API_KEY: config.steadfastApiKey || '',
+        STEADFAST_SECRET_KEY: config.steadfastSecretKey || '',
+        PATHAO_CLIENT_ID: config.pathaoClientId || '',
+        PATHAO_CLIENT_SECRET: config.pathaoClientSecret || '',
+        PATHAO_USERNAME: config.pathaoUsername || '',
+        PATHAO_PASSWORD: config.pathaoPassword || '',
+        PATHAO_STORE_ID: config.pathaoStoreId || '',
+        REDX_API_TOKEN: config.redxApiToken || '',
+        REDX_PICKUP_STORE_ID: config.redxPickupStoreId || '',
+        PAPERFLY_API_KEY: config.paperflyApiKey || '',
+        PAPERFLY_USERNAME: config.paperflyUsername || '',
+        PAPERFLY_PASSWORD: config.paperflyPassword || '',
+        PAPERFLY_STORE_NAME: config.paperflyStoreName || ''
+      }
+    })
+  exampleConfig:
+    steadfastApiKey: your-steadfast-api-key
+    steadfastSecretKey: your-steadfast-secret-key
+    redxApiToken: your-redx-token
