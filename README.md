@@ -1,33 +1,58 @@
-# Aura Courier MCP
+# 🚀 Aura Courier MCP — Bangladesh's First Universal Courier Model Context Protocol
 
-Universal Bangladesh courier MCP server — **Steadfast, Pathao, RedX & Paperfly** with a built-in **fraud-risk engine** — for Claude, Antigravity, Cursor, n8n and any MCP-compatible AI agent. Book and track parcels across Bangladesh by just telling your AI.
+[![Glama Verified](https://img.shields.io/badge/Glama-Verified%20Server-38bdf8.svg)](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP SDK](https://img.shields.io/badge/MCP%20SDK-1.x-8b5cf6.svg)](https://modelcontextprotocol.io)
+[![Couriers](https://img.shields.io/badge/Couriers-Steadfast%20%7C%20Pathao%20%7C%20RedX%20%7C%20Paperfly-46d17f.svg)](https://courier.auraajenticai.cloud)
 
-By **Aura Ajentic AI** · [auraajenticai.cloud](https://auraajenticai.cloud) · ✓ Verified on Glama
+> **One unified Model Context Protocol connector for every Bangladesh courier.**
+> Book deliveries, track parcels, check merchant balances, and screen customer COD/return-fraud risk — straight from **Google Antigravity**, **Claude Desktop**, **Cursor**, **n8n AI Agents**, or any MCP-compatible client. Just tell your AI what to ship.
 
-## Tools
+🌐 **Showcase & live docs:** [courier.auraajenticai.cloud](https://courier.auraajenticai.cloud)
+🏢 **Built by:** [Aura Ajentic AI](https://auraajenticai.cloud) · Khondokar Towsif (Amirul Islam Redwan)
+
+---
+
+## ⚡ Supported couriers — four networks, one interface (all proven)
+
+| Courier | API | Status |
+|---|---|---|
+| **Steadfast** | Packzy API v1 | ✅ Proven |
+| **Pathao** | Aladdin API v1 (OAuth + city/zone resolver) | ✅ Proven |
+| **RedX** | OpenAPI v1 (area auto-resolver + tracking) | ✅ Proven |
+| **Paperfly** | Wingman API (order + tracking) | ✅ Proven |
+
+> You bring each courier's own merchant credentials (env vars or request headers); Aura routes the request and normalizes the response.
+
+---
+
+## 🧠 MCP tools
 
 | Tool | What it does |
-|------|--------------|
-| `list_couriers` | Show supported couriers and which credentials are active |
-| `create_parcel` | Book a parcel (Steadfast / Pathao / RedX / Paperfly, or `auto`) |
-| `track_parcel` | Track a shipment by tracking / consignment / reference id |
-| `get_balance` | Merchant account balance (Steadfast / Pathao) |
-| `check_fraud_risk` | Delivery/return-risk score for a Bangladeshi phone number |
+|---|---|
+| `create_parcel` | Book a parcel on Steadfast / Pathao / RedX / Paperfly (or `auto`), with one normalized response. |
+| `track_parcel` | Universal tracking by tracking / consignment / reference id, across every supported courier. |
+| `get_balance` | Live merchant account balance & payout info (Steadfast & Pathao). |
+| `check_fraud_risk` | **BD phone COD/return-risk score** — screen a customer's number *before* you ship cash-on-delivery. Works with no courier keys. |
+| `list_couriers` | Show supported couriers and which credentials are currently active. |
 
-## Two ways to connect
+---
+
+## 🔌 Two ways to connect
 
 ### 1) Remote URL — claude.ai web, n8n, any remote client
-
-Add this as a custom MCP connector and pass your courier keys as headers (or query params):
+Add a custom MCP connector and pass your courier keys as headers (or query params):
 
 ```
 https://courier.auraajenticai.cloud/mcp
 ```
 
-Headers: `x-steadfast-api-key`, `x-steadfast-secret-key`, `x-pathao-client-id` …, `x-redx-api-token`, `x-paperfly-api-key`, `x-paperfly-store-name`, `x-paperfly-username`, `x-paperfly-password`.
+Headers: `x-steadfast-api-key`, `x-steadfast-secret-key`, `x-pathao-client-id`, `x-pathao-client-secret`, `x-pathao-username`, `x-pathao-password`, `x-redx-api-token`, `x-paperfly-api-key`, `x-paperfly-store-name`, `x-paperfly-username`, `x-paperfly-password`.
 
-### 2) Local (npx) — Claude Desktop, Cursor, Antigravity
+### 2) Local (npx / STDIO) — Antigravity, Claude Desktop, Cursor
+Add only the couriers you use — each is independent. Your keys stay on your side (env vars or request headers); **Aura never stores them**.
 
+#### 🪐 Google Antigravity / Gemini CLI — `antigravity.json`
 ```json
 {
   "mcpServers": {
@@ -35,34 +60,78 @@ Headers: `x-steadfast-api-key`, `x-steadfast-secret-key`, `x-pathao-client-id` �
       "command": "npx",
       "args": ["-y", "aura-courier-mcp@latest"],
       "env": {
-        "STEADFAST_API_KEY": "…",
-        "STEADFAST_SECRET_KEY": "…",
-        "REDX_API_TOKEN": "…",
-        "PAPERFLY_API_KEY": "…",
-        "PAPERFLY_STORE_NAME": "…",
-        "PAPERFLY_USERNAME": "…",
-        "PAPERFLY_PASSWORD": "…"
+        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",
+        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY",
+        "REDX_API_TOKEN": "YOUR_REDX_TOKEN",
+        "PAPERFLY_API_KEY": "YOUR_PAPERFLY_KEY",
+        "PAPERFLY_STORE_NAME": "YOUR_STORE_NAME",
+        "PAPERFLY_USERNAME": "YOUR_PAPERFLY_USERNAME",
+        "PAPERFLY_PASSWORD": "YOUR_PAPERFLY_PASSWORD"
       }
     }
   }
 }
 ```
 
-Add only the couriers you use — each is independent. Your keys stay on your side (env vars or request headers); they are never stored by Aura.
+#### ⚡ Claude Desktop — `claude_desktop_config.json`  &  💻 Cursor / VS Code — `settings.json`
+```json
+{
+  "mcpServers": {
+    "aura-courier": {
+      "command": "npx",
+      "args": ["-y", "aura-courier-mcp@latest"],
+      "env": {
+        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",
+        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY"
+      }
+    }
+  }
+}
+```
 
-## Courier notes
+---
 
-- **Steadfast / Pathao** — API key + secret (Pathao also needs client id/secret + username/password).
-- **RedX** — API access token (`REDX_API_TOKEN`). Delivery area is auto-resolved from the address, or pass `delivery_area_id`.
-- **Paperfly** — needs **both** the `paperflykey` **and** your merchant username/password on create *and* track, plus your store name.
-- `get_balance` is available for Steadfast & Pathao (RedX/Paperfly don't expose a balance API).
+## 📋 Courier notes
 
-## Then just ask
+- **Steadfast / Pathao** — API key + secret (Pathao also needs client id/secret + username/password). `get_balance` is available for these two.
+- **RedX** — API access token (`REDX_API_TOKEN`); delivery area is auto-resolved from the address, or pass `delivery_area_id`.
+- **Paperfly** — needs the `paperflykey` **and** your merchant username/password on both create *and* track, plus your store name.
+- **`check_fraud_risk`** runs keyless — a COD gate you can call before booking anything.
+
+---
+
+## 💬 Then just ask your AI
 
 > "Book a Steadfast parcel for invoice A-1001, COD 1500 to 017XXXXXXXX."
 > "Create a RedX parcel to Dhanmondi, COD 900."
 > "Track consignment 20A316MOG0DI."
+> "Check the return risk for 018XXXXXXXX before I ship COD."
 
-## License
+---
 
-MIT © Aura Ajentic AI
+## 🏗️ Architecture
+
+```
+AI agent (Antigravity / Claude / Cursor / n8n)
+        │   MCP (STDIO or Streamable-HTTP)
+        ▼
+  Aura Courier MCP  ──►  Registry (gateway + smart router)  ──►  Courier adapters
+                                                                 ├── Steadfast  (Packzy API)
+                                                                 ├── Pathao     (Aladdin API)
+                                                                 ├── RedX       (OpenAPI)
+                                                                 └── Paperfly   (Wingman API)
+                                                        + built-in BD phone fraud-risk engine
+```
+
+Keys are read per-request (headers) or per-process (env) — never persisted.
+
+---
+
+## 📜 The vision
+
+> **মানুষের স্বপ্ন · এআই-এর হাত**
+> Aura is building Bangladesh's native agentic-commerce layer — unifying courier logistics, digital payments, and AI automation so any AI in the world can natively transact with Bangladeshi businesses. This MCP is the first brick.
+
+---
+
+Licensed under **MIT** © Aura Ajentic AI.
