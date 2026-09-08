@@ -120,8 +120,36 @@ app.get("/mcp", handleSessionRequest);
 app.delete("/mcp", handleSessionRequest);
 
 app.get("/health", (_req, res) =>
-  res.json({ ok: true, service: "aura-courier-mcp", version: "2.1.0", sessions: Object.keys(transports).length })
+  res.json({ ok: true, service: "aura-courier-mcp", version: "2.3.2", sessions: Object.keys(transports).length })
 );
+
+
+const PRIVACY_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP — Privacy Policy</title>
+<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:820px;margin:0 auto;padding:40px 20px;line-height:1.7;color:#1a2233;background:#fff}h1{font-size:26px}h2{font-size:18px;margin-top:28px}code{background:#f0f3f9;padding:1px 6px;border-radius:5px}a{color:#2563eb}.muted{color:#667}</style></head><body>
+<h1>Aura Courier MCP — Privacy Policy</h1>
+<p class="muted">Last updated: 8 September 2026 · Operated by Aura Ajentic AI (auraajenticai.cloud)</p>
+<p>Aura Courier MCP is a Model Context Protocol server that lets an AI agent book and track parcels with Bangladeshi couriers (Steadfast, Pathao, RedX, Paperfly) and screen cash-on-delivery fraud risk. This policy explains what data it handles and how.</p>
+<h2>1. What we process</h2>
+<ul>
+<li><b>Your courier credentials</b> (API keys/secrets, merchant username/password) — supplied by you per request as HTTP headers or environment variables.</li>
+<li><b>Order details</b> you pass to book or track a parcel — recipient name, phone, address, COD amount, item info.</li>
+<li><b>Phone numbers</b> submitted to <code>check_fraud_risk</code> to compute a delivery/return-risk score.</li>
+</ul>
+<h2>2. How we use it</h2>
+<p>Solely to carry out the operation you request — forwarding the booking/tracking/balance call to the specific courier you select, or computing a risk score. We do not use your data for advertising or profiling.</p>
+<h2>3. Storage &amp; retention</h2>
+<p>Your courier credentials are used only for the duration of the request and are <b>never persisted</b> by Aura. Requests are processed transiently; Aura does not build a long-term store of your merchant keys. Data you send is retained only as long as needed to complete the request.</p>
+<h2>4. Third-party sharing</h2>
+<p>To fulfil your request, order data is transmitted to the courier provider you choose (Steadfast, Pathao, RedX or Paperfly), each governed by its own privacy terms. We do not sell your data or share it with anyone else.</p>
+<h2>5. Security</h2>
+<p>All traffic is over HTTPS. Credentials travel as request headers and are held only in memory for the active session.</p>
+<h2>6. Your choices</h2>
+<p>You control which couriers you connect and which credentials you provide. Disconnecting the connector stops all processing.</p>
+<h2>7. Contact</h2>
+<p>Questions or requests: <a href="mailto:ceo@auraajenticai.cloud">ceo@auraajenticai.cloud</a> · <a href="https://auraajenticai.cloud">auraajenticai.cloud</a></p>
+</body></html>`;
+
+app.get("/privacy", (_req, res) => res.type("html").send(PRIVACY_HTML));
 
 app.get("/", (_req, res) => {
   // Serve the marketing landing page; fall back to a minimal page if it's missing.

@@ -1,8 +1,9 @@
 import { CourierAdapter } from "./adapters/base.js";
+import { CourierConfig } from "./config.js";
 import { BalanceResponse, FraudRiskScoreResponse, ParcelCreateRequest, ParcelResponse, SupportedCourier, TrackingResponse } from "./types.js";
 export declare class CourierRegistry {
     private adapters;
-    constructor();
+    constructor(config?: CourierConfig);
     listCouriers(): {
         courier: SupportedCourier;
         is_configured: boolean;

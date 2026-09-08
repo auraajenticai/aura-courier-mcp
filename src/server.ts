@@ -11,11 +11,13 @@ import { SupportedCourier } from "./types.js";
 export const TOOLS: Tool[] = [
   {
     name: "list_couriers",
+    annotations: { title: "List couriers", readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     description: "Show supported Bangladeshi couriers and check which credentials are active.",
     inputSchema: { type: "object", properties: {}, required: [] },
   },
   {
     name: "create_parcel",
+    annotations: { title: "Create parcel (book delivery)", readOnlyHint: false, destructiveHint: false, openWorldHint: true },
     description: "Book a new parcel delivery across Bangladesh (Steadfast, Pathao, RedX or Paperfly) with normalized response.",
     inputSchema: {
       type: "object",
@@ -38,6 +40,7 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "track_parcel",
+    annotations: { title: "Track parcel", readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     description: "Track shipment delivery status across Steadfast or Pathao using Tracking Code / Consignment ID.",
     inputSchema: {
       type: "object",
@@ -50,6 +53,7 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "get_balance",
+    annotations: { title: "Get merchant balance", readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     description: "Retrieve current merchant account balance and payout details from a courier.",
     inputSchema: {
       type: "object",
@@ -61,6 +65,7 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "check_fraud_risk",
+    annotations: { title: "Check COD fraud risk", readOnlyHint: true, destructiveHint: false, openWorldHint: true },
     description: "Analyze Bangladeshi customer phone number delivery history and return/fraud risk score before dispatching.",
     inputSchema: {
       type: "object",
@@ -79,7 +84,7 @@ export const TOOLS: Tool[] = [
  */
 export function buildMcpServer(registry: CourierRegistry): Server {
   const server = new Server(
-    { name: "aura-courier-mcp", version: "2.1.0" },
+    { name: "aura-courier-mcp", version: "2.3.2" },
     { capabilities: { tools: {} } }
   );
 

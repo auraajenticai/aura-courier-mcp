@@ -127,6 +127,12 @@ Keys are read per-request (headers) or per-process (env) — never persisted.
 
 ---
 
+## 🔒 Privacy Policy
+
+Aura Courier MCP processes only what's needed to fulfil your request: your **courier credentials** (passed per-request as headers/env — **never stored** by Aura), the **order details** you send to book/track a parcel, and **phone numbers** you submit to `check_fraud_risk`. Order data is forwarded only to the courier you choose (Steadfast / Pathao / RedX / Paperfly) to complete the operation; nothing is sold or used for profiling, and credentials live only in memory for the active session. All traffic is over HTTPS.
+
+**Full policy:** https://courier.auraajenticai.cloud/privacy · **Contact:** ceo@auraajenticai.cloud
+
 ## 📜 The vision
 
 > **মানুষের স্বপ্ন · এআই-এর হাত**
