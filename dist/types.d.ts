@@ -9,6 +9,11 @@ export interface ParcelCreateRequest {
     note?: string;
     item_type?: string;
     item_weight?: number;
+    item_category?: string;
+    value?: number | string;
+    delivery_area?: string;
+    delivery_area_id?: number | string;
+    pickup_store_id?: number | string;
 }
 export interface ParcelResponse {
     success: boolean;
@@ -50,15 +55,21 @@ export interface FraudRiskScoreResponse {
     recommendation: string;
     neural_verified: boolean;
 }
+export interface LocationResolutionRequest {
+    courier: SupportedCourier;
+    city_name?: string;
+    zone_name?: string;
+    area_name?: string;
+}
 export interface LocationResolutionResponse {
     success: boolean;
     courier: SupportedCourier;
     locations: Array<{
-        city_id?: number | string;
-        city_name?: string;
-        zone_id?: number | string;
+        city_id: number;
+        city_name: string;
+        zone_id?: number;
         zone_name?: string;
-        area_id?: number | string;
+        area_id?: number;
         area_name?: string;
     }>;
 }
