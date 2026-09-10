@@ -1,0 +1,57 @@
+# smithery.yaml - Aura Courier MCP Registry Configuration
+startCommand:
+  type: stdio
+  config:
+    command: npx
+    args:
+      - -y
+      - aura-courier-mcp@latest
+    env:
+      STEADFAST_API_KEY:
+        type: string
+        description: Steadfast Courier API Key
+        required: false
+      STEADFAST_SECRET_KEY:
+        type: string
+        description: Steadfast Courier Secret Key
+        required: false
+      PATHAO_CLIENT_ID:
+        type: string
+        description: Pathao Courier Client ID
+        required: false
+      PATHAO_CLIENT_SECRET:
+        type: string
+        description: Pathao Courier Client Secret
+        required: false
+      PATHAO_USERNAME:
+        type: string
+        description: Pathao Courier registered username / email
+        required: false
+      PATHAO_PASSWORD:
+        type: string
+        description: Pathao Courier password
+        required: false
+      REDX_API_TOKEN:
+        type: string
+        description: RedX Courier API Access Token
+        required: false
+      PAPERFLY_API_KEY:
+        type: string
+        description: Paperfly API Key
+        required: false
+      PAPERFLY_STORE_NAME:
+        type: string
+        description: Paperfly Registered Store Name
+        required: false
+      PAPERFLY_USERNAME:
+        type: string
+        description: Paperfly Username
+        required: false
+      PAPERFLY_PASSWORD:
+        type: string
+        description: Paperfly Password
+        required: false
+      GOOGLE_MAPS_API_KEY:
+        type: string
+        description: Google Maps Platform API Key for geocoding and routing
+        required: false
