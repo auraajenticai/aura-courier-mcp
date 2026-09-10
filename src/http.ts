@@ -61,26 +61,48 @@ app.use((req, res, next) => {
   next();
 });
 
-// Active sessions: sessionId -> transport (each bound to one client's keys).
-const transports: Record<string, StreamableHTTPServerTransport> = {};
+// Memory Leak Prevention: Managed Session with Automatic Idle Eviction & Garbage Collection
+interface ManagedSession {
+  transport: StreamableHTTPServerTransport;
+  lastActiveAt: number;
+}
+
+const sessions = new Map<string, ManagedSession>();
+const SESSION_TTL_MS = 60 * 60 * 1000; // 1-hour idle expiration
+
+// Sweep abandoned sessions every 15 minutes to prevent heap bloat
+setInterval(() => {
+  const now = Date.now();
+  for (const [sid, entry] of sessions.entries()) {
+    if (now - entry.lastActiveAt > SESSION_TTL_MS) {
+      console.log(`[Memory GC] Evicting stale MCP session: ${sid}`);
+      try {
+        entry.transport.close?.();
+      } catch {}
+      sessions.delete(sid);
+    }
+  }
+}, 15 * 60 * 1000).unref();
 
 app.post("/mcp", async (req: Request, res: Response) => {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
   let transport: StreamableHTTPServerTransport;
 
-  if (sessionId && transports[sessionId]) {
-    transport = transports[sessionId];
+  if (sessionId && sessions.has(sessionId)) {
+    const entry = sessions.get(sessionId)!;
+    entry.lastActiveAt = Date.now();
+    transport = entry.transport;
   } else if (!sessionId && isInitializeRequest(req.body)) {
     const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
     const server = buildMcpServer(registry);
     transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
       onsessioninitialized: (sid) => {
-        transports[sid] = transport;
+        sessions.set(sid, { transport, lastActiveAt: Date.now() });
       },
     });
     transport.onclose = () => {
-      if (transport.sessionId) delete transports[transport.sessionId];
+      if (transport.sessionId) sessions.delete(transport.sessionId);
     };
     await server.connect(transport);
   } else {
@@ -108,11 +130,13 @@ app.post("/mcp", async (req: Request, res: Response) => {
 // GET (server->client SSE stream) and DELETE (end session) for an existing session.
 async function handleSessionRequest(req: Request, res: Response) {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
-  if (!sessionId || !transports[sessionId]) {
+  if (!sessionId || !sessions.has(sessionId)) {
     res.status(400).send("Invalid or missing session ID");
     return;
   }
-  await transports[sessionId].handleRequest(req, res);
+  const entry = sessions.get(sessionId)!;
+  entry.lastActiveAt = Date.now();
+  await entry.transport.handleRequest(req, res);
 }
 app.get("/mcp", handleSessionRequest);
 app.delete("/mcp", handleSessionRequest);
@@ -162,7 +186,8 @@ app.post("/webhooks/pathao", (req: Request, res: Response) => {
   });
 });
 
-app.get("/health", (_req, res) =>
+app.get("/health", (_req, res) => {
+  const mem = process.memoryUsage();
   res.json({
     ok: true,
     service: "aura-courier-mcp",
@@ -174,9 +199,15 @@ app.get("/health", (_req, res) =>
       steadfast: "/webhooks/steadfast",
       pathao: "/webhooks/pathao",
     },
-    sessions: Object.keys(transports).length,
-  })
-);
+    performance: {
+      sessions_active: sessions.size,
+      heap_used_mb: Math.round((mem.heapUsed / 1024 / 1024) * 10) / 10,
+      heap_total_mb: Math.round((mem.heapTotal / 1024 / 1024) * 10) / 10,
+      rss_mb: Math.round((mem.rss / 1024 / 1024) * 10) / 10,
+      uptime_seconds: Math.round(process.uptime()),
+    },
+  });
+});
 
 app.get("/", (_req, res) => {
   res.sendFile(LANDING, (err) => {
