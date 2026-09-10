@@ -9,7 +9,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const PORT = Number(process.env.PORT || 8080);
-// Marketing landing (index.html) sits at the repo root, one level above dist/.
 const LANDING = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "index.html");
 
 // Pull this client's courier keys from request headers or query params, with fallback to environment
@@ -70,10 +69,8 @@ app.post("/mcp", async (req: Request, res: Response) => {
   let transport: StreamableHTTPServerTransport;
 
   if (sessionId && transports[sessionId]) {
-    // Existing session — reuse its server (already holds this client's keys).
     transport = transports[sessionId];
   } else if (!sessionId && isInitializeRequest(req.body)) {
-    // New session — capture THIS client's courier keys now.
     const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
     const server = buildMcpServer(registry);
     transport = new StreamableHTTPServerTransport({
@@ -120,20 +117,68 @@ async function handleSessionRequest(req: Request, res: Response) {
 app.get("/mcp", handleSessionRequest);
 app.delete("/mcp", handleSessionRequest);
 
+/**
+ * Official Steadfast Webhook Integration Endpoint
+ * Callback URL: https://courier.auraajenticai.cloud/webhooks/steadfast
+ */
+app.post("/webhooks/steadfast", (req: Request, res: Response) => {
+  const payload = req.body;
+  console.log("[Steadfast Webhook Received]:", JSON.stringify(payload));
+
+  if (!payload || !payload.consignment_id) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid consignment ID.",
+    });
+  }
+
+  const notifType = payload.notification_type || "delivery_status";
+  const consignmentId = payload.consignment_id;
+  const status = payload.status; // pending, delivered, partial_delivered, cancelled, unknown
+  const invoice = payload.invoice;
+
+  console.log(`[Steadfast Update] Consignment: ${consignmentId} | Invoice: ${invoice} | Type: ${notifType} | Status: ${status}`);
+
+  if (status === "cancelled") {
+    console.warn(`[Steadfast NDR Alert] Consignment ${consignmentId} was cancelled. Initiating NDR triage.`);
+  }
+
+  return res.status(200).json({
+    status: "success",
+    message: "Webhook received successfully.",
+  });
+});
+
+/**
+ * Official Pathao Webhook Integration Endpoint
+ * Callback URL: https://courier.auraajenticai.cloud/webhooks/pathao
+ */
+app.post("/webhooks/pathao", (req: Request, res: Response) => {
+  const payload = req.body;
+  console.log("[Pathao Webhook Received]:", JSON.stringify(payload));
+  return res.status(200).json({
+    status: "success",
+    message: "Webhook received successfully.",
+  });
+});
+
 app.get("/health", (_req, res) =>
   res.json({
     ok: true,
     service: "aura-courier-mcp",
-    version: "2.3.1",
+    version: "2.4.0",
     tools_count: TOOLS.length,
     spatial_engine: "Google Maps Platform (gmp_git_agentskills_v1)",
     fraud_engine: "Steadfast Nationwide API + BD Prefix Validator",
+    webhooks: {
+      steadfast: "/webhooks/steadfast",
+      pathao: "/webhooks/pathao",
+    },
     sessions: Object.keys(transports).length,
   })
 );
 
 app.get("/", (_req, res) => {
-  // Serve the marketing landing page; fall back to a minimal page if it's missing.
   res.sendFile(LANDING, (err) => {
     if (err && !res.headersSent) {
       res
@@ -141,8 +186,9 @@ app.get("/", (_req, res) => {
         .send(
           `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP</title>` +
             `<style>body{font-family:system-ui,sans-serif;background:#0b0f1a;color:#e6ecff;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#141c30;padding:2px 8px;border-radius:6px;color:#7dd3fc;font-size:13px}a{color:#7dd3fc}p{line-height:1.6;color:#9fb0d0}</style></head>` +
-            `<body><div class="b"><h1>🚚 Aura Courier MCP v2.3.1</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
+            `<body><div class="b"><h1>🚚 Aura Courier MCP v2.4.0</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
             `<p>Connect your AI to <code>POST /mcp</code> with Streamable-HTTP.</p>` +
+            `<p>Webhooks: <code>POST /webhooks/steadfast</code> · <code>POST /webhooks/pathao</code></p>` +
             `<p>By <a href="https://auraajenticai.cloud">Aura Ajentic AI</a> · <a href="https://courier.auraajenticai.cloud">docs &amp; setup</a></p></div></body></html>`
         );
     }

@@ -220,25 +220,32 @@ export class PathaoAdapter implements CourierAdapter {
     const resolvedStoreId = await this.resolveStoreId();
     const { cityId, zoneId, areaId } = await this.resolveLocation(req.recipient_address, req);
 
+    const cleanPhone = req.recipient_phone.replace(/\D/g, "");
+    const formattedPhone = cleanPhone.length > 11 ? cleanPhone.slice(-11) : cleanPhone;
+
     const payload: Record<string, any> = {
       store_id: resolvedStoreId,
       merchant_order_id: req.invoice,
-      recipient_name: req.recipient_name,
-      recipient_phone: req.recipient_phone,
-      recipient_address: req.recipient_address,
-      recipient_city: cityId,
-      recipient_zone: zoneId,
-      delivery_type: 48, // Standard 48h
-      item_type: 2, // Parcel
-      special_instruction: req.note || "Aura AI automated dispatch",
+      recipient_name: (req.recipient_name || "Customer").trim().slice(0, 100),
+      recipient_phone: formattedPhone,
+      recipient_address: (req.recipient_address || "").trim().slice(0, 220),
+      delivery_type: 48, // 48 for Normal Delivery, 12 for On Demand Delivery
+      item_type: 2, // 1 for Document, 2 for Parcel
+      special_instruction: (req.note || "Aura AI automated dispatch").slice(0, 250),
       item_quantity: 1,
-      item_weight: req.item_weight || 0.5,
-      amount_to_collect: req.cod_amount,
-      item_description: req.item_type || "Standard parcel",
+      item_weight: Math.max(0.5, Math.min(10, Number(req.item_weight || 0.5))),
+      amount_to_collect: Math.round(Number(req.cod_amount || 0)),
+      item_description: (req.item_type || "Standard parcel").slice(0, 250),
     };
 
-    if (areaId) {
-      payload.recipient_area = areaId;
+    // Pathao docs: "do not send a null value. If not included in the request payload,
+    // then our system will populate it automatically based on recipient_address"
+    if (cityId && zoneId && zoneId > 1) {
+      payload.recipient_city = Number(cityId);
+      payload.recipient_zone = Number(zoneId);
+      if (areaId && areaId > 1) {
+        payload.recipient_area = Number(areaId);
+      }
     }
 
     const response = await client.post("/aladdin/api/v1/orders", payload);
