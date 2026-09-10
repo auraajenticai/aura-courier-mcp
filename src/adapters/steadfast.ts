@@ -15,8 +15,9 @@ export class SteadfastAdapter implements CourierAdapter {
 
   constructor(apiKey: string, secretKey: string, baseUrl: string) {
     this.enabled = Boolean(apiKey && secretKey);
+    const resolvedBase = baseUrl || "https://portal.steadfast.com.bd/api/v1";
     this.client = axios.create({
-      baseURL: baseUrl,
+      baseURL: resolvedBase,
       headers: {
         "Api-Key": apiKey,
         "Secret-Key": secretKey,
@@ -99,5 +100,19 @@ export class SteadfastAdapter implements CourierAdapter {
       current_balance: Number(data.current_balance || 0),
       raw_response: data,
     };
+  }
+
+  /**
+   * 100% Real Live Steadfast Fraud Check API
+   * Endpoint: GET /fraud_check/{phone}
+   * Returns nationwide parcel history across Bangladesh: total_parcels, total_delivered, total_cancelled
+   */
+  async fraudCheck(phone: string): Promise<any> {
+    if (!this.enabled) {
+      throw new Error("Steadfast Courier credentials are not configured.");
+    }
+    const cleanPhone = phone.replace(/\D/g, "");
+    const response = await this.client.get(`/fraud_check/${encodeURIComponent(cleanPhone)}`);
+    return response.data;
   }
 }

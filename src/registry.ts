@@ -1,25 +1,29 @@
 import { CourierAdapter } from "./adapters/base.js";
 import { SteadfastAdapter } from "./adapters/steadfast.js";
 import { PathaoAdapter } from "./adapters/pathao.js";
-import { RedXAdapter } from "./adapters/redx.js";
-import { PaperflyAdapter } from "./adapters/paperfly.js";
 import { FraudRiskEngine } from "./adapters/fraud_engine.js";
-import { loadConfig } from "./config.js";
+import { RedxAdapter } from "./adapters/redx.js";
+import { PaperflyAdapter } from "./adapters/paperfly.js";
+import { GoogleMapsAdapter } from "./adapters/google_maps.js";
+import { loadConfig, CourierConfig } from "./config.js";
 import {
+  AddressValidationRequest,
+  AddressValidationResponse,
   BalanceResponse,
   FraudRiskScoreResponse,
   ParcelCreateRequest,
   ParcelResponse,
   SupportedCourier,
   TrackingResponse,
+  ZoneRateRequest,
+  ZoneRateResponse,
 } from "./types.js";
 
 export class CourierRegistry {
   private adapters: Map<SupportedCourier, CourierAdapter> = new Map();
+  private googleMaps: GoogleMapsAdapter;
 
-  constructor() {
-    const config = loadConfig();
-
+  constructor(config: CourierConfig = loadConfig()) {
     const steadfast = new SteadfastAdapter(
       config.steadfast.apiKey,
       config.steadfast.secretKey,
@@ -37,23 +41,33 @@ export class CourierRegistry {
     );
     this.adapters.set("pathao", pathao);
 
-    const redx = new RedXAdapter(config.redx.apiToken, config.redx.baseUrl);
+    const redx = new RedxAdapter(config.redx.apiToken, config.redx.baseUrl, config.redx.pickupStoreId);
     this.adapters.set("redx", redx);
 
     const paperfly = new PaperflyAdapter(
-      config.paperfly.user,
-      config.paperfly.pass,
-      config.paperfly.key,
+      config.paperfly.apiKey,
+      config.paperfly.username,
+      config.paperfly.password,
+      config.paperfly.storeName,
       config.paperfly.baseUrl
     );
     this.adapters.set("paperfly", paperfly);
+
+    this.googleMaps = new GoogleMapsAdapter(config.googleMaps?.apiKey || process.env.GOOGLE_MAPS_API_KEY);
   }
 
   listCouriers() {
-    return Array.from(this.adapters.entries()).map(([name, adapter]) => ({
+    const list = Array.from(this.adapters.entries()).map(([name, adapter]) => ({
       courier: name,
       is_configured: adapter.isConfigured(),
     }));
+
+    list.push({
+      courier: "google_maps" as any,
+      is_configured: this.googleMaps.isConfigured(),
+    });
+
+    return list;
   }
 
   getAdapter(name: SupportedCourier): CourierAdapter {
@@ -64,13 +78,17 @@ export class CourierRegistry {
     return adapter;
   }
 
+  getGoogleMaps(): GoogleMapsAdapter {
+    return this.googleMaps;
+  }
+
   async createParcel(req: ParcelCreateRequest): Promise<ParcelResponse> {
     let courierName: SupportedCourier = "steadfast";
 
     if (req.courier && req.courier !== "auto") {
       courierName = req.courier;
     } else {
-      // Smart routing heuristic across all 4 couriers
+      // Smart routing: inside Dhaka metro with Pathao configured prefers Pathao, else Steadfast
       const addr = req.recipient_address.toLowerCase();
       if (
         addr.includes("dhaka") &&
@@ -80,21 +98,9 @@ export class CourierRegistry {
           addr.includes("uttara") ||
           addr.includes("mirpur"))
       ) {
-        if (this.adapters.get("pathao")?.isConfigured()) {
-          courierName = "pathao";
-        } else if (this.adapters.get("redx")?.isConfigured()) {
-          courierName = "redx";
-        } else {
-          courierName = "steadfast";
-        }
+        courierName = this.adapters.get("pathao")?.isConfigured() ? "pathao" : "steadfast";
       } else {
-        if (this.adapters.get("steadfast")?.isConfigured()) {
-          courierName = "steadfast";
-        } else if (this.adapters.get("paperfly")?.isConfigured()) {
-          courierName = "paperfly";
-        } else {
-          courierName = "steadfast";
-        }
+        courierName = "steadfast";
       }
     }
 
@@ -107,26 +113,11 @@ export class CourierRegistry {
       return await this.getAdapter(courierName).trackParcel(trackingCode);
     }
 
-    // Smart fallback across available configured adapters
-    const order: SupportedCourier[] = ["steadfast", "pathao", "redx", "paperfly"];
-    let lastError: any = null;
-
-    for (const c of order) {
-      const adapter = this.adapters.get(c);
-      if (adapter && adapter.isConfigured()) {
-        try {
-          return await adapter.trackParcel(trackingCode);
-        } catch (e) {
-          lastError = e;
-        }
-      }
-    }
-
-    // Default fallback to Steadfast
+    // Default try Steadfast first, fallback to Pathao
     try {
       return await this.getAdapter("steadfast").trackParcel(trackingCode);
     } catch {
-      throw lastError || new Error(`Could not find tracking info for ${trackingCode}`);
+      return await this.getAdapter("pathao").trackParcel(trackingCode);
     }
   }
 
@@ -134,7 +125,16 @@ export class CourierRegistry {
     return await this.getAdapter(courierName).getBalance();
   }
 
-  checkFraudRisk(phone: string): FraudRiskScoreResponse {
-    return FraudRiskEngine.evaluateRisk(phone);
+  async checkFraudRisk(phone: string): Promise<FraudRiskScoreResponse> {
+    const steadfast = this.adapters.get("steadfast") as SteadfastAdapter | undefined;
+    return await FraudRiskEngine.evaluateRisk(phone, steadfast);
+  }
+
+  async validateAddress(req: AddressValidationRequest): Promise<AddressValidationResponse> {
+    return await this.googleMaps.validateAndGeocode(req);
+  }
+
+  async calculateZoneAndRate(req: ZoneRateRequest): Promise<ZoneRateResponse> {
+    return await this.googleMaps.calculateDeliveryZoneAndFee(req);
   }
 }
