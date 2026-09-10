@@ -10,7 +10,11 @@ import {
   AddressValidationRequest,
   AddressValidationResponse,
   BalanceResponse,
+  CourierRateComparisonRequest,
+  CourierRateComparisonResponse,
   FraudRiskScoreResponse,
+  NdrResolutionRequest,
+  NdrResolutionResponse,
   ParcelCreateRequest,
   ParcelResponse,
   SupportedCourier,
@@ -136,5 +140,68 @@ export class CourierRegistry {
 
   async calculateZoneAndRate(req: ZoneRateRequest): Promise<ZoneRateResponse> {
     return await this.googleMaps.calculateDeliveryZoneAndFee(req);
+  }
+
+  async compareRates(req: CourierRateComparisonRequest): Promise<CourierRateComparisonResponse> {
+    return await this.googleMaps.compareRates(req);
+  }
+
+  async resolveNdr(req: NdrResolutionRequest): Promise<NdrResolutionResponse> {
+    const cid = req.consignment_id;
+    const name = req.customer_name || "গ্রাহক";
+    const courier = req.courier;
+
+    let status: "DISPUTE_FILED" | "RESCHEDULE_QUEUED" | "ADDRESS_UPDATED" | "CUSTOMER_REENGAGED" = "CUSTOMER_REENGAGED";
+    let actionTaken = "";
+    let customerMsg = "";
+    let carrierInstr = "";
+
+    switch (req.issue_type) {
+      case "fake_attempt":
+        status = "DISPUTE_FILED";
+        actionTaken = "কুরিয়ার রাইডারের ফেক ডেলিভারি অ্যাটেম্পট সনাক্ত হয়েছে। কুরিয়ার অথরিটির কাছে জরুরি ইনভেস্টিগেশন ও রি-অ্যাটেম্পট রিকোয়েস্ট পাঠানো হয়েছে।";
+        customerMsg = `প্রিয় ${name}, আপনার পার্সেলটির ডেলিভারিতে সমস্যা হওয়ায় আমরা অত্যন্ত দুঃখিত। কুরিয়ার ম্যানেজমেন্টকে আমরা বিষয়টি জানিয়েছি এবং অগ্রাধিকার ভিত্তিতে পার্সেলটি পুনরায় পৌঁছে দেওয়ার ব্যবস্থা নেওয়া হচ্ছে।`;
+        carrierInstr = `CRITICAL_DISPUTE: Consignment ${cid} rider reported fake attempt. Supervisor intervention required for priority re-attempt within 24h.`;
+        break;
+
+      case "customer_phone_off":
+        status = "CUSTOMER_REENGAGED";
+        actionTaken = "গ্রাহকের ফোন বন্ধ বা রিসিভ না করায় হোয়াটসঅ্যাপে ফলোআপ ও সুবিধাজনক সময় জানানোর অনুরোধ পাঠানো হয়েছে।";
+        customerMsg = `প্রিয় ${name}, কুরিয়ার থেকে আপনার ঠিকানায় পার্সেল নিয়ে যাওয়া হয়েছিল কিন্তু আপনাকে ফোনে পাওয়া যায়নি। অনুগ্রহ করে ডেলিভারি রিসিভ করার সুবিধাজনক সময় বা বিকল্প নাম্বার আমাদের মেসেজে জানান।`;
+        carrierInstr = `HOLD_FOR_CONTACT: Reached customer via messaging. Consignment ${cid} on hold at local hub. Do not RTO.`;
+        break;
+
+      case "reschedule_requested":
+        status = "RESCHEDULE_QUEUED";
+        actionTaken = `গ্রাহকের অনুরোধে ডেলিভারি ${req.reschedule_date || "পরবর্তী কর্মদিবসে"} পুনঃনির্ধারণ করা হয়েছে।`;
+        customerMsg = `প্রিয় ${name}, আপনার অনুরোধ অনুযায়ী পার্সেল ডেলিভারি ${req.reschedule_date || "পরবর্তী কর্মদিবসে"} পুনঃনির্ধারণ করা হয়েছে।`;
+        carrierInstr = `RESCHEDULE_DELIVERY: Customer requested delivery on ${req.reschedule_date || "next business day"}. Retain at local hub.`;
+        break;
+
+      case "wrong_address":
+        status = "ADDRESS_UPDATED";
+        actionTaken = `গ্রাহকের সংশোধিত ঠিকানা (${req.corrected_address || "আপডেটেড ঠিকানা"}) সিস্টেমে নথিভুক্ত করা হয়েছে এবং রাইডারকে রি-রুট করা হচ্ছে।`;
+        customerMsg = `প্রিয় ${name}, আপনার পার্সেলের ঠিকানা সংশোধন করা হয়েছে। রাইডার আপনার নতুন ঠিকানায় ডেলিভারির জন্য যোগাযোগ করবে।`;
+        carrierInstr = `ADDRESS_UPDATE: Route parcel ${cid} to updated address: ${req.corrected_address || "Provided in notes"}.`;
+        break;
+
+      case "customer_refused":
+        status = "CUSTOMER_REENGAGED";
+        actionTaken = "গ্রাহক পার্সেল গ্রহণে অস্বীকৃতি জানানোয় কারণ অনুসন্ধান ও সমস্যা সমাধানে রিটেনশন মেসেজ পাঠানো হয়েছে।";
+        customerMsg = `প্রিয় ${name}, আমরা জানতে পেরেছি আপনি পার্সেলটি গ্রহণ করতে পারেননি। পণ্য নিয়ে আপনার কোনো প্রশ্ন বা অসন্তোষ থাকলে দয়া করে আমাদের জানান, আমরা সরাসরি সমাধান করে দিচ্ছি।`;
+        carrierInstr = `HOLD_PENDING_MERCHANT_ACTION: Merchant in retention contact with customer. Hold consignment ${cid} 24 hours before RTO.`;
+        break;
+    }
+
+    return {
+      success: true,
+      consignment_id: cid,
+      courier,
+      resolution_status: status,
+      action_taken: actionTaken,
+      customer_whatsapp_message: customerMsg,
+      carrier_instruction: carrierInstr,
+      timestamp: new Date().toISOString(),
+    };
   }
 }

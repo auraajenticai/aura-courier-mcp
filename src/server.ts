@@ -96,6 +96,41 @@ export const TOOLS: Tool[] = [
       required: ["recipient_address"],
     },
   },
+  {
+    name: "compare_courier_rates",
+    description: "Real-time tariff & SLA comparison across Steadfast, Pathao, RedX, and Paperfly for a given destination address, parcel weight, and COD value. Recommends the optimal carrier for cost vs speed.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        recipient_address: { type: "string", description: "Destination delivery address anywhere in Bangladesh" },
+        weight_kg: { type: "number", description: "Parcel weight in KG (default: 0.5)" },
+        cod_amount: { type: "number", description: "Cash On Delivery amount in BDT (default: 0)" },
+        priority: { type: "string", enum: ["cheapest", "fastest", "balanced"], description: "Optimization priority (default: balanced)" },
+      },
+      required: ["recipient_address"],
+    },
+  },
+  {
+    name: "resolve_ndr_issue",
+    description: "Automate Non-Delivery Report (NDR) triage and resolution for failed courier delivery attempts. Generates WhatsApp re-engagement message to customer and official operational escalation/hold instructions for the carrier.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        consignment_id: { type: "string", description: "Tracking code or consignment ID" },
+        courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly"], description: "Courier provider" },
+        issue_type: {
+          type: "string",
+          enum: ["customer_phone_off", "reschedule_requested", "wrong_address", "customer_refused", "fake_attempt"],
+          description: "Reason for failed delivery",
+        },
+        customer_phone: { type: "string", description: "Customer mobile number" },
+        customer_name: { type: "string", description: "Customer full name" },
+        reschedule_date: { type: "string", description: "Preferred delivery date (if rescheduled)" },
+        corrected_address: { type: "string", description: "Corrected delivery address (if wrong address)" },
+      },
+      required: ["consignment_id", "courier", "issue_type"],
+    },
+  },
 ];
 
 /**
@@ -105,7 +140,7 @@ export const TOOLS: Tool[] = [
  */
 export function buildMcpServer(registry: CourierRegistry): Server {
   const server = new Server(
-    { name: "aura-courier-mcp", version: "2.3.1" },
+    { name: "aura-courier-mcp", version: "2.4.0" },
     { capabilities: { tools: {} } }
   );
 
@@ -164,6 +199,29 @@ export function buildMcpServer(registry: CourierRegistry): Server {
             recipient_address: String(args?.recipient_address),
             origin_address: args?.origin_address ? String(args?.origin_address) : undefined,
             weight_kg: args?.weight_kg ? Number(args?.weight_kg) : 0.5,
+          });
+          return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        }
+
+        case "compare_courier_rates": {
+          const result = await registry.compareRates({
+            recipient_address: String(args?.recipient_address),
+            weight_kg: args?.weight_kg ? Number(args?.weight_kg) : 0.5,
+            cod_amount: args?.cod_amount ? Number(args?.cod_amount) : 0,
+            priority: args?.priority as any,
+          });
+          return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        }
+
+        case "resolve_ndr_issue": {
+          const result = await registry.resolveNdr({
+            consignment_id: String(args?.consignment_id),
+            courier: args?.courier as any,
+            issue_type: args?.issue_type as any,
+            customer_phone: args?.customer_phone ? String(args?.customer_phone) : undefined,
+            customer_name: args?.customer_name ? String(args?.customer_name) : undefined,
+            reschedule_date: args?.reschedule_date ? String(args?.reschedule_date) : undefined,
+            corrected_address: args?.corrected_address ? String(args?.corrected_address) : undefined,
           });
           return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         }

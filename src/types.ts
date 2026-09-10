@@ -64,6 +64,11 @@ export interface FraudRiskScoreResponse {
   recommendation: string;
   carrier_source: string;
   carrier_verified: boolean;
+  multi_signal_factors?: {
+    carrier_score: string;
+    address_confidence?: string;
+    cod_value_risk?: string;
+  };
 }
 
 export interface LocationResolutionRequest {
@@ -128,4 +133,58 @@ export interface ZoneRateResponse {
   standard_delivery_fee: number;
   cod_charge_percentage: number;
   route_summary?: string;
+}
+
+// Enterprise Multi-Carrier Rate Comparison
+export interface CourierRateComparisonRequest {
+  recipient_address: string;
+  weight_kg?: number;
+  cod_amount?: number;
+  priority?: "cheapest" | "fastest" | "balanced";
+}
+
+export interface CarrierQuote {
+  courier: SupportedCourier;
+  courier_name: string;
+  base_delivery_fee: number;
+  weight_surcharge: number;
+  cod_charge: number;
+  total_cost: number;
+  estimated_hours: string;
+  coverage_notes: string;
+  is_recommended: boolean;
+}
+
+export interface CourierRateComparisonResponse {
+  success: boolean;
+  zone: "inside_dhaka" | "sub_dhaka" | "outside_dhaka";
+  zone_title: string;
+  road_distance_km: number;
+  weight_kg: number;
+  cod_amount: number;
+  recommended_courier: SupportedCourier;
+  recommendation_reason: string;
+  quotes: CarrierQuote[];
+}
+
+// NDR (Non-Delivery Report) Auto-Resolution Workflow
+export interface NdrResolutionRequest {
+  consignment_id: string;
+  courier: SupportedCourier;
+  issue_type: "customer_phone_off" | "reschedule_requested" | "wrong_address" | "customer_refused" | "fake_attempt";
+  customer_phone?: string;
+  customer_name?: string;
+  reschedule_date?: string;
+  corrected_address?: string;
+}
+
+export interface NdrResolutionResponse {
+  success: boolean;
+  consignment_id: string;
+  courier: SupportedCourier;
+  resolution_status: "DISPUTE_FILED" | "RESCHEDULE_QUEUED" | "ADDRESS_UPDATED" | "CUSTOMER_REENGAGED";
+  action_taken: string;
+  customer_whatsapp_message: string;
+  carrier_instruction: string;
+  timestamp: string;
 }
