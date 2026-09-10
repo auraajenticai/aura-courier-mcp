@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Aura Courier MCP v2.4 — এক unified connector — বাংলাদেশের সব courier ও Google Maps spatial intelligence। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক, ট্র্যাক ও জিরো-রিস্ক COD নিশ্চিত করুন।">
+<meta name="description" content="Aura Courier MCP v2.4 — এক unified connector — বাংলাদেশের ৪টি প্রধান কুরিয়ার (Steadfast, Pathao, RedX, Paperfly) ও Google Maps spatial intelligence। AI Agents থেকে ১-ক্লিকে parcel বুক, ট্র্যাক ও জিরো-রিস্ক COD নিশ্চিত করুন।">
 <title>Aura Courier MCP v2.4 — Universal Bangladesh Logistics & Spatial Engine</title>
 <style>
   :root{
@@ -17,7 +17,7 @@
   }
   *{box-sizing:border-box}
   body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; -webkit-font-smoothing:antialiased}
-  .page{max-width:1040px; margin:0 auto; padding:0 24px}
+  .page{max-width:1080px; margin:0 auto; padding:0 24px}
   .mono{font-family:"SF Mono",ui-monospace,"Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace}
   a{color:var(--cyan); text-decoration:none; transition:color .15s}
   a:hover{color:#fff; text-decoration:underline}
@@ -47,7 +47,7 @@
   
   .hero h1{font-size:clamp(38px,7.5vw,66px); font-weight:900; letter-spacing:-.03em; margin:18px 0}
   .hero h1 em{font-family:Georgia,"Times New Roman",serif; font-style:italic; font-weight:500; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent}
-  .hero .tagline{font-size:clamp(16px,2.4vw,20px); color:var(--muted); max-width:48ch; margin:0 auto 34px}
+  .hero .tagline{font-size:clamp(16px,2.4vw,20px); color:var(--muted); max-width:50ch; margin:0 auto 34px}
 
   .cta-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
   .btn{display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:14.5px; padding:12px 24px; border-radius:11px; text-decoration:none; transition:transform .12s ease, border-color .15s; border:1px solid transparent}
@@ -63,7 +63,23 @@
   section.blk{padding:54px 0; border-top:1px solid var(--line)}
   .blk-head{margin-bottom:28px}
   .blk-head h2{font-size:28px; font-weight:800; letter-spacing:-.015em; margin-top:9px}
-  .blk-head p{color:var(--muted); margin:9px 0 0; max-width:68ch; font-size:15px}
+  .blk-head p{color:var(--muted); margin:9px 0 0; max-width:70ch; font-size:15px}
+
+  /* Couriers Grid (4 Major Couriers Equal Size) */
+  .courier-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:18px; margin-top:22px}
+  .c-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; min-height:140px; transition:border-color .15s ease, transform .15s ease}
+  .c-card:hover{border-color:var(--blue); transform:translateY(-2px)}
+  .c-card-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px}
+  .c-card b{font-size:17px; color:#fff}
+  .c-desc{font-size:13px; color:var(--muted); line-height:1.5}
+  .c-meta{font-size:11.5px; font-family:"SF Mono",monospace; color:var(--cyan); margin-top:12px}
+  .badge-live-sm{font-size:11.5px; font-weight:700; color:var(--green); background:var(--green-bg); padding:4px 10px; border-radius:99px; border:1px solid color-mix(in srgb,var(--green) 30%,transparent)}
+
+  /* Spatial Feature Box */
+  .spatial-box{margin-top:20px; background:linear-gradient(135deg, rgba(56,189,248,0.08), rgba(77,124,255,0.08)); border:1px solid rgba(56,189,248,0.3); border-radius:14px; padding:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px}
+  .spatial-left h3{font-size:18px; color:#fff; margin-bottom:6px; display:flex; align-items:center; gap:8px}
+  .spatial-left p{font-size:13.5px; color:var(--muted); margin:0}
+  .badge-spatial{font-size:11.5px; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.15); padding:4px 12px; border-radius:99px; border:1px solid rgba(56,189,248,0.4)}
 
   /* Tools Grid (9 Tools) */
   .tools{display:grid; grid-template-columns:repeat(auto-fit, minmax(310px,1fr)); gap:18px}
@@ -75,21 +91,12 @@
   .t-tag.new{color:#34d399; background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25)}
   .t-card p{font-size:13.5px; color:var(--muted); margin:0; line-height:1.5}
 
-  /* Couriers & Spatial Grid */
-  .courier-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:16px; margin-top:22px}
-  .c-card{background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:20px; display:flex; flex-direction:column; gap:8px}
-  .c-card-top{display:flex; justify-content:space-between; align-items:center}
-  .c-card b{font-size:16px; color:#fff}
-  .c-card span.c-desc{font-size:12px; color:var(--muted)}
-  .badge-live-sm{font-size:11px; font-weight:700; color:var(--green); background:var(--green-bg); padding:3px 9px; border-radius:99px; border:1px solid color-mix(in srgb,var(--green) 30%,transparent)}
-  .badge-spatial{font-size:11px; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.12); padding:3px 9px; border-radius:99px; border:1px solid rgba(56,189,248,0.3)}
-
-  /* Webhook Cards */
-  .webhook-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); gap:18px; margin-top:20px}
-  .wh-card{background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:22px}
+  /* Webhooks Grid (All 4 Couriers Equal) */
+  .webhook-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:18px; margin-top:22px}
+  .wh-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px; display:flex; flex-direction:column; justify-content:space-between}
   .wh-card h3{font-size:16px; color:#fff; margin-bottom:8px; display:flex; align-items:center; gap:8px}
-  .wh-endpoint{background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 14px; font-family:"SF Mono",monospace; font-size:12.5px; color:var(--cyan); margin:12px 0; word-break:break-all}
-  .wh-card p{font-size:13px; color:var(--muted); margin:0}
+  .wh-endpoint{background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:9px 12px; font-family:"SF Mono",monospace; font-size:12px; color:var(--cyan); margin:10px 0; word-break:break-all}
+  .wh-card p{font-size:13px; color:var(--muted); margin:0; line-height:1.5}
 
   /* Config Tabs */
   .config-box{margin-top:24px; background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:var(--shadow)}
@@ -164,6 +171,70 @@
       </div>
     </section>
 
+    <!-- 4 MAJOR COURIERS OF BANGLADESH -->
+    <section class="blk" aria-labelledby="courier-title">
+      <div class="blk-head">
+        <div class="eyebrow">// SUPPORTED CARRIERS</div>
+        <h2 id="courier-title">বাংলাদেশের ৪টি শীর্ষস্থানীয় কুরিয়ার</h2>
+        <p>একই সর্বজনীন ইন্টারফেসে দেশের বৃহত্তম ৪টি লজিস্টিকস নেটওয়ার্ক — সমান গুরুত্ব ও পূর্ণ কার্যক্ষমতায় সক্রিয়।</p>
+      </div>
+
+      <div class="courier-grid">
+        <div class="c-card">
+          <div>
+            <div class="c-card-top">
+              <b>Steadfast</b>
+              <span class="badge-live-sm">● live</span>
+            </div>
+            <div class="c-desc">Packzy API v1 · সারা দেশে ৬৪ জেলায় ২৪-৪৮ ঘণ্টার ক্যাশ অন ডেলিভারি ও অটোমেটেড ট্র্যাকিং।</div>
+          </div>
+          <div class="c-meta">মার্চেন্ট: Snehalata (ID: 98SRCP1S)</div>
+        </div>
+
+        <div class="c-card">
+          <div>
+            <div class="c-card-top">
+              <b>Pathao Express</b>
+              <span class="badge-live-sm">● live</span>
+            </div>
+            <div class="c-desc">AI Agent Dispatch · সিটি ও জোন অটো-রেজলভার সহ দ্রুততম অন-ডিমান্ড ও এক্সপ্রেস ডেলিভারি।</div>
+          </div>
+          <div class="c-meta">স্টোর আইডি: 356230 (মোহাম্মদপুর, ঢাকা)</div>
+        </div>
+
+        <div class="c-card">
+          <div>
+            <div class="c-card-top">
+              <b>RedX Delivery</b>
+              <span class="badge-live-sm">● live</span>
+            </div>
+            <div class="c-desc">OpenAPI v1 · ২,৮৪৯টি ডেলিভারি হাব ও দেশজুড়ে শক্তিশালী ডিস্ট্রিবিউশন নেটওয়ার্ক।</div>
+          </div>
+          <div class="c-meta">শপ আইডি: 1051948 · পিকআপ হাব: 544445</div>
+        </div>
+
+        <div class="c-card">
+          <div>
+            <div class="c-card-top">
+              <b>Paperfly Go</b>
+              <span class="badge-live-sm">● live</span>
+            </div>
+            <div class="c-desc">Wing API v1 · প্রত্যন্ত ইউনিয়ন পর্যন্ত ডোরস্টেপ পিকআপ ও হোম ডেলিভারি কাভারেজ।</div>
+          </div>
+          <div class="c-meta">মার্চেন্ট ইউজার: c180381 (Snehalata)</div>
+        </div>
+      </div>
+
+      <!-- Dedicated Spatial Engine Banner -->
+      <div class="spatial-box">
+        <div class="spatial-left">
+          <h3>📍 Google Maps Platform — Spatial Routing Engine</h3>
+          <p>Geocoding API, Routes API v2 ও রুটপ-লেভেল কোঅর্ডিনেট দিয়ে নিখুঁত থানা/জেলা রেজোলিউশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।</p>
+        </div>
+        <span class="badge-spatial">● Enterprise Spatial AI</span>
+      </div>
+    </section>
+
     <!-- LIVE TELEMETRY / HEALTH -->
     <section class="blk" style="padding:28px 0;">
       <div class="health-box" aria-label="Server Telemetry">
@@ -181,7 +252,7 @@
         </div>
         <div class="health-item">
           <h4>Active Webhooks</h4>
-          <span>Steadfast + Pathao Live</span>
+          <span>Steadfast, Pathao, RedX, Paperfly</span>
         </div>
       </div>
     </section>
@@ -269,74 +340,45 @@
       </div>
     </section>
 
-    <!-- COURIERS & SPATIAL ENGINE -->
-    <section class="blk" aria-labelledby="courier-title">
-      <div class="blk-head">
-        <div class="eyebrow">// SUPPORTED CARRIERS</div>
-        <h2 id="courier-title">একই Tools, ৪টি লাইভ কুরিয়ার + Spatial Engine</h2>
-        <p>বাংলাদেশের বৃহত্তম লজিস্টিকস নেটওয়ার্ক ও Google Maps Platform-এর মেলবন্ধন।</p>
-      </div>
-
-      <div class="courier-grid">
-        <div class="c-card">
-          <div class="c-card-top">
-            <b>Steadfast</b>
-            <span class="badge-live-sm">● live</span>
-          </div>
-          <span class="c-desc">Packzy API v1 · একাউন্ট Snehalata</span>
-        </div>
-        <div class="c-card">
-          <div class="c-card-top">
-            <b>Pathao Express</b>
-            <span class="badge-live-sm">● live</span>
-          </div>
-          <span class="c-desc">AI Agent Dispatch · Auto-resolving zones</span>
-        </div>
-        <div class="c-card">
-          <div class="c-card-top">
-            <b>RedX Delivery</b>
-            <span class="badge-live-sm">● live</span>
-          </div>
-          <span class="c-desc">OpenAPI v1 · ২,৮৪৯ ডেলিভারি হাব</span>
-        </div>
-        <div class="c-card">
-          <div class="c-card-top">
-            <b>Paperfly Go</b>
-            <span class="badge-live-sm">● live</span>
-          </div>
-          <span class="c-desc">Wing API v1 · সারা দেশে ডোর-টু-ডোর</span>
-        </div>
-        <div class="c-card">
-          <div class="c-card-top">
-            <b>Google Maps</b>
-            <span class="badge-spatial">● spatial</span>
-          </div>
-          <span class="c-desc">Geocoding & Routes API v2</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- BIDIRECTIONAL WEBHOOK RECEIVERS -->
+    <!-- REAL-TIME WEBHOOK RECEIVERS FOR ALL 4 COURIERS -->
     <section class="blk" aria-labelledby="webhook-title">
       <div class="blk-head">
         <div class="eyebrow">// REAL-TIME WEBHOOKS</div>
-        <h2 id="webhook-title">দ্বিমুখী অটোমেশন ও ইভেন্ট রিসিভার</h2>
-        <p>কুরিয়ার ডেলিভারি স্ট্যাটাস পরিবর্তন হওয়া মাত্রই Aura Courier MCP-তে তাৎক্ষণিক সিঙ্ক হয়।</p>
+        <h2 id="webhook-title">৪টি কুরিয়ারেরই রিয়েল-টাইম অটোমেশন ও ইভেন্ট রিসিভার</h2>
+        <p>যেকোনো কুরিয়ারে ডেলিভারি স্ট্যাটাস পরিবর্তন হওয়া মাত্রই Aura Courier MCP-তে তাৎক্ষণিক সিঙ্ক হয়।</p>
       </div>
 
       <div class="webhook-grid">
         <div class="wh-card">
-          <h3>⚡ Steadfast Webhook Receiver</h3>
-          <p>Steadfast মার্চেন্ট পোর্টালের Webhook URL ফিল্ডে নিচের এন্ডপয়েন্টটি যুক্ত করুন:</p>
-          <div class="wh-endpoint">POST https://courier.auraajenticai.cloud/webhooks/steadfast</div>
-          <p>ইনকামিং ডেলিভারি স্ট্যাটাস ও ট্র্যাকিং ইভেন্ট রিয়েল-টাইমে প্রসেস ও ভেরিফাই করে।</p>
+          <div>
+            <h3>⚡ Steadfast Webhook</h3>
+            <div class="wh-endpoint">POST /webhooks/steadfast</div>
+            <p>Steadfast মার্চেন্ট পোর্টালের Webhook URL-এ যুক্ত করুন। ডেলিভারি স্ট্যাটাস ও ট্র্যাকিং ইভেন্ট রিয়েল-টাইমে প্রসেস করে।</p>
+          </div>
         </div>
 
         <div class="wh-card">
-          <h3>⚡ Pathao Webhook Receiver</h3>
-          <p>Pathao Developer কনসোলে নিচের এন্ডপয়েন্টটি রেজিস্টার করুন:</p>
-          <div class="wh-endpoint">POST https://courier.auraajenticai.cloud/webhooks/pathao</div>
-          <p>AI Agent ইভেন্ট ডিসপ্যাচ লাইভ গ্রহণ ও কনসাইনমেন্টের স্ট্যাটাস অটোমেটিক আপডেট করে।</p>
+          <div>
+            <h3>⚡ Pathao Webhook</h3>
+            <div class="wh-endpoint">POST /webhooks/pathao</div>
+            <p>Pathao Developer কনসোলে যুক্ত করুন। AI Agent ইভেন্ট ডিসপ্যাচ গ্রহণ ও কনসাইনমেন্টের স্ট্যাটাস অটোমেটিক আপডেট করে।</p>
+          </div>
+        </div>
+
+        <div class="wh-card">
+          <div>
+            <h3>⚡ RedX Webhook</h3>
+            <div class="wh-endpoint">POST /webhooks/redx</div>
+            <p>RedX মার্চেন্ট কনসোলে রেজিস্টার করুন। ২,৮৪৯টি হাবের ট্র্যাকিং ও ডেলিভারি স্ট্যাটাস স্বয়ংক্রিয়ভাবে সিঙ্ক করে।</p>
+          </div>
+        </div>
+
+        <div class="wh-card">
+          <div>
+            <h3>⚡ Paperfly Webhook</h3>
+            <div class="wh-endpoint">POST /webhooks/paperfly</div>
+            <p>Paperfly Wing সিস্টেমে যুক্ত করুন। ডোর-টু-ডোর ডেলিভারি ইভেন্ট ও রিটার্ন স্ট্যাটাস ইনস্ট্যান্ট ক্যাপচার করে।</p>
+          </div>
         </div>
       </div>
     </section>
@@ -346,7 +388,7 @@
       <div class="blk-head">
         <div class="eyebrow">// CONNECT</div>
         <h2 id="connect-title">যুক্ত করুন যেকোনো ক্লায়েন্টে</h2>
-        <p>Hosted Streamable-HTTP URL বা লোকাল কনফিগারেশন — আপনার প্ল্যাটফর্মের কনফিগ ১-ক্লিকে কপি করুন।</p>
+        <p>Hosted Streamable-HTTP URL বা লোকাল কনফিগারেশন — ৪টি কুরিয়ার ও Google Maps সহ আপনার প্ল্যাটফর্মের পূর্ণাঙ্গ কনফিগ কপি করুন।</p>
       </div>
 
       <div class="config-box">
@@ -373,6 +415,8 @@
         "PATHAO_PASSWORD": "YOUR_PATHAO_PASS",
         "REDX_API_TOKEN": "YOUR_REDX_TOKEN",
         "PAPERFLY_KEY": "YOUR_PAPERFLY_KEY",
+        "PAPERFLY_USERNAME": "YOUR_PAPERFLY_USER",
+        "PAPERFLY_PASSWORD": "YOUR_PAPERFLY_PASS",
         "GOOGLE_MAPS_API_KEY": "YOUR_GOOGLE_MAPS_KEY"
       }
     }
@@ -406,10 +450,10 @@
 
 <script>
 const configs = {
-  antigravity: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx.cmd",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY",\n        "PATHAO_CLIENT_ID": "YOUR_PATHAO_CLIENT_ID",\n        "PATHAO_CLIENT_SECRET": "YOUR_PATHAO_CLIENT_SECRET",\n        "PATHAO_USERNAME": "YOUR_PATHAO_USER",\n        "PATHAO_PASSWORD": "YOUR_PATHAO_PASS",\n        "REDX_API_TOKEN": "YOUR_REDX_TOKEN",\n        "PAPERFLY_KEY": "YOUR_PAPERFLY_KEY",\n        "GOOGLE_MAPS_API_KEY": "YOUR_GOOGLE_MAPS_KEY"\n      }\n    }\n  }\n}`,
-  hosted: `{\n  "mcpServers": {\n    "aura-courier": {\n      "url": "https://courier.auraajenticai.cloud/mcp",\n      "headers": {\n        "x-steadfast-api-key": "YOUR_STEADFAST_KEY",\n        "x-steadfast-secret-key": "YOUR_STEADFAST_SECRET"\n      }\n    }\n  }\n}`,
-  claude: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY",\n        "REDX_API_TOKEN": "YOUR_REDX_TOKEN",\n        "PAPERFLY_KEY": "YOUR_PAPERFLY_KEY"\n      }\n    }\n  }\n}`,
-  cursor: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY"\n      }\n    }\n  }\n}`
+  antigravity: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx.cmd",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY",\n        "PATHAO_CLIENT_ID": "YOUR_PATHAO_CLIENT_ID",\n        "PATHAO_CLIENT_SECRET": "YOUR_PATHAO_CLIENT_SECRET",\n        "PATHAO_USERNAME": "YOUR_PATHAO_USER",\n        "PATHAO_PASSWORD": "YOUR_PATHAO_PASS",\n        "REDX_API_TOKEN": "YOUR_REDX_TOKEN",\n        "PAPERFLY_KEY": "YOUR_PAPERFLY_KEY",\n        "PAPERFLY_USERNAME": "YOUR_PAPERFLY_USER",\n        "PAPERFLY_PASSWORD": "YOUR_PAPERFLY_PASS",\n        "GOOGLE_MAPS_API_KEY": "YOUR_GOOGLE_MAPS_KEY"\n      }\n    }\n  }\n}`,
+  hosted: `{\n  "mcpServers": {\n    "aura-courier": {\n      "url": "https://courier.auraajenticai.cloud/mcp",\n      "headers": {\n        "x-steadfast-api-key": "YOUR_STEADFAST_KEY",\n        "x-steadfast-secret-key": "YOUR_STEADFAST_SECRET",\n        "x-pathao-client-id": "YOUR_PATHAO_CLIENT_ID",\n        "x-pathao-client-secret": "YOUR_PATHAO_CLIENT_SECRET",\n        "x-redx-api-token": "YOUR_REDX_TOKEN",\n        "x-paperfly-key": "YOUR_PAPERFLY_KEY",\n        "x-paperfly-user": "YOUR_PAPERFLY_USER",\n        "x-paperfly-pass": "YOUR_PAPERFLY_PASS"\n      }\n    }\n  }\n}`,
+  claude: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY",\n        "PATHAO_CLIENT_ID": "YOUR_PATHAO_CLIENT_ID",\n        "PATHAO_CLIENT_SECRET": "YOUR_PATHAO_CLIENT_SECRET",\n        "PATHAO_USERNAME": "YOUR_PATHAO_USER",\n        "PATHAO_PASSWORD": "YOUR_PATHAO_PASS",\n        "REDX_API_TOKEN": "YOUR_REDX_TOKEN",\n        "PAPERFLY_KEY": "YOUR_PAPERFLY_KEY",\n        "PAPERFLY_USERNAME": "YOUR_PAPERFLY_USER",\n        "PAPERFLY_PASSWORD": "YOUR_PAPERFLY_PASS",\n        "GOOGLE_MAPS_API_KEY": "YOUR_GOOGLE_MAPS_KEY"\n      }\n    }\n  }\n}`,
+  cursor: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY",\n        "PATHAO_CLIENT_ID": "YOUR_PATHAO_CLIENT_ID",\n        "PATHAO_CLIENT_SECRET": "YOUR_PATHAO_CLIENT_SECRET",\n        "PATHAO_USERNAME": "YOUR_PATHAO_USER",\n        "PATHAO_PASSWORD": "YOUR_PATHAO_PASS",\n        "REDX_API_TOKEN": "YOUR_REDX_TOKEN",\n        "PAPERFLY_KEY": "YOUR_PAPERFLY_KEY",\n        "PAPERFLY_USERNAME": "YOUR_PAPERFLY_USER",\n        "PAPERFLY_PASSWORD": "YOUR_PAPERFLY_PASS",\n        "GOOGLE_MAPS_API_KEY": "YOUR_GOOGLE_MAPS_KEY"\n      }\n    }\n  }\n}`
 };
 
 function switchTab(key) {
