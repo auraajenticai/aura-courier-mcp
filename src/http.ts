@@ -9,7 +9,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const PORT = Number(process.env.PORT || 8080);
-const LANDING = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "index.html");
+const APP_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const LANDING = path.join(APP_DIR, "index.html");
+const HEALTH_HTML = path.join(APP_DIR, "health.html");
+const MCP_EXPLORER_HTML = path.join(APP_DIR, "mcp_explorer.html");
 
 // Pull this client's courier keys from request headers or query params, with fallback to environment
 function keysFromRequest(req: Request): EnvSource {
@@ -127,8 +130,28 @@ app.post("/mcp", async (req: Request, res: Response) => {
   }
 });
 
-// GET (server->client SSE stream) and DELETE (end session) for an existing session.
-async function handleSessionRequest(req: Request, res: Response) {
+// GET (server->client SSE stream or Browser Explorer)
+app.get("/mcp", async (req: Request, res: Response) => {
+  const sessionId = req.headers["mcp-session-id"] as string | undefined;
+  if (!sessionId || !sessions.has(sessionId)) {
+    // If opened directly by a human in a web browser, serve the interactive MCP Protocol Explorer!
+    if (req.headers.accept?.includes("text/html")) {
+      return res.sendFile(MCP_EXPLORER_HTML, (err) => {
+        if (err && !res.headersSent) {
+          res.status(400).send("Invalid or missing session ID. Visit https://courier.auraajenticai.cloud for instructions.");
+        }
+      });
+    }
+    res.status(400).send("Invalid or missing session ID");
+    return;
+  }
+  const entry = sessions.get(sessionId)!;
+  entry.lastActiveAt = Date.now();
+  await entry.transport.handleRequest(req, res);
+});
+
+// DELETE (end session) for an existing session.
+app.delete("/mcp", async (req: Request, res: Response) => {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
   if (!sessionId || !sessions.has(sessionId)) {
     res.status(400).send("Invalid or missing session ID");
@@ -137,9 +160,7 @@ async function handleSessionRequest(req: Request, res: Response) {
   const entry = sessions.get(sessionId)!;
   entry.lastActiveAt = Date.now();
   await entry.transport.handleRequest(req, res);
-}
-app.get("/mcp", handleSessionRequest);
-app.delete("/mcp", handleSessionRequest);
+});
 
 /**
  * Official Steadfast Webhook Integration Endpoint
@@ -158,7 +179,7 @@ app.post("/webhooks/steadfast", (req: Request, res: Response) => {
 
   const notifType = payload.notification_type || "delivery_status";
   const consignmentId = payload.consignment_id;
-  const status = payload.status; // pending, delivered, partial_delivered, cancelled, unknown
+  const status = payload.status;
   const invoice = payload.invoice;
 
   console.log(`[Steadfast Update] Consignment: ${consignmentId} | Invoice: ${invoice} | Type: ${notifType} | Status: ${status}`);
@@ -212,9 +233,13 @@ app.post("/webhooks/paperfly", (req: Request, res: Response) => {
   });
 });
 
-app.get("/health", (_req, res) => {
+/**
+ * Health & Live Telemetry Endpoint
+ * Serves visual SaaS Dashboard for browsers, and JSON for API monitors & Docker probes.
+ */
+app.get("/health", (req, res) => {
   const mem = process.memoryUsage();
-  res.json({
+  const data = {
     ok: true,
     service: "aura-courier-mcp",
     version: "2.4.0",
@@ -234,7 +259,17 @@ app.get("/health", (_req, res) => {
       rss_mb: Math.round((mem.rss / 1024 / 1024) * 10) / 10,
       uptime_seconds: Math.round(process.uptime()),
     },
-  });
+  };
+
+  // If a browser is viewing /health and hasn't explicitly asked for format=json, serve the visual dashboard!
+  if (req.headers.accept?.includes("text/html") && req.query.format !== "json") {
+    return res.sendFile(HEALTH_HTML, (err) => {
+      if (err && !res.headersSent) res.json(data);
+    });
+  }
+
+  // Otherwise return JSON for curl, metrics monitors, and Docker health checks
+  res.json(data);
 });
 
 app.get("/", (_req, res) => {
@@ -244,7 +279,7 @@ app.get("/", (_req, res) => {
         .type("html")
         .send(
           `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP</title>` +
-            `<style>body{font-family:system-ui,sans-serif;background:#0b0f1a;color:#e6ecff;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#141c30;padding:2px 8px;border-radius:6px;color:#7dd3fc;font-size:13px}a{color:#7dd3fc}p{line-height:1.6;color:#9fb0d0}</style></head>` +
+            `<style>body{font-family:system-ui,sans-serif;background:#07080a;color:#f4f5f7;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#0f1115;padding:2px 8px;border-radius:6px;color:#00d4ff;font-size:13px}a{color:#00d4ff}p{line-height:1.6;color:#a4a8b3}</style></head>` +
             `<body><div class="b"><h1>🚚 Aura Courier MCP v2.4.0</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
             `<p>Connect your AI to <code>POST /mcp</code> with Streamable-HTTP.</p>` +
             `<p>Webhooks: <code>POST /webhooks/steadfast</code> · <code>POST /webhooks/pathao</code></p>` +
