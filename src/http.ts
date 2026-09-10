@@ -182,7 +182,33 @@ app.post("/webhooks/pathao", (req: Request, res: Response) => {
   console.log("[Pathao Webhook Received]:", JSON.stringify(payload));
   return res.status(200).json({
     status: "success",
-    message: "Webhook received successfully.",
+    message: "Pathao webhook received successfully.",
+  });
+});
+
+/**
+ * Official RedX Webhook Integration Endpoint
+ * Callback URL: https://courier.auraajenticai.cloud/webhooks/redx
+ */
+app.post("/webhooks/redx", (req: Request, res: Response) => {
+  const payload = req.body;
+  console.log("[RedX Webhook Received]:", JSON.stringify(payload));
+  return res.status(200).json({
+    status: "success",
+    message: "RedX webhook received successfully.",
+  });
+});
+
+/**
+ * Official Paperfly Webhook Integration Endpoint
+ * Callback URL: https://courier.auraajenticai.cloud/webhooks/paperfly
+ */
+app.post("/webhooks/paperfly", (req: Request, res: Response) => {
+  const payload = req.body;
+  console.log("[Paperfly Webhook Received]:", JSON.stringify(payload));
+  return res.status(200).json({
+    status: "success",
+    message: "Paperfly webhook received successfully.",
   });
 });
 
@@ -198,6 +224,8 @@ app.get("/health", (_req, res) => {
     webhooks: {
       steadfast: "/webhooks/steadfast",
       pathao: "/webhooks/pathao",
+      redx: "/webhooks/redx",
+      paperfly: "/webhooks/paperfly",
     },
     performance: {
       sessions_active: sessions.size,
