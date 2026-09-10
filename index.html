@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Aura Courier MCP v2.4 — এক unified connector — বাংলাদেশের ৪টি প্রধান কুরিয়ার (Steadfast, Pathao, RedX, Paperfly) ও Google Maps spatial intelligence। AI Agents থেকে ১-ক্লিকে parcel বুক, ট্র্যাক ও জিরো-রিস্ক COD নিশ্চিত করুন।">
+<meta name="description" content="Aura Courier MCP v2.4 — Universal Bangladesh Logistics & Spatial Engine for AI Agents.">
 <title>Aura Courier MCP v2.4 — Universal Bangladesh Logistics & Spatial Engine</title>
 <style>
   :root{
@@ -13,7 +13,6 @@
     --green:#34d399; --green-bg:#0e291e; --amber:#fbbf24; --amber-bg:#2b220e;
     --code-ink:#cad3ec; --shadow:0 2px 8px rgba(0,0,0,.5),0 24px 60px rgba(0,0,0,.5);
     --grad:linear-gradient(105deg, #4d7cff 0%, #8b5cf6 50%, #38bdf8 100%);
-    --card-hover:rgba(77,124,255,0.12);
   }
   *{box-sizing:border-box}
   body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; -webkit-font-smoothing:antialiased}
@@ -29,7 +28,15 @@
   .logo{display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; color:var(--ink); text-decoration:none}
   .logo:hover{text-decoration:none}
   .logo-badge{font-size:11px; padding:3px 10px; border-radius:99px; background:var(--surface2); color:var(--cyan); border:1px solid var(--line); font-weight:600}
-  .nav-links{display:flex; gap:18px; align-items:center; font-size:14px; font-weight:600; flex-wrap:wrap}
+  
+  .header-right{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
+  .nav-links{display:flex; gap:16px; align-items:center; font-size:14px; font-weight:600}
+  
+  /* Language Switcher */
+  .lang-switch{display:inline-flex; background:var(--surface2); border:1px solid var(--line); border-radius:999px; padding:3px; gap:2px}
+  .lang-btn{background:none; border:none; color:var(--muted); font-size:12px; font-weight:700; padding:5px 12px; border-radius:999px; cursor:pointer; transition:all .15s ease; display:flex; align-items:center; gap:5px}
+  .lang-btn.active{background:var(--blue); color:#fff; box-shadow:0 2px 8px rgba(77,124,255,0.4)}
+  .lang-btn:hover:not(.active){color:var(--ink)}
 
   /* Hero */
   .hero{text-align:center; padding:76px 0 54px; position:relative; overflow:hidden}
@@ -47,7 +54,7 @@
   
   .hero h1{font-size:clamp(38px,7.5vw,66px); font-weight:900; letter-spacing:-.03em; margin:18px 0}
   .hero h1 em{font-family:Georgia,"Times New Roman",serif; font-style:italic; font-weight:500; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent}
-  .hero .tagline{font-size:clamp(16px,2.4vw,20px); color:var(--muted); max-width:50ch; margin:0 auto 34px}
+  .hero .tagline{font-size:clamp(16px,2.4vw,20px); color:var(--muted); max-width:52ch; margin:0 auto 34px}
 
   .cta-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
   .btn{display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:14.5px; padding:12px 24px; border-radius:11px; text-decoration:none; transition:transform .12s ease, border-color .15s; border:1px solid transparent}
@@ -67,7 +74,7 @@
 
   /* Couriers Grid (4 Major Couriers Equal Size) */
   .courier-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:18px; margin-top:22px}
-  .c-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; min-height:140px; transition:border-color .15s ease, transform .15s ease}
+  .c-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; min-height:148px; transition:border-color .15s ease, transform .15s ease}
   .c-card:hover{border-color:var(--blue); transform:translateY(-2px)}
   .c-card-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px}
   .c-card b{font-size:17px; color:#fff}
@@ -129,44 +136,51 @@
   <header role="banner">
     <a href="/" class="logo" aria-label="Aura Agentic AI Home">
       <span>🚀 Aura Agentic AI</span>
-      <span class="logo-badge">MCP Bangladesh v2.4</span>
+      <span class="logo-badge" data-i18n="header_badge">MCP Bangladesh v2.4</span>
     </a>
-    <nav class="nav-links" aria-label="Quick Links">
-      <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp" target="_blank" rel="noopener">Glama Registry ↗</a>
-      <a href="https://github.com/auraajenticai/courier-mcp-site" target="_blank" rel="noopener">GitHub ↗</a>
-      <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener">Client Portal ↗</a>
-      <a href="/health" target="_blank" class="mono" style="color:var(--green)">/health ↗</a>
-    </nav>
+    <div class="header-right">
+      <nav class="nav-links" aria-label="Quick Links">
+        <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp" target="_blank" rel="noopener" data-i18n="nav_glama">Glama Registry ↗</a>
+        <a href="https://github.com/auraajenticai/courier-mcp-site" target="_blank" rel="noopener" data-i18n="nav_github">GitHub ↗</a>
+        <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" data-i18n="nav_client">Client Portal ↗</a>
+        <a href="/health" target="_blank" class="mono" style="color:var(--green)">/health ↗</a>
+      </nav>
+      <!-- Dual Language Switcher -->
+      <div class="lang-switch" role="group" aria-label="Language Selector">
+        <button id="lang-bn" class="lang-btn active" onclick="setLang('bn')" aria-pressed="true">🇧🇩 বাংলা</button>
+        <button id="lang-en" class="lang-btn" onclick="setLang('en')" aria-pressed="false">🇬🇧 English</button>
+      </div>
+    </div>
   </header>
 
   <main>
     <!-- HERO -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="badge-row">
-        <div class="badge-glama">✓ Verified on Glama.ai Registry</div>
-        <div class="badge-live"><span class="d"></span> 4 Couriers + Google Maps Live</div>
+        <div class="badge-glama" data-i18n="badge_glama">✓ Verified on Glama.ai Registry</div>
+        <div class="badge-live"><span class="d"></span> <span data-i18n="badge_couriers">4 Couriers + Google Maps Live</span></div>
         <div class="badge-version">⚡ Streamable-HTTP v2024-11-05</div>
       </div>
 
       <h1 id="hero-title">Aura <em>Courier</em> MCP</h1>
-      <p class="tagline">এক connector — বাংলাদেশের সব courier ও spatial intelligence। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক করুন, ট্র্যাক করুন এবং জিরো-রিস্ক COD নিশ্চিত করুন।</p>
+      <p class="tagline" data-i18n="hero_tagline">এক connector — বাংলাদেশের সব courier ও spatial intelligence। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক করুন, ট্র্যাক করুন এবং জিরো-রিস্ক COD নিশ্চিত করুন।</p>
 
       <div class="cta-row">
         <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp" target="_blank" rel="noopener" class="btn btn-glama">
-          <span>⚡ View on Glama.ai</span>
+          <span data-i18n="cta_glama">⚡ View on Glama.ai</span>
         </a>
         <a href="https://github.com/auraajenticai/courier-mcp-site" target="_blank" rel="noopener" class="btn btn-ghost">
-          <span>★ View on GitHub</span>
+          <span data-i18n="cta_github">★ View on GitHub</span>
         </a>
         <a href="https://courier.auraajenticai.cloud/mcp" target="_blank" rel="noopener" class="btn btn-primary">
-          <span>Connect MCP Endpoint ↗</span>
+          <span data-i18n="cta_mcp">Connect MCP Endpoint ↗</span>
         </a>
       </div>
 
       <div class="hero-meta">
-        <span><b>9</b> enterprise tools</span>
-        <span><b>4</b> couriers + Google Maps</span>
-        <span>Zero-Risk COD · Fraud AI</span>
+        <span><b data-i18n="meta_tools_count">9</b> <span data-i18n="meta_tools">enterprise tools</span></span>
+        <span><b data-i18n="meta_couriers_count">4</b> <span data-i18n="meta_couriers">couriers + Google Maps</span></span>
+        <span data-i18n="meta_risk">Zero-Risk COD · Fraud AI</span>
         <span>Apache License 2.0</span>
       </div>
     </section>
@@ -174,9 +188,9 @@
     <!-- 4 MAJOR COURIERS OF BANGLADESH -->
     <section class="blk" aria-labelledby="courier-title">
       <div class="blk-head">
-        <div class="eyebrow">// SUPPORTED CARRIERS</div>
-        <h2 id="courier-title">বাংলাদেশের ৪টি শীর্ষস্থানীয় কুরিয়ার</h2>
-        <p>একই সর্বজনীন ইন্টারফেসে দেশের বৃহত্তম ৪টি লজিস্টিকস নেটওয়ার্ক — সমান গুরুত্ব ও পূর্ণ কার্যক্ষমতায় সক্রিয়।</p>
+        <div class="eyebrow" data-i18n="courier_eyebrow">// SUPPORTED CARRIERS</div>
+        <h2 id="courier-title" data-i18n="courier_heading">বাংলাদেশের ৪টি শীর্ষস্থানীয় কুরিয়ার</h2>
+        <p data-i18n="courier_subtitle">একই সর্বজনীন ইন্টারফেসে দেশের বৃহত্তম ৪টি লজিস্টিকস নেটওয়ার্ক — সমান গুরুত্ব ও পূর্ণ কার্যক্ষমতায় সক্রিয়।</p>
       </div>
 
       <div class="courier-grid">
@@ -186,9 +200,9 @@
               <b>Steadfast</b>
               <span class="badge-live-sm">● live</span>
             </div>
-            <div class="c-desc">Packzy API v1 · সারা দেশে ৬৪ জেলায় ২৪-৪৮ ঘণ্টার ক্যাশ অন ডেলিভারি ও অটোমেটেড ট্র্যাকিং।</div>
+            <div class="c-desc" data-i18n="sf_desc">Packzy API v1 · সারা দেশে ৬৪ জেলায় ২৪-৪৮ ঘণ্টার ক্যাশ অন ডেলিভারি ও অটোমেটেড ট্র্যাকিং।</div>
           </div>
-          <div class="c-meta">মার্চেন্ট: Snehalata (ID: 98SRCP1S)</div>
+          <div class="c-meta" data-i18n="sf_meta">মার্চেন্ট: Snehalata (ID: 98SRCP1S)</div>
         </div>
 
         <div class="c-card">
@@ -197,9 +211,9 @@
               <b>Pathao Express</b>
               <span class="badge-live-sm">● live</span>
             </div>
-            <div class="c-desc">AI Agent Dispatch · সিটি ও জোন অটো-রেজলভার সহ দ্রুততম অন-ডিমান্ড ও এক্সপ্রেস ডেলিভারি।</div>
+            <div class="c-desc" data-i18n="pt_desc">AI Agent Dispatch · সিটি ও জোন অটো-রেজলভার সহ দ্রুততম অন-ডিমান্ড ও এক্সপ্রেস ডেলিভারি।</div>
           </div>
-          <div class="c-meta">স্টোর আইডি: 356230 (মোহাম্মদপুর, ঢাকা)</div>
+          <div class="c-meta" data-i18n="pt_meta">স্টোর আইডি: 356230 (মোহাম্মদপুর, ঢাকা)</div>
         </div>
 
         <div class="c-card">
@@ -208,9 +222,9 @@
               <b>RedX Delivery</b>
               <span class="badge-live-sm">● live</span>
             </div>
-            <div class="c-desc">OpenAPI v1 · ২,৮৪৯টি ডেলিভারি হাব ও দেশজুড়ে শক্তিশালী ডিস্ট্রিবিউশন নেটওয়ার্ক।</div>
+            <div class="c-desc" data-i18n="rx_desc">OpenAPI v1 · ২,৮৪৯টি ডেলিভারি হাব ও দেশজুড়ে শক্তিশালী ডিস্ট্রিবিউশন নেটওয়ার্ক।</div>
           </div>
-          <div class="c-meta">শপ আইডি: 1051948 · পিকআপ হাব: 544445</div>
+          <div class="c-meta" data-i18n="rx_meta">শপ আইডি: 1051948 · পিকআপ হাব: 544445</div>
         </div>
 
         <div class="c-card">
@@ -219,19 +233,19 @@
               <b>Paperfly Go</b>
               <span class="badge-live-sm">● live</span>
             </div>
-            <div class="c-desc">Wing API v1 · প্রত্যন্ত ইউনিয়ন পর্যন্ত ডোরস্টেপ পিকআপ ও হোম ডেলিভারি কাভারেজ।</div>
+            <div class="c-desc" data-i18n="pf_desc">Wing API v1 · প্রত্যন্ত ইউনিয়ন পর্যন্ত ডোরস্টেপ পিকআপ ও হোম ডেলিভারি কাভারেজ।</div>
           </div>
-          <div class="c-meta">মার্চেন্ট ইউজার: c180381 (Snehalata)</div>
+          <div class="c-meta" data-i18n="pf_meta">মার্চেন্ট ইউজার: c180381 (Snehalata)</div>
         </div>
       </div>
 
       <!-- Dedicated Spatial Engine Banner -->
       <div class="spatial-box">
         <div class="spatial-left">
-          <h3>📍 Google Maps Platform — Spatial Routing Engine</h3>
-          <p>Geocoding API, Routes API v2 ও রুটপ-লেভেল কোঅর্ডিনেট দিয়ে নিখুঁত থানা/জেলা রেজোলিউশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।</p>
+          <h3 data-i18n="spatial_title">📍 Google Maps Platform — Spatial Routing Engine</h3>
+          <p data-i18n="spatial_desc">Geocoding API, Routes API v2 ও রুটপ-লেভেল কোঅর্ডিনেট দিয়ে নিখুঁত থানা/জেলা রেজোলিউশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।</p>
         </div>
-        <span class="badge-spatial">● Enterprise Spatial AI</span>
+        <span class="badge-spatial" data-i18n="spatial_badge">● Enterprise Spatial AI</span>
       </div>
     </section>
 
@@ -239,19 +253,19 @@
     <section class="blk" style="padding:28px 0;">
       <div class="health-box" aria-label="Server Telemetry">
         <div class="health-item">
-          <h4>Engine Status</h4>
-          <span style="color:var(--green)">● Operational</span>
+          <h4 data-i18n="health_status_title">Engine Status</h4>
+          <span style="color:var(--green)" data-i18n="health_status_val">● Operational</span>
         </div>
         <div class="health-item">
-          <h4>Protocol</h4>
+          <h4 data-i18n="health_proto_title">Protocol</h4>
           <span>Streamable-HTTP 2024-11-05</span>
         </div>
         <div class="health-item">
-          <h4>Registered Tools</h4>
-          <span>9 Production Tools</span>
+          <h4 data-i18n="health_tools_title">Registered Tools</h4>
+          <span data-i18n="health_tools_val">9 Production Tools</span>
         </div>
         <div class="health-item">
-          <h4>Active Webhooks</h4>
+          <h4 data-i18n="health_wh_title">Active Webhooks</h4>
           <span>Steadfast, Pathao, RedX, Paperfly</span>
         </div>
       </div>
@@ -260,82 +274,82 @@
     <!-- 9 ENTERPRISE TOOLS -->
     <section class="blk" aria-labelledby="tools-title">
       <div class="blk-head">
-        <div class="eyebrow">// ENTERPRISE TOOLS</div>
-        <h2 id="tools-title">One Interface, Every Courier & Spatial Capability</h2>
-        <p>প্রতিটা courier আলাদা API ও কাঠামোর — Aura Courier MCP সবগুলোকে একই সর্বজনীন ও নির্ভরযোগ্য toolset-এ নিয়ে এসেছে। আপনার AI Agent-কে নির্দেশ দিন, বাকি জটিল হিসাব ও ডিসপ্যাচ ও সামলে নেবে।</p>
+        <div class="eyebrow" data-i18n="tools_eyebrow">// ENTERPRISE TOOLS</div>
+        <h2 id="tools-title" data-i18n="tools_heading">One Interface, Every Courier & Spatial Capability</h2>
+        <p data-i18n="tools_subtitle">প্রতিটা courier আলাদা API ও কাঠামোর — Aura Courier MCP সবগুলোকে একই সর্বজনীন ও নির্ভরযোগ্য toolset-এ নিয়ে এসেছে। আপনার AI Agent-কে নির্দেশ দিন, বাকি জটিল হিসাব ও ডিসপ্যাচ ও সামলে নেবে।</p>
       </div>
 
       <div class="tools">
         <article class="t-card">
           <div class="t-head">
             <h3>create_parcel</h3>
-            <span class="t-tag">Order Dispatch</span>
+            <span class="t-tag" data-i18n="tag_order">Order Dispatch</span>
           </div>
-          <p>যেকোনো courier-এ অটোমেটিক ডেলিভারি বুকিং (Steadfast, Pathao, RedX, Paperfly)। Pathao spatial auto-resolver সহ Consignment ID ও ট্র্যাকিং কোড নিশ্চিত করে।</p>
+          <p data-i18n="tool_create_desc">যেকোনো courier-এ অটোমেটিক ডেলিভারি বুকিং (Steadfast, Pathao, RedX, Paperfly)। Pathao spatial auto-resolver সহ Consignment ID ও ট্র্যাকিং কোড নিশ্চিত করে।</p>
         </article>
 
         <article class="t-card">
           <div class="t-head">
             <h3>track_parcel</h3>
-            <span class="t-tag">Unified Tracking</span>
+            <span class="t-tag" data-i18n="tag_track">Unified Tracking</span>
           </div>
-          <p>Consignment, Invoice বা Tracking Code দিয়ে রিয়েল-টাইম ডেলিভারি স্ট্যাটাস ও সর্বজনীন টাইমলাইন ট্র্যাকিং।</p>
+          <p data-i18n="tool_track_desc">Consignment, Invoice বা Tracking Code দিয়ে রিয়েল-টাইম ডেলিভারি স্ট্যাটাস ও সর্বজনীন টাইমলাইন ট্র্যাকিং।</p>
         </article>
 
         <article class="t-card">
           <div class="t-head">
             <h3>get_balance</h3>
-            <span class="t-tag">Finance</span>
+            <span class="t-tag" data-i18n="tag_finance">Finance</span>
           </div>
-          <p>সব courier মার্চেন্ট একাউন্টের লাইভ ব্যালেন্স, পেন্ডিং ডিসবার্সমেন্ট ও পেআউট স্ট্যাটাস (BDT)।</p>
+          <p data-i18n="tool_balance_desc">সব courier মার্চেন্ট একাউন্টের লাইভ ব্যালেন্স, পেন্ডিং ডিসবার্সমেন্ট ও পেআউট স্ট্যাটাস (BDT)।</p>
         </article>
 
         <article class="t-card">
           <div class="t-head">
             <h3>check_fraud_risk</h3>
-            <span class="t-tag">Fraud AI</span>
+            <span class="t-tag" data-i18n="tag_fraud">Fraud AI</span>
           </div>
-          <p>পার্সেল পাঠানোর আগেই গ্রাহকের ফোন নম্বর জাতীয় লজিস্টিকস ডাটাবেসে বিশ্লেষণ করে ডেলিভারি সাকসেস রেট ও রিটার্ন রিস্ক স্কোর নির্ধারণ করে। Zero mock data।</p>
+          <p data-i18n="tool_fraud_desc">পার্সেল পাঠানোর আগেই গ্রাহকের ফোন নম্বর জাতীয় লজিস্টিকস ডাটাবেসে বিশ্লেষণ করে ডেলিভারি সাকসেস রেট ও রিটার্ন রিস্ক স্কোর নির্ধারণ করে। Zero mock data।</p>
         </article>
 
         <article class="t-card">
           <div class="t-head">
             <h3>list_couriers</h3>
-            <span class="t-tag">Discovery</span>
+            <span class="t-tag" data-i18n="tag_discovery">Discovery</span>
           </div>
-          <p>সিস্টেমে সংযুক্ত কুরিয়ারসমূহের অ্যাক্টিভ স্ট্যাটাস, মার্চেন্ট ক্রেডেনশিয়াল কনফিগারেশন ও অপারেশনাল হেলথ যাচাই করুন।</p>
+          <p data-i18n="tool_list_desc">সিস্টেমে সংযুক্ত কুরিয়ারসমূহের অ্যাক্টিভ স্ট্যাটাস, মার্চেন্ট ক্রেডেনশিয়াল কনফিগারেশন ও অপারেশনাল হেলথ যাচাই করুন।</p>
         </article>
 
         <article class="t-card">
           <div class="t-head">
             <h3>validate_and_geocode_address</h3>
-            <span class="t-tag new">Spatial AI</span>
+            <span class="t-tag new" data-i18n="tag_spatial">Spatial AI</span>
           </div>
-          <p>Google Maps Platform Geocoding API ও রুটপ-লেভেল কোঅর্ডিনেট ব্যবহার করে ঠিকানা থেকে সাব-লোকালিটি (থানা, জেলা, বিভাগ) নির্ভুলভাবে শনাক্তকরণ।</p>
+          <p data-i18n="tool_geocode_desc">Google Maps Platform Geocoding API ও রুটপ-লেভেল কোঅর্ডিনেট ব্যবহার করে ঠিকানা থেকে সাব-লোকালিটি (থানা, জেলা, বিভাগ) নির্ভুলভাবে শনাক্তকরণ।</p>
         </article>
 
         <article class="t-card">
           <div class="t-head">
             <h3>calculate_delivery_zone_and_fee</h3>
-            <span class="t-tag new">Pricing Engine</span>
+            <span class="t-tag new" data-i18n="tag_pricing">Pricing Engine</span>
           </div>
-          <p>ঠিকানা অনুযায়ী অটোমেটিক জোন ক্লাসিফিকেশন (Dhaka: ৳80, Sub-Dhaka: ৳100, Outside Dhaka: ৳150) ও ডেলিভারি চার্জ নির্ধারণ।</p>
+          <p data-i18n="tool_fee_desc">ঠিকানা অনুযায়ী অটোমেটিক জোন ক্লাসিফিকেশন (Dhaka: ৳80, Sub-Dhaka: ৳100, Outside Dhaka: ৳150) ও ডেলিভারি চার্জ নির্ধারণ।</p>
         </article>
 
         <article class="t-card">
           <div class="t-head">
             <h3>compare_courier_rates</h3>
-            <span class="t-tag new">SLA & Cost</span>
+            <span class="t-tag new" data-i18n="tag_sla">SLA & Cost</span>
           </div>
-          <p>সবগুলো কুরিয়ারের রিয়েল-টাইম রেট, COD কমিশন ও প্রত্যাশিত ডেলিভারি টাইমলাইন পাশাপাশি তুলনা করে সেরা কুরিয়ার নির্বাচন।</p>
+          <p data-i18n="tool_compare_desc">সবগুলো কুরিয়ারের রিয়েল-টাইম রেট, COD কমিশন ও প্রত্যাশিত ডেলিভারি টাইমলাইন পাশাপাশি তুলনা করে সেরা কুরিয়ার নির্বাচন।</p>
         </article>
 
         <article class="t-card">
           <div class="t-head">
             <h3>resolve_ndr_issue</h3>
-            <span class="t-tag new">NDR Resolution</span>
+            <span class="t-tag new" data-i18n="tag_ndr">NDR Resolution</span>
           </div>
-          <p>নন-ডেলিভারি রিপোর্ট (NDR) সমস্যা চিহ্নিত করে গ্রাহকের জন্য অটোমেটিক বাংলা WhatsApp মেসেজ ড্রাফট ও কুরিয়ার ডিসপুট গাইডেন্স তৈরি।</p>
+          <p data-i18n="tool_ndr_desc">নন-ডেলিভারি রিপোর্ট (NDR) সমস্যা চিহ্নিত করে গ্রাহকের জন্য অটোমেটিক বাংলা/ইংরেজি WhatsApp মেসেজ ড্রাফট ও কুরিয়ার ডিসপুট গাইডেন্স তৈরি।</p>
         </article>
       </div>
     </section>
@@ -343,41 +357,41 @@
     <!-- REAL-TIME WEBHOOK RECEIVERS FOR ALL 4 COURIERS -->
     <section class="blk" aria-labelledby="webhook-title">
       <div class="blk-head">
-        <div class="eyebrow">// REAL-TIME WEBHOOKS</div>
-        <h2 id="webhook-title">৪টি কুরিয়ারেরই রিয়েল-টাইম অটোমেশন ও ইভেন্ট রিসিভার</h2>
-        <p>যেকোনো কুরিয়ারে ডেলিভারি স্ট্যাটাস পরিবর্তন হওয়া মাত্রই Aura Courier MCP-তে তাৎক্ষণিক সিঙ্ক হয়।</p>
+        <div class="eyebrow" data-i18n="wh_eyebrow">// REAL-TIME WEBHOOKS</div>
+        <h2 id="webhook-title" data-i18n="wh_heading">৪টি কুরিয়ারেরই রিয়েল-টাইম অটোমেশন ও ইভেন্ট রিসিভার</h2>
+        <p data-i18n="wh_subtitle">যেকোনো কুরিয়ারে ডেলিভারি স্ট্যাটাস পরিবর্তন হওয়া মাত্রই Aura Courier MCP-তে তাৎক্ষণিক সিঙ্ক হয়।</p>
       </div>
 
       <div class="webhook-grid">
         <div class="wh-card">
           <div>
-            <h3>⚡ Steadfast Webhook</h3>
+            <h3 data-i18n="wh_sf_title">⚡ Steadfast Webhook</h3>
             <div class="wh-endpoint">POST /webhooks/steadfast</div>
-            <p>Steadfast মার্চেন্ট পোর্টালের Webhook URL-এ যুক্ত করুন। ডেলিভারি স্ট্যাটাস ও ট্র্যাকিং ইভেন্ট রিয়েল-টাইমে প্রসেস করে।</p>
+            <p data-i18n="wh_sf_desc">Steadfast মার্চেন্ট পোর্টালের Webhook URL-এ যুক্ত করুন। ডেলিভারি স্ট্যাটাস ও ট্র্যাকিং ইভেন্ট রিয়েল-টাইমে প্রসেস করে।</p>
           </div>
         </div>
 
         <div class="wh-card">
           <div>
-            <h3>⚡ Pathao Webhook</h3>
+            <h3 data-i18n="wh_pt_title">⚡ Pathao Webhook</h3>
             <div class="wh-endpoint">POST /webhooks/pathao</div>
-            <p>Pathao Developer কনসোলে যুক্ত করুন। AI Agent ইভেন্ট ডিসপ্যাচ গ্রহণ ও কনসাইনমেন্টের স্ট্যাটাস অটোমেটিক আপডেট করে।</p>
+            <p data-i18n="wh_pt_desc">Pathao Developer কনসোলে যুক্ত করুন। AI Agent ইভেন্ট ডিসপ্যাচ গ্রহণ ও কনসাইনমেন্টের স্ট্যাটাস অটোমেটিক আপডেট করে।</p>
           </div>
         </div>
 
         <div class="wh-card">
           <div>
-            <h3>⚡ RedX Webhook</h3>
+            <h3 data-i18n="wh_rx_title">⚡ RedX Webhook</h3>
             <div class="wh-endpoint">POST /webhooks/redx</div>
-            <p>RedX মার্চেন্ট কনসোলে রেজিস্টার করুন। ২,৮৪৯টি হাবের ট্র্যাকিং ও ডেলিভারি স্ট্যাটাস স্বয়ংক্রিয়ভাবে সিঙ্ক করে।</p>
+            <p data-i18n="wh_rx_desc">RedX মার্চেন্ট কনসোলে রেজিস্টার করুন। ২,৮৪৯টি হাবের ট্র্যাকিং ও ডেলিভারি স্ট্যাটাস স্বয়ংক্রিয়ভাবে সিঙ্ক করে।</p>
           </div>
         </div>
 
         <div class="wh-card">
           <div>
-            <h3>⚡ Paperfly Webhook</h3>
+            <h3 data-i18n="wh_pf_title">⚡ Paperfly Webhook</h3>
             <div class="wh-endpoint">POST /webhooks/paperfly</div>
-            <p>Paperfly Wing সিস্টেমে যুক্ত করুন। ডোর-টু-ডোর ডেলিভারি ইভেন্ট ও রিটার্ন স্ট্যাটাস ইনস্ট্যান্ট ক্যাপচার করে।</p>
+            <p data-i18n="wh_pf_desc">Paperfly Wing সিস্টেমে যুক্ত করুন। ডোর-টু-ডোর ডেলিভারি ইভেন্ট ও রিটার্ন স্ট্যাটাস ইনস্ট্যান্ট ক্যাপচার করে।</p>
           </div>
         </div>
       </div>
@@ -386,9 +400,9 @@
     <!-- CONNECT MULTI-CLIENT TABS -->
     <section class="blk" aria-labelledby="connect-title">
       <div class="blk-head">
-        <div class="eyebrow">// CONNECT</div>
-        <h2 id="connect-title">যুক্ত করুন যেকোনো ক্লায়েন্টে</h2>
-        <p>Hosted Streamable-HTTP URL বা লোকাল কনফিগারেশন — ৪টি কুরিয়ার ও Google Maps সহ আপনার প্ল্যাটফর্মের পূর্ণাঙ্গ কনফিগ কপি করুন।</p>
+        <div class="eyebrow" data-i18n="connect_eyebrow">// CONNECT</div>
+        <h2 id="connect-title" data-i18n="connect_heading">যুক্ত করুন যেকোনো ক্লায়েন্টে</h2>
+        <p data-i18n="connect_subtitle">Hosted Streamable-HTTP URL বা লোকাল কনফিগারেশন — ৪টি কুরিয়ার ও Google Maps সহ আপনার প্ল্যাটফর্মের পূর্ণাঙ্গ কনফিগ কপি করুন।</p>
       </div>
 
       <div class="config-box">
@@ -400,7 +414,7 @@
         </div>
 
         <div class="code-wrapper">
-          <button class="copy-btn" onclick="copyCode()" aria-label="Copy Configuration Code">Copy Config</button>
+          <button class="copy-btn" onclick="copyCode()" aria-label="Copy Configuration Code" data-i18n="copy_btn">Copy Config</button>
           <pre id="code-snippet" class="code-body" tabindex="0">{
   "mcpServers": {
     "aura-courier": {
@@ -429,26 +443,214 @@
     <!-- THE VISION -->
     <section class="blk" aria-labelledby="vision-title">
       <div class="vision-box">
-        <div class="eyebrow" style="color:var(--cyan); margin-bottom:8px;">THE VISION</div>
-        <h3 id="vision-title">এক ছাদের নিচে দেশের সব commerce API</h3>
-        <p>Aura বানাচ্ছে বাংলাদেশের agentic commerce স্তর — courier, payments, spatial intelligence এবং আরও অনেক connector — যাতে যেকোনো AI স্বয়ংক্রিয়ভাবে ও বিশ্বমানের নির্ভুলতায় দেশের যেকোনো ব্যবসার অপারেশন পরিচালনা করতে পারে। মানুষের স্বপ্ন · এআই-এর হাত।</p>
+        <div class="eyebrow" style="color:var(--cyan); margin-bottom:8px;" data-i18n="vision_eyebrow">THE VISION</div>
+        <h3 id="vision-title" data-i18n="vision_heading">এক ছাদের নিচে দেশের সব commerce API</h3>
+        <p data-i18n="vision_desc">Aura বানাচ্ছে বাংলাদেশের agentic commerce স্তর — courier, payments, spatial intelligence এবং আরও অনেক connector — যাতে যেকোনো AI স্বয়ংক্রিয়ভাবে ও বিশ্বমানের নির্ভুলতায় দেশের যেকোনো ব্যবসার অপারেশন পরিচালনা করতে পারে। মানুষের স্বপ্ন · এআই-এর হাত।</p>
       </div>
     </section>
   </main>
 
   <footer role="contentinfo">
-    <p>Aura Courier MCP v2.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b></p>
+    <p data-i18n="footer_license">Aura Courier MCP v2.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b></p>
     <p>
       <a href="https://auraajenticai.cloud">auraajenticai.cloud</a> · 
       <a href="https://git.auraajenticai.cloud">git.auraajenticai.cloud</a> · 
       <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp">Glama Verified</a> · 
-      <a href="/health">Live Telemetry</a>
+      <a href="/health" data-i18n="footer_telemetry">Live Telemetry</a>
     </p>
   </footer>
 
 </div>
 
 <script>
+const i18n = {
+  bn: {
+    header_badge: "MCP Bangladesh v2.4",
+    nav_glama: "Glama Registry ↗",
+    nav_github: "GitHub ↗",
+    nav_client: "Client Portal ↗",
+    badge_glama: "✓ Verified on Glama.ai Registry",
+    badge_couriers: "৪টি কুরিয়ার + গুগল ম্যাপস লাইভ",
+    hero_tagline: "এক connector — বাংলাদেশের সব courier ও spatial intelligence। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক করুন, ট্র্যাক করুন এবং জিরো-রিস্ক COD নিশ্চিত করুন।",
+    cta_glama: "⚡ View on Glama.ai",
+    cta_github: "★ View on GitHub",
+    cta_mcp: "Connect MCP Endpoint ↗",
+    meta_tools_count: "৯টি",
+    meta_tools: "এন্টারপ্রাইজ টুলস",
+    meta_couriers_count: "৪টি",
+    meta_couriers: "কুরিয়ার + গুগল ম্যাপস",
+    meta_risk: "জিরো-রিস্ক সিওডি · ফ্রড এআই",
+    courier_eyebrow: "// SUPPORTED CARRIERS",
+    courier_heading: "বাংলাদেশের ৪টি শীর্ষস্থানীয় কুরিয়ার",
+    courier_subtitle: "একই সর্বজনীন ইন্টারফেসে দেশের বৃহত্তম ৪টি লজিস্টিকস নেটওয়ার্ক — সমান গুরুত্ব ও পূর্ণ কার্যক্ষমতায় সক্রিয়।",
+    sf_desc: "Packzy API v1 · সারা দেশে ৬৪ জেলায় ২৪-৪৮ ঘণ্টার ক্যাশ অন ডেলিভারি ও অটোমেটেড ট্র্যাকিং।",
+    sf_meta: "মার্চেন্ট: Snehalata (ID: 98SRCP1S)",
+    pt_desc: "AI Agent Dispatch · সিটি ও জোন অটো-রেজলভার সহ দ্রুততম অন-ডিমান্ড ও এক্সপ্রেস ডেলিভারি।",
+    pt_meta: "স্টোর আইডি: ৩৫৬২৩০ (মোহাম্মদপুর, ঢাকা)",
+    rx_desc: "OpenAPI v1 · ২,৮৪৯টি ডেলিভারি হাব ও দেশজুড়ে শক্তিশালী ডিস্ট্রিবিউশন নেটওয়ার্ক।",
+    rx_meta: "শপ আইডি: ১০৫১৯৪৮ · পিকআপ হাব: ৫৪৪৪ND",
+    pf_desc: "Wing API v1 · প্রত্যন্ত ইউনিয়ন পর্যন্ত ডোরস্টেপ পিকআপ ও হোম ডেলিভারি কাভারেজ।",
+    pf_meta: "মার্চেন্ট ইউজার: c180381 (Snehalata)",
+    spatial_title: "📍 Google Maps Platform — Spatial Routing Engine",
+    spatial_desc: "Geocoding API, Routes API v2 ও রুটপ-লেভেল কোঅর্ডিনেট দিয়ে নিখুঁত থানা/জেলা রেজোলিউশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।",
+    spatial_badge: "● এন্টারপ্রাইজ স্পেশিয়াল এআই",
+    health_status_title: "Engine Status",
+    health_status_val: "● চলমান (Operational)",
+    health_proto_title: "Protocol",
+    health_tools_title: "Registered Tools",
+    health_tools_val: "৯টি প্রোডাকশন টুলস",
+    health_wh_title: "Active Webhooks",
+    tools_eyebrow: "// ENTERPRISE TOOLS",
+    tools_heading: "One Interface, Every Courier & Spatial Capability",
+    tools_subtitle: "প্রতিটা courier আলাদা API ও কাঠামোর — Aura Courier MCP সবগুলোকে একই সর্বজনীন ও নির্ভরযোগ্য toolset-এ নিয়ে এসেছে। আপনার AI Agent-কে নির্দেশ দিন, বাকি জটিল হিসাব ও ডিসপ্যাচ ও সামলে নেবে।",
+    tag_order: "অর্ডার ডিসপ্যাচ",
+    tag_track: "ইউনিফাইড ট্র্যাকিং",
+    tag_finance: "ফাইন্যান্স",
+    tag_fraud: "ফ্রড এআই",
+    tag_discovery: "ডিসকভারি",
+    tag_spatial: "স্পেশিয়াল এআই",
+    tag_pricing: "প্রাইসিং ইঞ্জিন",
+    tag_sla: "এসএলএ ও খরচ",
+    tag_ndr: "এনডিআর সমাধান",
+    tool_create_desc: "যেকোনো courier-এ অটোমেটিক ডেলিভারি বুকিং (Steadfast, Pathao, RedX, Paperfly)। Pathao spatial auto-resolver সহ Consignment ID ও ট্র্যাকিং কোড নিশ্চিত করে।",
+    tool_track_desc: "Consignment, Invoice বা Tracking Code দিয়ে রিয়েল-টাইম ডেলিভারি স্ট্যাটাস ও সর্বজনীন টাইমলাইন ট্র্যাকিং।",
+    tool_balance_desc: "সব courier মার্চেন্ট একাউন্টের লাইভ ব্যালেন্স, পেন্ডিং ডিসবার্সমেন্ট ও পেআউট স্ট্যাটাস (BDT)।",
+    tool_fraud_desc: "পার্সেল পাঠানোর আগেই গ্রাহকের ফোন নম্বর জাতীয় লজিস্টিকস ডাটাবেসে বিশ্লেষণ করে ডেলিভারি সাকসেস রেট ও রিটার্ন রিস্ক স্কোর নির্ধারণ করে। Zero mock data।",
+    tool_list_desc: "সিস্টেমে সংযুক্ত কুরিয়ারসমূহের অ্যাক্টিভ স্ট্যাটাস, মার্চেন্ট ক্রেডেনশিয়াল কনফিগারেশন ও অপারেশনাল হেলথ যাচাই করুন।",
+    tool_geocode_desc: "Google Maps Platform Geocoding API ও রুটপ-লেভেল কোঅর্ডিনেট ব্যবহার করে ঠিকানা থেকে সাব-লোকালিটি (থানা, জেলা, বিভাগ) নির্ভুলভাবে শনাক্তকরণ।",
+    tool_fee_desc: "ঠিকানা অনুযায়ী অটোমেটিক জোন ক্লাসিফিকেশন (Dhaka: ৳80, Sub-Dhaka: ৳100, Outside Dhaka: ৳150) ও ডেলিভারি চার্জ নির্ধারণ।",
+    tool_compare_desc: "সবগুলো কুরিয়ারের রিয়েল-টাইম রেট, COD কমিশন ও প্রত্যাশিত ডেলিভারি টাইমলাইন পাশাপাশি তুলনা করে সেরা কুরিয়ার নির্বাচন।",
+    tool_ndr_desc: "নন-ডেলিভারি রিপোর্ট (NDR) সমস্যা চিহ্নিত করে গ্রাহকের জন্য অটোমেটিক বাংলা/ইংরেজি WhatsApp মেসেজ ড্রাফট ও কুরিয়ার ডিসপুট গাইডেন্স তৈরি।",
+    wh_eyebrow: "// REAL-TIME WEBHOOKS",
+    wh_heading: "৪টি কুরিয়ারেরই রিয়েল-টাইম অটোমেশন ও ইভেন্ট রিসিভার",
+    wh_subtitle: "যেকোনো কুরিয়ারে ডেলিভারি স্ট্যাটাস পরিবর্তন হওয়া মাত্রই Aura Courier MCP-তে তাৎক্ষণিক সিঙ্ক হয়।",
+    wh_sf_title: "⚡ Steadfast Webhook",
+    wh_sf_desc: "Steadfast মার্চেন্ট পোর্টালের Webhook URL-এ যুক্ত করুন। ডেলিভারি স্ট্যাটাস ও ট্র্যাকিং ইভেন্ট রিয়েল-টাইমে প্রসেস করে।",
+    wh_pt_title: "⚡ Pathao Webhook",
+    wh_pt_desc: "Pathao Developer কনসোলে যুক্ত করুন। AI Agent ইভেন্ট ডিসপ্যাচ গ্রহণ ও কনসাইনমেন্টের স্ট্যাটাস অটোমেটিক আপডেট করে।",
+    wh_rx_title: "⚡ RedX Webhook",
+    wh_rx_desc: "RedX মার্চেন্ট কনসোলে রেজিস্টার করুন। ২,৮৪৯টি হাবের ট্র্যাকিং ও ডেলিভারি স্ট্যাটাস স্বয়ংক্রিয়ভাবে সিঙ্ক করে।",
+    wh_pf_title: "⚡ Paperfly Webhook",
+    wh_pf_desc: "Paperfly Wing সিস্টেমে যুক্ত করুন। ডোর-টু-ডোর ডেলিভারি ইভেন্ট ও রিটার্ন স্ট্যাটাস ইনস্ট্যান্ট ক্যাপচার করে।",
+    connect_eyebrow: "// CONNECT",
+    connect_heading: "যুক্ত করুন যেকোনো ক্লায়েন্টে",
+    connect_subtitle: "Hosted Streamable-HTTP URL বা লোকাল কনফিগারেশন — ৪টি কুরিয়ার ও Google Maps সহ আপনার প্ল্যাটফর্মের পূর্ণাঙ্গ কনফিগ কপি করুন।",
+    copy_btn: "কনফিগ কপি করুন",
+    vision_eyebrow: "আমাদের ভিশন",
+    vision_heading: "এক ছাদের নিচে দেশের সব commerce API",
+    vision_desc: "Aura বানাচ্ছে বাংলাদেশের agentic commerce স্তর — courier, payments, spatial intelligence এবং আরও অনেক connector — যাতে যেকোনো AI স্বয়ংক্রিয়ভাবে ও বিশ্বমানের নির্ভুলতায় দেশের যেকোনো ব্যবসার অপারেশন পরিচালনা করতে পারে। মানুষের স্বপ্ন · এআই-এর হাত।",
+    footer_license: "Aura Courier MCP v2.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b>",
+    footer_telemetry: "লাইভ টেলিমেট্রি"
+  },
+  en: {
+    header_badge: "MCP Bangladesh v2.4",
+    nav_glama: "Glama Registry ↗",
+    nav_github: "GitHub ↗",
+    nav_client: "Client Portal ↗",
+    badge_glama: "✓ Verified on Glama.ai Registry",
+    badge_couriers: "4 Couriers + Google Maps Live",
+    hero_tagline: "One unified connector for all Bangladesh courier logistics & Google Maps spatial intelligence. Book parcels, track shipments, and eliminate COD return risk in 1-click from Claude, Antigravity, Cursor, and n8n AI Agents.",
+    cta_glama: "⚡ View on Glama.ai",
+    cta_github: "★ View on GitHub",
+    cta_mcp: "Connect MCP Endpoint ↗",
+    meta_tools_count: "9",
+    meta_tools: "enterprise tools",
+    meta_couriers_count: "4",
+    meta_couriers: "couriers + Google Maps",
+    meta_risk: "Zero-Risk COD · Fraud AI",
+    courier_eyebrow: "// SUPPORTED CARRIERS",
+    courier_heading: "Bangladesh's Top 4 Major Couriers",
+    courier_subtitle: "The country's 4 largest logistics networks integrated into a single universal interface — equal prominence and full operational capability.",
+    sf_desc: "Packzy API v1 · 24-48h Cash On Delivery and automated tracking across all 64 districts nationwide.",
+    sf_meta: "Merchant: Snehalata (ID: 98SRCP1S)",
+    pt_desc: "AI Agent Dispatch · Fast on-demand & express delivery with dynamic spatial city/zone auto-resolver.",
+    pt_meta: "Store ID: 356230 (Mohammadpur, Dhaka)",
+    rx_desc: "OpenAPI v1 · 2,849 delivery hubs and powerful distribution network across Bangladesh.",
+    rx_meta: "Shop ID: 1051948 · Pickup Hub: 544445",
+    pf_desc: "Wing API v1 · Doorstep pickup and home delivery coverage reaching remote rural unions.",
+    pf_meta: "Merchant User: c180381 (Snehalata)",
+    spatial_title: "📍 Google Maps Platform — Spatial Routing Engine",
+    spatial_desc: "Accurate Thana/District resolution and real-time driving distance calculation via Geocoding API & Routes API v2.",
+    spatial_badge: "● Enterprise Spatial AI",
+    health_status_title: "Engine Status",
+    health_status_val: "● Operational",
+    health_proto_title: "Protocol",
+    health_tools_title: "Registered Tools",
+    health_tools_val: "9 Production Tools",
+    health_wh_title: "Active Webhooks",
+    tools_eyebrow: "// ENTERPRISE TOOLS",
+    tools_heading: "One Interface, Every Courier & Spatial Capability",
+    tools_subtitle: "Every courier has distinct APIs and architectures — Aura Courier MCP unifies them into a single robust toolset. Instruct your AI Agent, and it handles complex routing and dispatch automatically.",
+    tag_order: "Order Dispatch",
+    tag_track: "Unified Tracking",
+    tag_finance: "Finance",
+    tag_fraud: "Fraud AI",
+    tag_discovery: "Discovery",
+    tag_spatial: "Spatial AI",
+    tag_pricing: "Pricing Engine",
+    tag_sla: "SLA & Cost",
+    tag_ndr: "NDR Resolution",
+    tool_create_desc: "Automated delivery booking across all couriers (Steadfast, Pathao, RedX, Paperfly) with Pathao spatial auto-resolver, Consignment ID and tracking code.",
+    tool_track_desc: "Real-time delivery status and universal event timeline tracking using Consignment, Invoice, or Tracking Code.",
+    tool_balance_desc: "Live merchant balance, pending disbursements, and payout status across all courier accounts (in BDT).",
+    tool_fraud_desc: "Analyzes customer phone numbers against nationwide logistics databases before dispatching to calculate delivery success rate & return risk. Zero mock data.",
+    tool_list_desc: "Verify active status, merchant credential configuration, and operational health of all connected couriers.",
+    tool_geocode_desc: "Accurately extracts sublocalities (Thana, District, Division) and rooftop coordinates using Google Maps Platform Geocoding API.",
+    tool_fee_desc: "Automatic zone classification (Inside Dhaka: ৳80, Sub-Dhaka: ৳100, Outside Dhaka: ৳150) and delivery charge calculation based on destination address.",
+    tool_compare_desc: "Side-by-side comparison of real-time rates, COD commissions, and expected delivery turnaround to select the optimal carrier.",
+    tool_ndr_desc: "Identifies Non-Delivery Report (NDR) failures, generates automated Bengali/English WhatsApp recovery copy, and files courier dispute instructions.",
+    wh_eyebrow: "// REAL-TIME WEBHOOKS",
+    wh_heading: "Real-Time Automation & Event Receivers for All 4 Couriers",
+    wh_subtitle: "Instant bidirectional synchronization whenever a delivery status changes on any carrier.",
+    wh_sf_title: "⚡ Steadfast Webhook",
+    wh_sf_desc: "Add to Steadfast Merchant Portal Webhook URL. Processes delivery status and tracking events in real time.",
+    wh_pt_title: "⚡ Pathao Webhook",
+    wh_pt_desc: "Add to Pathao Developer Console. Receives AI Agent event dispatches and automatically updates consignment statuses.",
+    wh_rx_title: "⚡ RedX Webhook",
+    wh_rx_desc: "Register in RedX Merchant Console. Automatically syncs tracking and delivery milestones across 2,849 hubs.",
+    wh_pf_title: "⚡ Paperfly Webhook",
+    wh_pf_desc: "Configure in Paperfly Wing system. Instantly captures door-to-door delivery milestones and return statuses.",
+    connect_eyebrow: "// CONNECT",
+    connect_heading: "Connect to Any Client or AI Agent",
+    connect_subtitle: "Hosted Streamable-HTTP URL or local command configuration — copy ready-to-use snippets for all 4 couriers & Google Maps.",
+    copy_btn: "Copy Config",
+    vision_eyebrow: "THE VISION",
+    vision_heading: "Bangladesh's Commerce Infrastructure, Agentic-Ready",
+    vision_desc: "Aura is building the foundational agentic commerce layer for Bangladesh — couriers, payment gateways, spatial intelligence, and e-commerce connectors — enabling any AI to autonomously operate country-wide commerce with world-class precision. Human dreams powered by AI hands.",
+    footer_license: "Aura Courier MCP v2.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b>",
+    footer_telemetry: "Live Telemetry"
+  }
+};
+
+let currentLang = localStorage.getItem('aura_lang') || 'bn';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('aura_lang', lang);
+  document.documentElement.lang = lang;
+
+  document.getElementById('lang-bn').classList.toggle('active', lang === 'bn');
+  document.getElementById('lang-bn').setAttribute('aria-pressed', lang === 'bn');
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-en').setAttribute('aria-pressed', lang === 'en');
+
+  const dict = i18n[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) {
+      el.innerHTML = dict[key];
+    }
+  });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  setLang(currentLang);
+});
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+  setLang(currentLang);
+}
+
 const configs = {
   antigravity: `{\n  "mcpServers": {\n    "aura-courier": {\n      "command": "npx.cmd",\n      "args": ["-y", "aura-courier-mcp@latest"],\n      "env": {\n        "STEADFAST_API_KEY": "YOUR_STEADFAST_API_KEY",\n        "STEADFAST_SECRET_KEY": "YOUR_STEADFAST_SECRET_KEY",\n        "PATHAO_CLIENT_ID": "YOUR_PATHAO_CLIENT_ID",\n        "PATHAO_CLIENT_SECRET": "YOUR_PATHAO_CLIENT_SECRET",\n        "PATHAO_USERNAME": "YOUR_PATHAO_USER",\n        "PATHAO_PASSWORD": "YOUR_PATHAO_PASS",\n        "REDX_API_TOKEN": "YOUR_REDX_TOKEN",\n        "PAPERFLY_KEY": "YOUR_PAPERFLY_KEY",\n        "PAPERFLY_USERNAME": "YOUR_PAPERFLY_USER",\n        "PAPERFLY_PASSWORD": "YOUR_PAPERFLY_PASS",\n        "GOOGLE_MAPS_API_KEY": "YOUR_GOOGLE_MAPS_KEY"\n      }\n    }\n  }\n}`,
   hosted: `{\n  "mcpServers": {\n    "aura-courier": {\n      "url": "https://courier.auraajenticai.cloud/mcp",\n      "headers": {\n        "x-steadfast-api-key": "YOUR_STEADFAST_KEY",\n        "x-steadfast-secret-key": "YOUR_STEADFAST_SECRET",\n        "x-pathao-client-id": "YOUR_PATHAO_CLIENT_ID",\n        "x-pathao-client-secret": "YOUR_PATHAO_CLIENT_SECRET",\n        "x-redx-api-token": "YOUR_REDX_TOKEN",\n        "x-paperfly-key": "YOUR_PAPERFLY_KEY",\n        "x-paperfly-user": "YOUR_PAPERFLY_USER",\n        "x-paperfly-pass": "YOUR_PAPERFLY_PASS"\n      }\n    }\n  }\n}`,
@@ -472,10 +674,11 @@ function copyCode() {
   const code = document.getElementById('code-snippet').textContent;
   navigator.clipboard.writeText(code).then(() => {
     const btn = document.querySelector('.copy-btn');
-    btn.textContent = 'Copied! ✓';
+    const origText = btn.textContent;
+    btn.textContent = currentLang === 'bn' ? 'কপি হয়েছে! ✓' : 'Copied! ✓';
     btn.style.color = 'var(--green)';
     setTimeout(() => {
-      btn.textContent = 'Copy Config';
+      btn.textContent = origText;
       btn.style.color = 'var(--muted)';
     }, 2000);
   });
