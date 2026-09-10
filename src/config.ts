@@ -58,7 +58,7 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
     steadfast: {
       apiKey: steadfastApiKey,
       secretKey: steadfastSecretKey,
-      baseUrl: src.STEADFAST_BASE_URL || "https://portal.steadfast.com.bd/api/v1",
+      baseUrl: src.STEADFAST_BASE_URL || "https://portal.packzy.com/api/v1",
       enabled: Boolean(steadfastApiKey && steadfastSecretKey),
     },
     pathao: {
@@ -66,23 +66,23 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
       clientSecret: pathaoClientSecret,
       username: src.PATHAO_USERNAME || "",
       password: src.PATHAO_PASSWORD || "",
-      storeId: src.PATHAO_STORE_ID || "",
+      storeId: src.PATHAO_STORE_ID || "356230",
       baseUrl: src.PATHAO_BASE_URL || "https://api-hermes.pathao.com",
       enabled: Boolean(pathaoClientId && pathaoClientSecret),
     },
     redx: {
       apiToken: src.REDX_API_TOKEN || "",
       baseUrl: src.REDX_BASE_URL || "https://openapi.redx.com.bd/v1.0.0-beta",
-      pickupStoreId: src.REDX_PICKUP_STORE_ID || "",
+      pickupStoreId: src.REDX_PICKUP_STORE_ID || "544445",
       enabled: Boolean(src.REDX_API_TOKEN),
     },
     paperfly: {
       apiKey: src.PAPERFLY_API_KEY || "",
       username: src.PAPERFLY_USERNAME || "",
       password: src.PAPERFLY_PASSWORD || "",
-      storeName: src.PAPERFLY_STORE_NAME || "",
+      storeName: src.PAPERFLY_STORE_NAME || "Snehalata",
       baseUrl: src.PAPERFLY_BASE_URL || "https://api.paperfly.com.bd",
-      enabled: Boolean(src.PAPERFLY_API_KEY && src.PAPERFLY_STORE_NAME),
+      enabled: Boolean(src.PAPERFLY_API_KEY && src.PAPERFLY_USERNAME),
     },
     googleMaps: {
       apiKey: googleMapsKey,
