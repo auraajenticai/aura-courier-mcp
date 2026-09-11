@@ -850,7 +850,6 @@ function switchTab(key, btnEl) {
   document.getElementById('code-snippet').textContent = configs[key];
 }
 
-async 
 function runSandboxCalc() {
   const dest = document.getElementById('calc-dest').value;
   const weight = parseInt(document.getElementById('calc-weight').value || '1', 10);
@@ -899,16 +898,16 @@ function runSandboxFraud() {
   scoreEl.style.color = '#34d399';
 }
 
-function updateLiveTelemetry() {
+async function updateLiveTelemetry() {
   const t0 = performance.now();
   try {
-    const res = await fetch('/health');
+    const res = await fetch('/health?format=json');
     const latency = Math.round(performance.now() - t0);
     if (res.ok) {
       const data = await res.json();
       const statusEl = document.querySelector('[data-i18n="health_status_val"]');
       if (statusEl) {
-        const mem = data.memory_mb ? ` · ${data.memory_mb} MB heap` : '';
+        const mem = data.performance?.heap_used_mb ? ` · ${data.performance.heap_used_mb} MB heap` : '';
         statusEl.innerHTML = `<span class="pulse" style="color:var(--green)">●</span> ` +
           (currentLang === 'bn' ? `চলমান (${latency}ms${mem})` : `Operational (${latency}ms${mem})`);
       }
