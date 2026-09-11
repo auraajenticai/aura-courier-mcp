@@ -17,14 +17,22 @@ export interface CourierConfig {
     redx: {
         apiToken: string;
         baseUrl: string;
+        pickupStoreId: string;
         enabled: boolean;
     };
     paperfly: {
-        user: string;
-        pass: string;
-        key: string;
+        apiKey: string;
+        username: string;
+        password: string;
+        storeName: string;
         baseUrl: string;
         enabled: boolean;
     };
 }
-export declare function loadConfig(): CourierConfig;
+export type EnvSource = Record<string, string | undefined>;
+/**
+ * Build a CourierConfig from a key/value source.
+ * Defaults to process.env (used by the STDIO/npx entrypoint); the HTTP
+ * entrypoint passes a per-request map built from that client's headers/query.
+ */
+export declare function loadConfig(src?: EnvSource): CourierConfig;
