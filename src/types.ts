@@ -78,6 +78,13 @@ export interface LocationResolutionRequest {
   area_name?: string;
 }
 
+export interface LocationResolutionRequest {
+  courier: SupportedCourier;
+  city_name?: string;
+  zone_name?: string;
+  area_name?: string;
+}
+
 export interface LocationResolutionResponse {
   success: boolean;
   courier: SupportedCourier;
