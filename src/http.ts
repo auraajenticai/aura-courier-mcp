@@ -100,6 +100,9 @@ app.post("/mcp", async (req: Request, res: Response) => {
     const server = buildMcpServer(registry);
     transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
+      // Return application/json for POST responses instead of SSE — far more compatible with
+      // MCP clients/registries (e.g. Glama's connector test) that don't consume the event stream.
+      enableJsonResponse: true,
       onsessioninitialized: (sid) => {
         sessions.set(sid, { transport, lastActiveAt: Date.now() });
       },
