@@ -51,7 +51,7 @@ Aura Courier MCP seamlessly interfaces with all tier-1 Bangladesh courier APIs u
 | :--- | :--- | :--- | :--- | :--- |
 | **Steadfast** | `https://portal.packzy.com/api/v1` | Account: `<MERCHANT>` (ID: `<STORE_ID>`) | `Api-Key`: `<STEADFAST_API_KEY>`<br>`Secret-Key`: `<STEADFAST_SECRET_KEY>` | **Active**: `get_balance` verified 200 OK. Order booking pending carrier-side toggle. |
 | **Pathao** | `https://api-hermes.pathao.com` | User: `<PATHAO_USERNAME>`<br>Store: `<MERCHANT>` (ID: `356230`) | `Client-ID`: `<PATHAO_CLIENT_ID>`<br>`Client-Secret`: `<PATHAO_CLIENT_SECRET>` | **100% Active**: OAuth2 token issuing, price calculation, auto-geocoding live. |
-| **RedX** | `https://openapi.redx.com.bd/v1.0.0-beta` | Shop ID: `1051948`<br>Pickup Store ID: `544445` | `API-ACCESS-TOKEN`: `<REDX_API_TOKEN>`<br>(JWT 256-bit Token) | **100% Active**: 2,849 delivery areas and parcel booking verified. |
+| **RedX** | `https://openapi.redx.com.bd/v1.0.0-beta` | Shop ID: `1051948`<br>Pickup Store ID: `544445` | `API-ACCESS-TOKEN`: `<REDX_API_TOKEN>`<br>(JWT Bearer Token) | **100% Active**: 2,849 delivery areas and parcel booking verified. |
 | **Paperfly** | `https://api.paperfly.com.bd` | Store: `<MERCHANT>`<br>User: `<PAPERFLY_USERNAME>` | `paperflykey`: `<PAPERFLY_KEY>`<br>Basic Auth: `<PAPERFLY_USERNAME>` / `<PAPERFLY_PASSWORD>` | **100% Active**: Order placement (`new_order_v2.php`) and tracking verified. |
 | **Google Maps** | `https://maps.googleapis.com` | Project: `gen-lang-client-0867410794` | `<GOOGLE_MAPS_API_KEY>`<br>(Field Masked) | **100% Active**: Geocoding, Routes API, and Dynamic Map Studio active. |
 
@@ -284,10 +284,10 @@ Add this configuration block to your client settings (`claude_desktop_config.jso
         "PATHAO_CLIENT_SECRET": "<PATHAO_CLIENT_SECRET>",
         "PATHAO_USERNAME": "<PATHAO_USERNAME>",
         "PATHAO_PASSWORD": "<PATHAO_PASSWORD>",
-        "PATHAO_STORE_ID": "356230",
+        "PATHAO_STORE_ID": "<PATHAO_STORE_ID>",
         "PATHAO_BASE_URL": "https://api-hermes.pathao.com",
         "REDX_API_TOKEN": "<REDX_API_TOKEN>",
-        "REDX_PICKUP_STORE_ID": "544445",
+        "REDX_PICKUP_STORE_ID": "<REDX_STORE_ID>",
         "REDX_BASE_URL": "https://openapi.redx.com.bd/v1.0.0-beta",
         "PAPERFLY_API_KEY": "<PAPERFLY_KEY>",
         "PAPERFLY_USERNAME": "<PAPERFLY_USERNAME>",
