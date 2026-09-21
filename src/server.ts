@@ -38,12 +38,12 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "track_parcel",
-    description: "Track shipment delivery status across Steadfast or Pathao using Tracking Code / Consignment ID.",
+    description: "Track real-time shipment delivery milestones and telemetry across Steadfast, Pathao, RedX, and Paperfly networks using consignment ID or tracking code. Returns normalized status (Booked, Picked Up, In Transit, Delivered, Returned), timestamps, and carrier telemetry.",
     inputSchema: {
       type: "object",
       properties: {
-        tracking_code: { type: "string", description: "Consignment ID or tracking code" },
-        courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly"], description: "Optional courier name if known" },
+        tracking_code: { type: "string", description: "Consignment ID or tracking code (e.g. 'DS190926QZNGJT' for Pathao, 'SF12345678' for Steadfast, 'REDX123' for RedX)" },
+        courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly"], description: "Optional courier provider name. If omitted, provider is auto-detected from tracking code prefix." },
       },
       required: ["tracking_code"],
     },
