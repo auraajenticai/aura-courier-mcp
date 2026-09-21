@@ -50,10 +50,10 @@ Aura Courier MCP seamlessly interfaces with all tier-1 Bangladesh courier APIs u
 | Provider | Endpoint / Base URL | Merchant Account / IDs | Auth Header / Secret | Operational Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **Steadfast** | `https://portal.packzy.com/api/v1` | Account: `<MERCHANT>` (ID: `<STORE_ID>`) | `Api-Key`: `<STEADFAST_API_KEY>`<br>`Secret-Key`: `<STEADFAST_SECRET_KEY>` | **Active**: `get_balance` verified 200 OK. Order booking pending carrier-side toggle. |
-| **Pathao** | `https://api-hermes.pathao.com` | User: `<PATHAO_USERNAME>`<br>Store: `<MERCHANT>` (ID: `356230`) | `Client-ID`: `<PATHAO_CLIENT_ID>`<br>`Client-Secret`: `<PATHAO_CLIENT_SECRET>` | **100% Active**: OAuth2 token issuing, price calculation, auto-geocoding live. |
-| **RedX** | `https://openapi.redx.com.bd/v1.0.0-beta` | Shop ID: `1051948`<br>Pickup Store ID: `544445` | `API-ACCESS-TOKEN`: `<REDX_API_TOKEN>`<br>(JWT Bearer Token) | **100% Active**: 2,849 delivery areas and parcel booking verified. |
+| **Pathao** | `https://api-hermes.pathao.com` | User: `<PATHAO_USERNAME>`<br>Store: `<MERCHANT>` (ID: `<PATHAO_STORE_ID>`) | `Client-ID`: `<PATHAO_CLIENT_ID>`<br>`Client-Secret`: `<PATHAO_CLIENT_SECRET>` | **100% Active**: OAuth2 token issuing, price calculation, auto-geocoding live. |
+| **RedX** | `https://openapi.redx.com.bd/v1.0.0-beta` | Shop ID: `<REDX_SHOP_ID>`<br>Pickup Store ID: `<REDX_STORE_ID>` | `API-ACCESS-TOKEN`: `<REDX_API_TOKEN>`<br>(JWT Bearer Token) | **100% Active**: 2,849 delivery areas and parcel booking verified. |
 | **Paperfly** | `https://api.paperfly.com.bd` | Store: `<MERCHANT>`<br>User: `<PAPERFLY_USERNAME>` | `paperflykey`: `<PAPERFLY_KEY>`<br>Basic Auth: `<PAPERFLY_USERNAME>` / `<PAPERFLY_PASSWORD>` | **100% Active**: Order placement (`new_order_v2.php`) and tracking verified. |
-| **Google Maps** | `https://maps.googleapis.com` | Project: `gen-lang-client-0867410794` | `<GOOGLE_MAPS_API_KEY>`<br>(Field Masked) | **100% Active**: Geocoding, Routes API, and Dynamic Map Studio active. |
+| **Google Maps** | `https://maps.googleapis.com` | Project: `<GOOGLE_CLOUD_PROJECT>` | `<GOOGLE_MAPS_API_KEY>`<br>(Field Masked) | **100% Active**: Geocoding, Routes API, and Dynamic Map Studio active. |
 
 ---
 
@@ -73,7 +73,7 @@ Aura Courier MCP seamlessly interfaces with all tier-1 Bangladesh courier APIs u
     }'
   ```
 * **Store Management**: `GET /aladdin/api/v1/stores`
-  - Active Store: `356230` ("<MERCHANT>", Bosila 40 Feet, Dhaka)
+  - Active Store: `<PATHAO_STORE_ID>` ("<MERCHANT>", Central Hub, Dhaka)
 * **Parcel Booking**: `POST /aladdin/api/v1/orders`
   - Required Fields: `store_id`, `recipient_name`, `recipient_phone` (11 digits), `recipient_address` (10-220 chars), `delivery_type` (48), `item_type` (2), `item_weight` (0.5 to 10 kg), `amount_to_collect` (integer).
   - Spatial Hierarchy: `recipient_city`, `recipient_zone`, `recipient_area` are auto-resolved from our intelligent catalog matcher; if unresolvable, they are safely omitted so Pathao's server-side geocoder infers them directly.

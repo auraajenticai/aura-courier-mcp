@@ -66,14 +66,14 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
       clientSecret: pathaoClientSecret,
       username: src.PATHAO_USERNAME || "",
       password: src.PATHAO_PASSWORD || "",
-      storeId: src.PATHAO_STORE_ID || "356230",
+      storeId: src.PATHAO_STORE_ID || "",
       baseUrl: src.PATHAO_BASE_URL || "https://api-hermes.pathao.com",
       enabled: Boolean(pathaoClientId && pathaoClientSecret),
     },
     redx: {
       apiToken: src.REDX_API_TOKEN || "",
       baseUrl: src.REDX_BASE_URL || "https://openapi.redx.com.bd/v1.0.0-beta",
-      pickupStoreId: src.REDX_PICKUP_STORE_ID || "544445",
+      pickupStoreId: src.REDX_PICKUP_STORE_ID || "",
       enabled: Boolean(src.REDX_API_TOKEN),
     },
     paperfly: {

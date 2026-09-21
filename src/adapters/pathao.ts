@@ -30,14 +30,14 @@ export class PathaoAdapter implements CourierAdapter {
     clientSecret: string,
     username: string,
     password: string,
-    storeId: string = "356230",
+    storeId: string = "",
     baseUrl: string = "https://api-hermes.pathao.com"
   ) {
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.username = username;
     this.password = password;
-    this.storeId = storeId || "356230";
+    this.storeId = storeId || process.env.PATHAO_STORE_ID || "";
     this.baseUrl = baseUrl || "https://api-hermes.pathao.com";
   }
 
@@ -95,7 +95,7 @@ export class PathaoAdapter implements CourierAdapter {
     } catch (err: any) {
       console.warn("Pathao store resolution notice:", err.message);
     }
-    return 356230; // Aura Merchant registered store id
+    return Number(this.storeId) || 0; // Aura Merchant registered store id
   }
 
   /**
