@@ -4,565 +4,462 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Aura Courier MCP v2.4 — Universal Bangladesh Logistics & Spatial Engine for AI Agents.">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='32' y2='32' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%234d7cff'/%3E%3Cstop offset='0.5' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='%23131520' stroke='%2324293e' stroke-width='2'/%3E%3Cpath d='M16 6 L25 11 L25 21 L16 26 L7 21 L7 11 Z' fill='none' stroke='url(%23g)' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M16 6 L16 26 M7 11 L16 16 L25 11' stroke='url(%23g)' stroke-width='1.8' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
-<meta property="og:title" content="Aura Courier MCP v2.4 — Universal Bangladesh Logistics & Spatial Engine">
-<meta property="og:description" content="One unified connector for all Bangladesh courier logistics & Google Maps spatial intelligence. Steadfast, Pathao, RedX, Paperfly.">
-<meta property="og:url" content="https://courier.auraajenticai.cloud">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<title>Aura Courier MCP v2.4 — Universal Bangladesh Logistics & Spatial Engine</title>
+<title>Aura Courier MCP</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='32' y2='32'%3E%3Cstop stop-color='%234d7cff'/%3E%3Cstop offset='.5' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 3c.8 6.5 4.5 10.2 11 11-6.5 .8-10.2 4.5-11 11-.8-6.5-4.5-10.2-11-11C11.5 13.2 15.2 9.5 16 3z' fill='url(%23g)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#09090f; --bg2:#0d0e17; --surface:#131520; --surface2:#1a1c2b;
-    --ink:#edeff5; --muted:#9ba3be; --faint:#5f6888; --line:#24293e;
-    --blue:#4d7cff; --violet:#8b5cf6; --cyan:#38bdf8;
-    --green:#34d399; --green-bg:#0e291e; --amber:#fbbf24; --amber-bg:#2b220e;
-    --code-ink:#cad3ec; --shadow:0 2px 8px rgba(0,0,0,.5),0 24px 60px rgba(0,0,0,.5);
-    --grad:linear-gradient(105deg, #4d7cff 0%, #8b5cf6 50%, #38bdf8 100%);
+    --bg:#09090f; --bg2:#101018; --bg3:#0c0d15;
+    --card:rgba(13,14,20,.66); --card2:rgba(22,24,34,.82);
+    --line:#24293e; --line2:#2f3350;
+    --text:#edeff5; --muted:#9ba3be; --faint:#6b7280;
+    --blue:#4d7cff; --violet:#8b5cf6; --cyan:#38bdf8; --green:#34d399; --red:#ef4444;
+    --grad:linear-gradient(115deg,#4d7cff 0%,#8b5cf6 50%,#38bdf8 100%);
+    --font-sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    --font-serif:Georgia,'Times New Roman',serif;
+    --maxw:1140px;
+    --shadow:0 24px 60px -20px rgba(0,0,0,.7);
   }
   *{box-sizing:border-box}
-  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; -webkit-font-smoothing:antialiased}
-  .page{max-width:1080px; margin:0 auto; padding:0 24px}
-  .mono{font-family:"SF Mono",ui-monospace,"Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace}
-  a{color:var(--cyan); text-decoration:none; transition:color .15s}
-  a:hover{color:#fff; text-decoration:underline}
-  h1,h2,h3,h4{line-height:1.2; margin:0; text-wrap:balance}
-  .eyebrow{font-family:"SF Mono",monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--cyan); font-weight:700}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--font-sans); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  a{color:inherit; text-decoration:none}
+  .mono{font-family:var(--font-mono)}
+  .grad-text{background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .ic{display:inline-block; vertical-align:-2px; flex:none}
+  .btn .ic{margin-right:7px}
+  .logo-img{width:38px; height:38px; object-fit:contain; flex:none}
+  .badge-glama .ic{margin-right:5px; vertical-align:-1px}
+  .badge-version .ic{margin-right:5px; color:var(--cyan); vertical-align:-2px}
+  .ttl{display:inline-flex; align-items:center; gap:8px}
+  .c-card,.t-card,.wh-card,.vision-box,.spatial-box{backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px)}
 
-  /* Header */
-  header{display:flex; justify-content:space-between; align-items:center; padding:22px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; gap:16px}
-  .logo{display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; color:var(--ink); text-decoration:none}
-  .logo:hover{text-decoration:none}
-  .logo-badge{font-size:11px; padding:3px 10px; border-radius:99px; background:var(--surface2); color:var(--cyan); border:1px solid var(--line); font-weight:600}
-  
-  .header-right{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
-  .nav-links{display:flex; gap:16px; align-items:center; font-size:14px; font-weight:600}
-  
-  /* Language Switcher */
-  .lang-switch{display:inline-flex; background:var(--surface2); border:1px solid var(--line); border-radius:999px; padding:3px; gap:2px}
-  .lang-btn{background:none; border:none; color:var(--muted); font-size:12px; font-weight:700; padding:5px 12px; border-radius:999px; cursor:pointer; transition:all .15s ease; display:flex; align-items:center; gap:5px}
-  .lang-btn.active{background:var(--blue); color:#fff; box-shadow:0 2px 8px rgba(77,124,255,0.4)}
-  .lang-btn:hover:not(.active){color:var(--ink)}
-
-  /* Hero */
-  .hero{text-align:center; padding:76px 0 54px; position:relative; overflow:hidden}
-  .hero::before{content:""; position:absolute; inset:0;
+  /* ===== Animated World Courier Hub background (canvas) ===== */
+  #hubmap{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.74;
+    -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+            mask-image:linear-gradient(180deg, transparent 0, #000 6%, #000 94%, transparent 100%);}
+  #veil{position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
-      radial-gradient(55% 45% at 50% -5%, color-mix(in srgb,var(--blue) 25%, transparent), transparent 70%),
-      radial-gradient(40% 40% at 85% 20%, color-mix(in srgb,var(--violet) 20%, transparent), transparent 72%);
-    pointer-events:none}
-  .hero > *{position:relative}
-  .badge-row{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:24px}
-  .badge-glama{display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:6px 14px; border-radius:999px}
-  .badge-live{display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:var(--green); background:var(--green-bg); border:1px solid color-mix(in srgb,var(--green) 30%,transparent); padding:6px 14px; border-radius:999px}
-  .badge-live .d{width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green)}
-  .badge-version{display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#a78bfa; background:rgba(167,139,250,0.12); border:1px solid rgba(167,139,250,0.3); padding:6px 14px; border-radius:999px}
-  
-  .hero h1{font-size:clamp(38px,7.5vw,66px); font-weight:900; letter-spacing:-.03em; margin:18px 0}
-  .hero h1 em{font-family:Georgia,"Times New Roman",serif; font-style:italic; font-weight:500; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent}
-  .hero .tagline{font-size:clamp(16px,2.4vw,20px); color:var(--muted); max-width:52ch; margin:0 auto 34px}
+      radial-gradient(1100px 620px at 50% -6%, rgba(77,124,255,.10), transparent 60%),
+      radial-gradient(900px 600px at 92% 8%, rgba(56,189,248,.06), transparent 55%),
+      radial-gradient(760px 520px at 6% 30%, rgba(139,92,246,.06), transparent 55%),
+      radial-gradient(95% 62% at 44% 40%, rgba(9,9,15,.66), rgba(9,9,15,.30) 52%, transparent 80%),
+      linear-gradient(180deg, rgba(9,9,15,.16), rgba(9,9,15,.42));}
+  /* prefers-reduced-motion is handled inside the canvas JS (renders a single static frame) */
 
-  .cta-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
-  .btn{display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:14.5px; padding:12px 24px; border-radius:11px; text-decoration:none; transition:transform .12s ease, border-color .15s; border:1px solid transparent}
-  .btn:hover{transform:translateY(-2px); text-decoration:none}
-  .btn-primary{background:var(--grad); color:#fff; box-shadow:0 8px 24px color-mix(in srgb,var(--blue) 35%, transparent)}
-  .btn-glama{background:#0c171c; color:#38bdf8; border-color:#1e3a47}
-  .btn-ghost{background:color-mix(in srgb,var(--surface) 80%,transparent); color:var(--ink); border-color:var(--line)}
+  .wrap{position:relative; z-index:1}
+  .container{max-width:var(--maxw); margin:0 auto; padding:0 16px}
 
-  .hero-meta{display:flex; gap:10px 24px; justify-content:center; flex-wrap:wrap; margin-top:36px; font-family:"SF Mono",monospace; font-size:13px; color:var(--faint); font-weight:600}
-  .hero-meta b{color:var(--ink)}
+  /* ===== Header ===== */
+  header{position:sticky; top:0; z-index:20; backdrop-filter:blur(14px);
+    background:rgba(9,9,15,.72); border-bottom:1px solid var(--line);}
+  .hbar{display:flex; align-items:center; justify-content:space-between; gap:14px;
+    max-width:var(--maxw); margin:0 auto; padding:12px 16px}
+  .logo{display:flex; align-items:center; gap:9px; font-weight:800; letter-spacing:-.02em; font-size:16px}
+  .logo b{font-weight:800}
+  .logo-badge{font-size:10.5px; font-weight:600; color:var(--cyan); padding:3px 8px;
+    border:1px solid rgba(56,189,248,.28); border-radius:999px; background:rgba(56,189,248,.07)}
+  .header-right{display:flex; align-items:center; gap:16px}
+  .nav-links{display:flex; align-items:center; gap:18px}
+  .nav-links a{font-size:13.5px; color:var(--muted); transition:color .18s; font-weight:500}
+  .nav-links a:hover{color:var(--text)}
+  .lang-switch{display:flex; gap:4px; padding:3px; border:1px solid var(--line); border-radius:999px; background:var(--bg2)}
+  .lang-btn{font-family:var(--font-sans); font-size:12px; font-weight:600; color:var(--muted);
+    background:transparent; border:none; padding:5px 11px; border-radius:999px; cursor:pointer; transition:.18s}
+  .lang-btn.active{color:#fff; background:var(--grad); box-shadow:0 4px 14px -4px rgba(77,124,255,.6)}
 
-  /* Sections */
-  section.blk{padding:54px 0; border-top:1px solid var(--line)}
-  .blk-head{margin-bottom:28px}
-  .blk-head h2{font-size:28px; font-weight:800; letter-spacing:-.015em; margin-top:9px}
-  .blk-head p{color:var(--muted); margin:9px 0 0; max-width:70ch; font-size:15px}
+  /* ===== Hero ===== */
+  main{display:block}
+  .hero{max-width:var(--maxw); margin:0 auto; padding:74px 16px 40px; text-align:center}
+  .badge-row{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:26px}
+  .badge-glama,.badge-live,.badge-version{font-family:var(--font-mono); font-size:11.5px; font-weight:500;
+    padding:6px 13px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--muted)}
+  .badge-glama{color:var(--green); border-color:rgba(52,211,153,.28); background:rgba(52,211,153,.06)}
+  .badge-live{color:var(--cyan); border-color:rgba(56,189,248,.28); background:rgba(56,189,248,.06); display:inline-flex; align-items:center; gap:7px}
+  .badge-live .d{width:7px; height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 0 0 rgba(56,189,248,.6); animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(56,189,248,.5)}70%{box-shadow:0 0 0 8px rgba(56,189,248,0)}100%{box-shadow:0 0 0 0 rgba(56,189,248,0)}}
+  .hero h1{font-size:clamp(2.6rem,7vw,4.7rem); line-height:1.02; font-weight:800; letter-spacing:-.035em; margin:0 0 20px}
+  .hero h1 em{font-style:italic; font-family:var(--font-serif); font-weight:500;
+    background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em}
+  .tagline{max-width:720px; margin:0 auto 30px; color:var(--muted); font-size:clamp(1rem,2.3vw,1.18rem); line-height:1.65}
+  .cta-row{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:34px}
+  .btn{display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:600; padding:12px 20px;
+    border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer; transition:.2s}
+  .btn:hover{transform:translateY(-2px); border-color:var(--line2)}
+  .btn-primary{background:var(--grad); border:none; color:#fff; box-shadow:0 12px 30px -10px rgba(77,124,255,.6)}
+  .btn-primary:hover{box-shadow:0 16px 40px -10px rgba(77,124,255,.75)}
+  .btn-glama{border-color:rgba(52,211,153,.3); color:var(--green)}
+  .hero-meta{display:flex; flex-wrap:wrap; gap:8px 26px; justify-content:center; color:var(--faint); font-family:var(--font-mono); font-size:12.5px}
+  .hero-meta b{color:var(--text); font-weight:700}
 
-  /* Couriers Grid (4 Major Couriers Equal Size) */
-  .courier-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:18px; margin-top:22px}
-  .c-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; min-height:148px; transition:border-color .15s ease, transform .15s ease}
-  .c-card:hover{border-color:var(--blue); transform:translateY(-2px)}
-  .c-card-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px}
-  .c-title-wrap{display:flex; align-items:center; gap:9px}
-  .c-dot{width:9px; height:9px; border-radius:50%; display:inline-block; flex-shrink:0}
-  .c-dot.sf{background:#10b981; box-shadow:0 0 10px rgba(16,185,129,0.7)}
-  .c-dot.pt{background:#ef4444; box-shadow:0 0 10px rgba(239,68,68,0.7)}
-  .c-dot.rx{background:#f97316; box-shadow:0 0 10px rgba(249,115,22,0.7)}
-  .c-dot.pf{background:#0ea5e9; box-shadow:0 0 10px rgba(14,165,233,0.7)}
-  .c-card b{font-size:17px; color:#fff}
-  .c-desc{font-size:13px; color:var(--muted); line-height:1.5}
-  .c-meta{font-size:11.5px; font-family:"SF Mono",monospace; color:var(--cyan); margin-top:12px}
-  .badge-live-sm{font-size:11.5px; font-weight:700; color:var(--green); background:var(--green-bg); padding:4px 10px; border-radius:99px; border:1px solid color-mix(in srgb,var(--green) 30%,transparent)}
-  @keyframes pulseGlow{0%,100%{opacity:1} 50%{opacity:.45}}
-  .pulse{animation:pulseGlow 2s infinite ease-in-out}
+  /* ===== Blocks ===== */
+  .blk{max-width:var(--maxw); margin:0 auto; padding:52px 16px}
+  .blk-head{max-width:720px; margin:0 auto 34px; text-align:center}
+  .eyebrow{font-family:var(--font-mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--cyan); margin-bottom:12px}
+  .blk-head h2{font-size:clamp(1.7rem,4vw,2.5rem); font-weight:800; letter-spacing:-.025em; margin:0 0 14px; line-height:1.12}
+  .blk-head p{color:var(--muted); margin:0; font-size:15.5px}
 
-  /* Spatial Feature Box */
-  .spatial-box{margin-top:20px; background:linear-gradient(135deg, rgba(56,189,248,0.08), rgba(77,124,255,0.08)); border:1px solid rgba(56,189,248,0.3); border-radius:14px; padding:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px}
-  .spatial-left h3{font-size:18px; color:#fff; margin-bottom:6px; display:flex; align-items:center; gap:8px}
-  .spatial-left p{font-size:13.5px; color:var(--muted); margin:0}
-  .badge-spatial{font-size:11.5px; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.15); padding:4px 12px; border-radius:99px; border:1px solid rgba(56,189,248,0.4)}
+  .c-card{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:22px;
+    display:flex; flex-direction:column; justify-content:space-between; gap:14px; transition:.22s}
+  .c-card:hover{border-color:var(--line2); background:var(--card2); box-shadow:var(--shadow)}
+  .badge-live-sm{font-family:var(--font-mono); font-size:10.5px; font-weight:500; color:var(--green);
+    padding:3px 9px; border-radius:999px; border:1px solid rgba(52,211,153,.28); background:rgba(52,211,153,.07); white-space:nowrap}
 
-  /* Tools Grid (9 Tools) */
-  .tools{display:grid; grid-template-columns:repeat(auto-fit, minmax(310px,1fr)); gap:18px}
-  .t-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px; transition:border-color .15s ease, transform .15s ease; position:relative}
-  .t-card:hover{border-color:var(--blue); transform:translateY(-2px)}
-  .t-card .t-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px}
-  .t-card h3{font-family:"SF Mono",monospace; font-size:15px; color:var(--cyan); margin:0}
-  .t-tag{font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:99px; background:var(--surface2); color:var(--muted); text-transform:uppercase}
-  .t-tag.new{color:#34d399; background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25)}
-  .t-card p{font-size:13.5px; color:var(--muted); margin:0; line-height:1.5}
+  /* Couriers */
+  .courier-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px}
+  .c-card-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px}
+  .c-title-wrap{display:flex; align-items:center; gap:9px; font-size:16px; font-weight:700}
+  .c-dot{width:9px; height:9px; border-radius:50%; box-shadow:0 0 10px currentColor}
+  .c-dot.sf{background:#f59e0b; color:#f59e0b} .c-dot.pt{background:#ef4444; color:#ef4444}
+  .c-dot.rx{background:#38bdf8; color:#38bdf8} .c-dot.pf{background:#34d399; color:#34d399}
+  .c-desc{color:var(--muted); font-size:13.5px; line-height:1.6}
+  .c-meta{font-family:var(--font-mono); font-size:11.5px; color:var(--faint); padding-top:12px; border-top:1px solid var(--line)}
 
-  /* Webhooks Grid (All 4 Couriers Equal) */
-  .webhook-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:18px; margin-top:22px}
-  .wh-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px; display:flex; flex-direction:column; justify-content:space-between}
-  .wh-card h3{font-size:16px; color:#fff; margin-bottom:8px; display:flex; align-items:center; gap:8px}
-  .wh-endpoint{background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:9px 12px; font-family:"SF Mono",monospace; font-size:12px; color:var(--cyan); margin:10px 0; word-break:break-all}
-  .wh-card p{font-size:13px; color:var(--muted); margin:0; line-height:1.5}
+  /* Spatial banner */
+  .spatial-box{margin-top:22px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;
+    padding:24px; border-radius:18px; border:1px solid rgba(56,189,248,.24);
+    background:linear-gradient(120deg, rgba(56,189,248,.07), rgba(139,92,246,.05))}
+  .spatial-left h3{margin:0 0 6px; font-size:18px; font-weight:700}
+  .spatial-left p{margin:0; color:var(--muted); font-size:13.5px; max-width:640px}
+  .badge-spatial{font-family:var(--font-mono); font-size:11.5px; color:var(--cyan); white-space:nowrap;
+    padding:7px 13px; border-radius:999px; border:1px solid rgba(56,189,248,.3); background:rgba(56,189,248,.08)}
 
-  /* Config Tabs */
-  .config-box{margin-top:24px; background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:var(--shadow)}
-  .tab-header{display:flex; background:var(--bg2); border-bottom:1px solid var(--line); overflow-x:auto}
-  .tab-btn{padding:14px 20px; font-family:"SF Mono",monospace; font-size:13px; font-weight:600; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; display:flex; align-items:center; gap:9px; white-space:nowrap; transition:color .15s, background .15s}
-  .tab-btn.active{color:var(--cyan); border-bottom-color:var(--cyan); background:var(--surface)}
-  .tab-btn .tab-icon{flex-shrink:0; display:inline-flex; align-items:center; justify-content:center}
+  /* Health */
+  .health-box{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:16px; overflow:hidden}
+  .health-item{background:var(--bg3); padding:20px}
+  .health-item h4{margin:0 0 8px; font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); font-weight:500}
+  .health-item span{font-size:14px; font-weight:600}
+
+  /* Tools */
+  .tools{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px}
+  .t-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px; transition:.22s}
+  .t-card:hover{border-color:var(--line2); background:var(--card2); transform:translateY(-3px)}
+  .t-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px}
+  .t-head h3{margin:0; font-family:var(--font-mono); font-size:14.5px; font-weight:600; color:var(--cyan)}
+  .t-tag{font-family:var(--font-mono); font-size:10px; font-weight:500; color:var(--muted); padding:3px 8px;
+    border-radius:6px; border:1px solid var(--line); background:var(--bg2); white-space:nowrap}
+  .t-tag.new{color:var(--violet); border-color:rgba(139,92,246,.3); background:rgba(139,92,246,.08)}
+  .t-card p{margin:0; color:var(--muted); font-size:13px; line-height:1.6}
+
+  /* Webhooks */
+  .webhook-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+  .wh-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px; transition:.22s}
+  .wh-card:hover{border-color:var(--line2); background:var(--card2)}
+  .wh-card h3{margin:0 0 10px; font-size:15px; font-weight:700}
+  .wh-endpoint{font-family:var(--font-mono); font-size:12px; color:var(--green); background:rgba(52,211,153,.07);
+    border:1px solid rgba(52,211,153,.2); border-radius:8px; padding:7px 11px; margin-bottom:12px; display:inline-block}
+  .wh-card p{margin:0; color:var(--muted); font-size:13px; line-height:1.6}
+
+  /* Connect / config */
+  .config-box{max-width:900px; margin:0 auto; border:1px solid var(--line); border-radius:18px; overflow:hidden; background:var(--bg3)}
+  .tab-header{display:flex; flex-wrap:wrap; gap:4px; padding:10px; border-bottom:1px solid var(--line); background:var(--bg2)}
+  .tab-btn{display:inline-flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:13px; font-weight:600;
+    color:var(--muted); background:transparent; border:1px solid transparent; padding:9px 14px; border-radius:10px; cursor:pointer; transition:.18s}
+  .tab-btn:hover{color:var(--text); background:var(--card)}
+  .tab-btn.active{color:#fff; background:var(--card2); border-color:var(--line2)}
+  .tab-icon{display:inline-flex}
   .code-wrapper{position:relative}
-  .code-body{padding:22px; font-family:"SF Mono",monospace; font-size:13px; color:var(--code-ink); overflow-x:auto; margin:0; line-height:1.6}
-  .copy-btn{position:absolute; top:16px; right:16px; background:var(--surface2); border:1px solid var(--line); color:var(--muted); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:all .15s ease}
-  .copy-btn:hover{color:var(--ink); background:var(--bg2)}
+  .copy-btn{position:absolute; top:14px; right:14px; font-family:var(--font-mono); font-size:12px; color:var(--muted);
+    background:var(--card2); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; transition:.18s}
+  .copy-btn:hover{color:var(--text); border-color:var(--line2)}
+  .code-body{margin:0; padding:26px 22px; font-family:var(--font-mono); font-size:13px; line-height:1.7;
+    color:#cbd5f0; overflow-x:auto; white-space:pre; outline:none}
 
-  /* Architecture & Health Strip */
-  .health-box{background:linear-gradient(135deg, rgba(56,189,248,0.06), rgba(77,124,255,0.06)); border:1px solid rgba(56,189,248,0.25); border-radius:14px; padding:24px; margin-top:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px}
-  .health-item h4{font-family:"SF Mono",monospace; font-size:11.5px; color:var(--cyan); text-transform:uppercase; margin-bottom:4px}
-  .health-item span{font-size:16px; font-weight:700; color:#fff}
+  /* Vision */
+  .vision-box{max-width:820px; margin:0 auto; text-align:center; padding:44px 28px; border-radius:22px;
+    border:1px solid var(--line); background:linear-gradient(150deg, rgba(77,124,255,.07), rgba(139,92,246,.05) 55%, rgba(56,189,248,.06))}
+  .vision-box h3{font-size:clamp(1.5rem,3.6vw,2.1rem); font-weight:800; letter-spacing:-.02em; margin:0 0 16px; line-height:1.15}
+  .vision-box p{margin:0; color:var(--muted); font-size:15.5px; line-height:1.7}
 
-  /* Vision Box */
-  .vision-box{background:linear-gradient(135deg, rgba(77,124,255,0.08), rgba(139,92,246,0.08)); border:1px solid rgba(77,124,255,0.25); border-radius:16px; padding:32px; margin-top:30px}
-  .vision-box h3{font-size:22px; color:#fff; margin-bottom:12px}
-  .vision-box p{color:var(--muted); font-size:15px; margin:0}
-
-  footer{padding:48px 0; border-top:1px solid var(--line); text-align:center; font-size:13px; color:var(--faint)}
-  footer a{color:var(--muted)}
+  /* Footer */
+  footer{border-top:1px solid var(--line); padding:34px 16px 46px; text-align:center; position:relative; z-index:1}
+  footer p{margin:6px 0; color:var(--faint); font-size:13px}
+  footer a{color:var(--muted); transition:color .18s}
   footer a:hover{color:var(--cyan)}
+
+  /* Sandbox result panels */
+  .sb-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px; margin-top:22px}
+  .sb-label{font-size:12px; color:var(--muted); font-family:var(--font-mono)}
+  .sb-input,.sb-select{background:var(--bg2); color:#fff; border:1px solid var(--line); border-radius:10px;
+    padding:11px; font-size:13px; outline:none; width:100%; transition:.18s; font-family:var(--font-sans)}
+  .sb-input:focus,.sb-select:focus{border-color:var(--cyan)}
+  .sb-input{font-family:var(--font-mono)}
+  .sb-btn{background:var(--grad); border:none; color:#fff; padding:0 18px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer}
+  .sb-out{background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:15px;
+    display:flex; justify-content:space-between; align-items:center; gap:12px}
+  .sb-out .k{font-size:11px; color:var(--faint); text-transform:uppercase; font-family:var(--font-mono); margin-bottom:3px}
+  .sb-out.cy{border-color:rgba(56,189,248,.28)} .sb-out.gr{border-color:rgba(52,211,153,.28)}
+
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:6px}
+
+  @media (max-width:860px){ .nav-links{display:none} }
+  @media (max-width:560px){
+    .hbar{padding:10px 14px} .hero{padding:52px 14px 30px}
+    .btn{flex:1 1 100%; justify-content:center}
+    .spatial-box{flex-direction:column; align-items:flex-start}
+  }
 </style>
 </head>
 <body>
-<div class="page">
 
-  <header role="banner">
-    <a href="/" class="logo" aria-label="Aura Agentic AI Home">
-      <span>🚀 Aura Agentic AI</span>
-      <span class="logo-badge" data-i18n="header_badge">এমসিপি বাংলাদেশ v2.4</span>
-    </a>
-    <div class="header-right">
-      <nav class="nav-links" aria-label="Quick Links">
-        <a href="#couriers" data-i18n="nav_couriers">কুরিয়ার</a>
-        <a href="#tools" data-i18n="nav_tools">টুলস</a>
-        <a href="#sandbox" data-i18n="nav_sandbox">লাইভ স্যান্ডবক্স</a>
-        <a href="/mcp" class="mono" style="color:var(--cyan)" data-i18n="nav_mcp">/mcp প্লেগ্রাউন্ড ↗</a>
-        <a href="/health" class="mono" style="color:var(--green)" data-i18n="nav_health">/health স্ট্যাটাস ↗</a>
-        <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" data-i18n="nav_client">ক্লায়েন্ট পোর্টাল ↗</a>
-      </nav>
-      <!-- Dual Language Switcher -->
-      <div class="lang-switch" role="group" aria-label="Language Selector">
-        <button id="lang-bn" class="lang-btn active" onclick="setLang('bn')" aria-pressed="true">🇧🇩 বাংলা</button>
-        <button id="lang-en" class="lang-btn" onclick="setLang('en')" aria-pressed="false">🇬🇧 English</button>
+<!-- ⭐ Animated World Courier Hub background -->
+<canvas id="hubmap" aria-hidden="true"></canvas>
+<div id="veil" aria-hidden="true"></div>
+
+<div class="wrap">
+  <!-- ===== HEADER ===== -->
+  <header>
+    <div class="hbar">
+      <a href="/" class="logo" aria-label="Aura Agentic AI">
+        <img class="logo-img" src="https://auraajenticai.cloud/logo.png" alt="Aura Agentic AI logo" width="38" height="38" /> <b>Aura Agentic AI</b>
+        <span class="logo-badge mono" data-i18n="header_badge">এমসিপি বাংলাদেশ v2.4</span>
+      </a>
+      <div class="header-right">
+        <nav class="nav-links" aria-label="Quick Links">
+          <a href="#couriers" data-i18n="nav_couriers">কুরিয়ার</a>
+          <a href="#tools" data-i18n="nav_tools">টুলস</a>
+          <a href="#sandbox" data-i18n="nav_sandbox">লাইভ স্যান্ডবক্স</a>
+          <a href="/mcp" class="mono" style="color:var(--cyan)" data-i18n="nav_mcp">/mcp প্লেগ্রাউন্ড ↗</a>
+          <a href="/health" class="mono" style="color:var(--green)" data-i18n="nav_health">/health স্ট্যাটাস ↗</a>
+          <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" data-i18n="nav_client">ক্লায়েন্ট পোর্টাল ↗</a>
+        </nav>
+        <div class="lang-switch" role="group" aria-label="Language Selector">
+          <button id="lang-bn" class="lang-btn active" onclick="setLang('bn')" aria-pressed="true">🇧🇩 বাংলা</button>
+          <button id="lang-en" class="lang-btn" onclick="setLang('en')" aria-pressed="false">🇬🇧 English</button>
+        </div>
       </div>
     </div>
   </header>
 
   <main>
-    <!-- HERO -->
+    <!-- ===== HERO ===== -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="badge-row">
-        <div class="badge-glama" data-i18n="badge_glama">✓ Glama.ai রেজিস্টিতে ভেরিফাইড</div>
-        <div class="badge-live"><span class="d"></span> <span data-i18n="badge_couriers">৪টি কুরিয়ার + গুগল ম্যাপস লাইভ</span></div>
-        <div class="badge-version">⚡ Streamable-HTTP v2024-11-05</div>
+        <div class="badge-glama"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="badge_glama">Glama.ai রেজিস্টিতে ভেরিফাইড</span></div>
+        <div class="badge-live"><span class="d"></span> <span data-i18n="badge_couriers">৪টি কুরিয়ার + গুগল ম্যাপস লাইভ</span></div>
+        <div class="badge-version"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.3c-.4.5-.03 1.2.6 1.2H10l-1.4 7c-.15.8.86 1.25 1.35.6L20 10.8c.4-.5.03-1.2-.6-1.2H14l1.4-7c.15-.8-.86-1.25-1.4-.6z"/></svg> Streamable-HTTP v2024-11-05</div>
       </div>
 
       <h1 id="hero-title">Aura <em>Courier</em> MCP</h1>
       <p class="tagline" data-i18n="hero_tagline">এক connector — বাংলাদেশের সব courier ও spatial intelligence। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক করুন, ট্র্যাক করুন এবং জিরো-রিস্ক COD নিশ্চিত করুন।</p>
 
       <div class="cta-row">
-        <a href="/mcp" class="btn btn-primary">
-          <span data-i18n="cta_mcp_playground">🧪 MCP প্লেগ্রাউন্ড (Playground) ↗</span>
-        </a>
-        <a href="/health" class="btn btn-glama">
-          <span data-i18n="cta_health_dashboard">📊 লাইভ সিস্টেম হেলথ (Telemetry) ↗</span>
-        </a>
-        <a href="#sandbox" class="btn btn-ghost">
-          <span data-i18n="cta_sandbox">⚡ লাইভ স্যান্ডবক্স ট্রাই করুন</span>
-        </a>
-        <a href="https://auraajenticai.cloud" target="_blank" rel="noopener" class="btn btn-ghost">
-          <span data-i18n="cta_aura_main">Aura মেইন সাইট ↗</span>
-        </a>
+        <a href="/mcp" class="btn btn-primary"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-4.6 8.6A2 2 0 0 0 7.2 20.5h9.6a2 2 0 0 0 1.8-2.9L14 9V3"/><path d="M7.5 15h9"/></svg><span data-i18n="cta_mcp_playground">MCP প্লেগ্রাউন্ড (Playground) ↗</span></a>
+        <a href="/health" class="btn btn-glama"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2.5 6 4-13 2.5 7H21"/></svg><span data-i18n="cta_health_dashboard">লাইভ সিস্টেম হেলথ (Telemetry) ↗</span></a>
+        <a href="#sandbox" class="btn btn-ghost"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.3c-.4.5-.03 1.2.6 1.2H10l-1.4 7c-.15.8.86 1.25 1.35.6L20 10.8c.4-.5.03-1.2-.6-1.2H14l1.4-7c.15-.8-.86-1.25-1.4-.6z"/></svg><span data-i18n="cta_sandbox">লাইভ স্যান্ডবক্স ট্রাই করুন</span></a>
+        <a href="https://auraajenticai.cloud" target="_blank" rel="noopener" class="btn btn-ghost"><span data-i18n="cta_aura_main">Aura মেইন সাইট ↗</span></a>
       </div>
 
       <div class="hero-meta">
         <span><b data-i18n="meta_tools_count">৯টি</b> <span data-i18n="meta_tools">এন্টারপ্রাইজ টুলস</span></span>
-        <span><b data-i18n="meta_couriers_count">৪টি</b> <span data-i18n="meta_couriers">কুরিয়ার + গুগল ম্যাপস</span></span>
+        <span><b data-i18n="meta_couriers_count">৪টি</b> <span data-i18n="meta_couriers">কুরিয়ার + গুগল ম্যাপস</span></span>
         <span data-i18n="meta_risk">জিরো-রিস্ক সিওডি · ফ্রড এআই</span>
         <span>Apache License 2.0</span>
       </div>
     </section>
 
-    
-    <!-- INTERACTIVE SAAS SANDBOX -->
-    <section id="sandbox" class="blk" aria-labelledby="sandbox-title" style="margin-top:30px;">
+    <!-- ===== INTERACTIVE LIVE SANDBOX ===== -->
+    <section id="sandbox" class="blk" aria-labelledby="sandbox-title" style="padding-top:20px">
       <div class="blk-head">
         <div class="eyebrow" data-i18n="sandbox_eyebrow">// ইন্টারেক্টিভ লাইভ স্যান্ডবক্স</div>
-        <h2 id="sandbox-title" data-i18n="sandbox_heading">ব্রাউজারেই টেস্ট করুন কুরিয়ার এআই ও জোন ক্যালকুলেটর</h2>
-        <p data-i18n="sandbox_subtitle">কোনো কোডিং বা ইন্সটলেশন ছাড়াই সরাসরি বাংলাদেশের ৬৪ জেলার জোন ট্যারিফ এবং জিরো-মক ফ্রড রিস্ক ইঞ্জিন যাচাই করুন।</p>
+        <h2 id="sandbox-title" data-i18n="sandbox_heading">ব্রাউজারেই টেস্ট করুন কুরিয়ার এআই ও জোন ক্যালকুলেটর</h2>
+        <p data-i18n="sandbox_subtitle">কোনো কোডিং বা ইন্সটলেশন ছাড়াই সরাসরি বাংলাদেশের ৬৪ জেলার জোন ট্যারিফ এবং জিরো-মক ফ্রড রিস্ক ইঞ্জিন যাচাই করুন।</p>
       </div>
 
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-top:20px;">
+      <div class="sb-grid">
         <!-- Widget 1: Tariff Calculator -->
-        <div class="c-card" style="display:flex; flex-direction:column; gap:16px;">
+        <div class="c-card" style="gap:16px">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <b style="font-size:16px; color:#fff;" data-i18n="calc_title">📍 ডেলিভারি জোন ও চার্জ ক্যালকুলেটর</b>
-              <span class="badge-live-sm" style="background:rgba(56,189,248,0.15); color:var(--cyan); border-color:rgba(56,189,248,0.3);">Google Maps</span>
+            <div class="c-card-top">
+              <b class="ttl" style="font-size:16px"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c4-4.6 6-8 6-10.5A6 6 0 0 0 6 10.5C6 13 8 16.4 12 21z"/><circle cx="12" cy="10.5" r="2.2"/></svg><span data-i18n="calc_title">ডেলিভারি জোন ও চার্জ ক্যালকুলেটর</span></b>
+              <span class="badge-live-sm" style="color:var(--cyan);border-color:rgba(56,189,248,.3);background:rgba(56,189,248,.1)">Google Maps</span>
             </div>
-            <p style="font-size:13px; color:var(--muted); margin:0;" data-i18n="calc_desc">গন্তব্য জেলা/থানা অনুযায়ী রিয়েল-টাইম কুরিয়ার ট্যারিফ ও SLA নির্ধারণ।</p>
+            <p class="c-desc" style="margin:0" data-i18n="calc_desc">গন্তব্য জেলা/থানা অনুযায়ী রিয়েল-টাইম কুরিয়ার ট্যারিফ ও SLA নির্ধারণ।</p>
           </div>
-          
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            <label style="font-size:12px; color:var(--muted); font-family:var(--font-mono);" data-i18n="calc_lbl_dest">গন্তব্য নির্বাচন করুন:</label>
-            <select id="calc-dest" onchange="runSandboxCalc()" style="background:var(--bg2); color:#fff; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:13px; outline:none;">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <label class="sb-label" data-i18n="calc_lbl_dest">গন্তব্য নির্বাচন করুন:</label>
+            <select id="calc-dest" class="sb-select" onchange="runSandboxCalc()">
               <option value="dhaka">ঢাকা মেট্রোপলিটন (Dhaka City) — ৳৮০</option>
               <option value="sub_dhaka">ঢাকার উপশহর (Savar, Gazipur, Keraniganj) — ৳১০০</option>
               <option value="outside">ঢাকার বাইরে (চট্টগ্রাম, রাজশাহী, খুলনা, সিলেটসহ ৬৪ জেলা) — ৳১৫০</option>
             </select>
-
-            <label style="font-size:12px; color:var(--muted); font-family:var(--font-mono); margin-top:4px;" data-i18n="calc_lbl_weight">পার্সেলের ওজন:</label>
-            <select id="calc-weight" onchange="runSandboxCalc()" style="background:var(--bg2); color:#fff; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:13px; outline:none;">
+            <label class="sb-label" style="margin-top:4px" data-i18n="calc_lbl_weight">পার্সেলের ওজন:</label>
+            <select id="calc-weight" class="sb-select" onchange="runSandboxCalc()">
               <option value="1">১ কেজি পর্যন্ত (Up to 1 KG)</option>
               <option value="2">২ কেজি (+৳২০)</option>
               <option value="3">৩ কেজি (+৳৪০)</option>
               <option value="5">৫ কেজি (+৳৮০)</option>
             </select>
           </div>
-
-          <div style="background:var(--bg); border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
+          <div class="sb-out cy">
             <div>
-              <div style="font-size:11px; color:var(--faint); text-transform:uppercase; font-family:var(--font-mono);" data-i18n="calc_est_fee">প্রাক্কলিত ডেলিভারি ফি</div>
-              <div id="calc-result-fee" style="font-size:22px; font-weight:700; color:var(--cyan); font-family:var(--font-mono);">৳৮০ BDT</div>
+              <div class="k" data-i18n="calc_est_fee">প্রাক্কলিত ডেলিভারি ফি</div>
+              <div id="calc-result-fee" style="font-size:22px;font-weight:700;color:var(--cyan);font-family:var(--font-mono)">৳৮০ BDT</div>
             </div>
-            <div style="text-align:right;">
-              <div style="font-size:11px; color:var(--faint); text-transform:uppercase; font-family:var(--font-mono);" data-i18n="calc_sla">প্রত্যাশিত ডেলিভারি</div>
-              <div id="calc-result-sla" style="font-size:13px; font-weight:600; color:#34d399; font-family:var(--font-mono);">২৪-৪৮ ঘণ্টা</div>
+            <div style="text-align:right">
+              <div class="k" data-i18n="calc_sla">প্রত্যাশিত ডেলিভারি</div>
+              <div id="calc-result-sla" style="font-size:13px;font-weight:600;color:var(--green);font-family:var(--font-mono)">২৪-৪৮ ঘণ্টা</div>
             </div>
           </div>
         </div>
 
-        <!-- Widget 2: Fraud Risk Check Preview -->
-        <div class="c-card" style="display:flex; flex-direction:column; gap:16px;">
+        <!-- Widget 2: Fraud Risk Analyzer -->
+        <div class="c-card" style="gap:16px">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <b style="font-size:16px; color:#fff;" data-i18n="fraud_title">🛡️ জিরো-মক ফ্রড রিস্ক অ্যানালাইজার</b>
-              <span class="badge-live-sm" style="background:rgba(52,211,153,0.15); color:#34d399; border-color:rgba(52,211,153,0.3);">Zero Mock</span>
+            <div class="c-card-top">
+              <b class="ttl" style="font-size:16px"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.3-3 7.7-7 9.5-4-1.8-7-5.2-7-9.5V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg><span data-i18n="fraud_title">জিরো-মক ফ্রড রিস্ক অ্যানালাইজার</span></b>
+              <span class="badge-live-sm" style="color:var(--green);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.1)">Zero Mock</span>
             </div>
-            <p style="font-size:13px; color:var(--muted); margin:0;" data-i18n="fraud_desc">জাতীয় কুরিয়ার নেটওয়ার্ক ও টেলকো প্রিফিক্স (013-019) দিয়ে রিস্ক স্কোর যাচাই।</p>
+            <p class="c-desc" style="margin:0" data-i18n="fraud_desc">জাতীয় কুরিয়ার নেটওয়ার্ক ও টেলকো প্রিফিক্স (013-019) দিয়ে রিস্ক স্কোর যাচাই।</p>
           </div>
-
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            <label style="font-size:12px; color:var(--muted); font-family:var(--font-mono);" data-i18n="fraud_lbl_phone">গ্রাহকের ফোন নম্বর লিখুন:</label>
-            <div style="display:flex; gap:8px;">
-              <input type="text" id="fraud-phone" value="01712345678" maxlength="11" oninput="runSandboxFraud()" style="flex:1; background:var(--bg2); color:#fff; border:1px solid var(--line); border-radius:8px; padding:10px; font-family:var(--font-mono); font-size:13px; outline:none;" placeholder="01XXXXXXXXX" />
-              <button onclick="runSandboxFraud()" style="background:var(--blue); border:none; color:#fff; padding:0 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer;" data-i18n="fraud_btn_check">যাচাই</button>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <label class="sb-label" data-i18n="fraud_lbl_phone">গ্রাহকের ফোন নম্বর লিখুন:</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="fraud-phone" class="sb-input" value="01712345678" maxlength="11" oninput="runSandboxFraud()" placeholder="01XXXXXXXXX" />
+              <button class="sb-btn" onclick="runSandboxFraud()" data-i18n="fraud_btn_check">যাচাই</button>
             </div>
           </div>
-
-          <div style="background:var(--bg); border:1px solid rgba(52,211,153,0.3); border-radius:8px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
+          <div class="sb-out gr">
             <div>
-              <div style="font-size:11px; color:var(--faint); text-transform:uppercase; font-family:var(--font-mono);" data-i18n="fraud_operator">টেলকো অপারেটর ও বৈধতা</div>
-              <div id="fraud-res-op" style="font-size:14px; font-weight:600; color:#fff; font-family:var(--font-mono);">Grameenphone (সঠিক নম্বর)</div>
+              <div class="k" data-i18n="fraud_operator">টেলকো অপারেটর ও বৈধতা</div>
+              <div id="fraud-res-op" style="font-size:14px;font-weight:600;color:#fff;font-family:var(--font-mono)">Grameenphone (সঠিক নম্বর)</div>
             </div>
-            <div style="text-align:right;">
-              <div style="font-size:11px; color:var(--faint); text-transform:uppercase; font-family:var(--font-mono);" data-i18n="fraud_risk_score">রিস্ক স্কোর</div>
-              <div id="fraud-res-score" style="font-size:14px; font-weight:700; color:#34d399; font-family:var(--font-mono);">লো রিস্ক (০% বাতিল)</div>
+            <div style="text-align:right">
+              <div class="k" data-i18n="fraud_risk_score">রিস্ক স্কোর</div>
+              <div id="fraud-res-score" style="font-size:14px;font-weight:700;color:var(--green);font-family:var(--font-mono)">লো রিস্ক (০% বাতিল)</div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 4 MAJOR COURIERS OF BANGLADESH -->
-    <section class="blk" aria-labelledby="courier-title">
+    <!-- ===== 4 COURIERS ===== -->
+    <section id="couriers" class="blk" aria-labelledby="courier-title">
       <div class="blk-head">
-        <div class="eyebrow" data-i18n="courier_eyebrow">// সমর্থিত কুরিয়ার নেটওয়ার্ক</div>
-        <h2 id="courier-title" data-i18n="courier_heading">বাংলাদেশের ৪টি শীর্ষস্থানীয় কুরিয়ার</h2>
-        <p data-i18n="courier_subtitle">একই সর্বজনীন ইন্টারফেসে দেশের বৃহত্তম ৪টি লজিস্টিকস নেটওয়ার্ক — সমান গুরুত্ব ও পূর্ণ কার্যক্ষমতায় সক্রিয়।</p>
+        <div class="eyebrow" data-i18n="courier_eyebrow">// সমর্থিত কুরিয়ার নেটওয়ার্ক</div>
+        <h2 id="courier-title" data-i18n="courier_heading">বাংলাদেশের ৪টি শীর্ষস্থানীয় কুরিয়ার</h2>
+        <p data-i18n="courier_subtitle">একই সর্বজনীন ইন্টারফেসে দেশের বৃহত্তম ৪টি লজিস্টিকস নেটওয়ার্ক — সমান গুরুত্ব ও পূর্ণ কার্যক্ষমতায় সক্রিয়।</p>
       </div>
-
       <div class="courier-grid">
         <div class="c-card">
           <div>
-            <div class="c-card-top">
-              <div class="c-title-wrap">
-                <span class="c-dot sf"></span>
-                <b>Steadfast</b>
-              </div>
-              <span class="badge-live-sm">● live</span>
-            </div>
-            <div class="c-desc" data-i18n="sf_desc">Packzy API v1 · সারা দেশে ৬৪ জেলায় ২৪-৪৮ ঘণ্টার ক্যাশ অন ডেলিভারি ও অটোমেটেড ট্র্যাকিং।</div>
+            <div class="c-card-top"><div class="c-title-wrap"><span class="c-dot sf"></span><b>Steadfast</b></div><span class="badge-live-sm">● live</span></div>
+            <div class="c-desc" data-i18n="sf_desc">Packzy API v1 · সারা দেশে ৬৪ জেলায় ২৪-৪৮ ঘণ্টার ক্যাশ অন ডেলিভারি ও অটোমেটেড ট্র্যাকিং।</div>
           </div>
           <div class="c-meta" data-i18n="sf_meta">কাভারেজ: ৬৪ জেলা · ২৪-৪৮ ঘণ্টার নেক্সট-ডে পেআউট</div>
         </div>
-
         <div class="c-card">
           <div>
-            <div class="c-card-top">
-              <div class="c-title-wrap">
-                <span class="c-dot pt"></span>
-                <b>Pathao Express</b>
-              </div>
-              <span class="badge-live-sm">● live</span>
-            </div>
+            <div class="c-card-top"><div class="c-title-wrap"><span class="c-dot pt"></span><b>Pathao Express</b></div><span class="badge-live-sm">● live</span></div>
             <div class="c-desc" data-i18n="pt_desc">AI Agent Dispatch · সিটি ও জোন অটো-রেজলভার সহ দ্রুততম অন-ডিমান্ড ও এক্সপ্রেস ডেলিভারি।</div>
           </div>
           <div class="c-meta" data-i18n="pt_meta">অন-ডিমান্ড পিকআপ · স্যাম-ডে এক্সপ্রেস ডেলিভারি</div>
         </div>
-
         <div class="c-card">
           <div>
-            <div class="c-card-top">
-              <div class="c-title-wrap">
-                <span class="c-dot rx"></span>
-                <b>RedX Delivery</b>
-              </div>
-              <span class="badge-live-sm">● live</span>
-            </div>
-            <div class="c-desc" data-i18n="rx_desc">OpenAPI v1 · ২,৮৪৯টি ডেলিভারি হাব ও দেশজুড়ে শক্তিশালী ডিস্ট্রিবিউশন নেটওয়ার্ক।</div>
+            <div class="c-card-top"><div class="c-title-wrap"><span class="c-dot rx"></span><b>RedX Delivery</b></div><span class="badge-live-sm">● live</span></div>
+            <div class="c-desc" data-i18n="rx_desc">OpenAPI v1 · ২,৮৪৯টি ডেলিভারি হাব ও দেশজুড়ে শক্তিশালী ডিস্ট্রিবিউশন নেটওয়ার্ক।</div>
           </div>
-          <div class="c-meta" data-i18n="rx_meta">দেশজুড়ে ২,৮৪৯+ হাব · ডোরস্টেপ পিকআপ নেটওয়ার্ক</div>
+          <div class="c-meta" data-i18n="rx_meta">দেশজুড়ে ২,৮৪৯+ হাব · ডোরস্টেপ পিকআপ নেটওয়ার্ক</div>
         </div>
-
         <div class="c-card">
           <div>
-            <div class="c-card-top">
-              <div class="c-title-wrap">
-                <span class="c-dot pf"></span>
-                <b>Paperfly Go</b>
-              </div>
-              <span class="badge-live-sm">● live</span>
-            </div>
-            <div class="c-desc" data-i18n="pf_desc">Wing API v1 · প্রত্যন্ত ইউনিয়ন পর্যন্ত ডোরস্টেপ পিকআপ ও হোম ডেলিভারি কাভারেজ।</div>
+            <div class="c-card-top"><div class="c-title-wrap"><span class="c-dot pf"></span><b>Paperfly Go</b></div><span class="badge-live-sm">● live</span></div>
+            <div class="c-desc" data-i18n="pf_desc">Wing API v1 · প্রত্যন্ত ইউনিয়ন পর্যন্ত ডোরস্টেপ পিকআপ ও হোম ডেলিভারি কাভারেজ।</div>
           </div>
-          <div class="c-meta" data-i18n="pf_meta">প্রত্যন্ত ইউনিয়ন কাভারেজ · ডোর-টু-ডোর ডেলিভারি</div>
+          <div class="c-meta" data-i18n="pf_meta">প্রত্যন্ত ইউনিয়ন কাভারেজ · ডোর-টু-ডোর ডেলিভারি</div>
         </div>
       </div>
 
-      <!-- Dedicated Spatial Engine Banner -->
       <div class="spatial-box">
         <div class="spatial-left">
-          <h3 data-i18n="spatial_title">📍 Google Maps Platform — স্পেশিয়াল রাউটিং ইঞ্জিন</h3>
-          <p data-i18n="spatial_desc">Geocoding API, Routes API v2 ও রুটপ-লেভেল কোঅর্ডিনেট দিয়ে নিখুঁত থানা/জেলা রেজোলিউশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।</p>
+          <h3 class="ttl"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c4-4.6 6-8 6-10.5A6 6 0 0 0 6 10.5C6 13 8 16.4 12 21z"/><circle cx="12" cy="10.5" r="2.2"/></svg><span data-i18n="spatial_title">Google Maps Platform — স্পেশিয়াল রাউটিং ইঞ্জিন</span></h3>
+          <p data-i18n="spatial_desc">Geocoding API, Routes API v2 ও রুটপ-লেভেল কোঅর্ডিনেট দিয়ে নিখুঁত থানা/জেলা রেজোলিউশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।</p>
         </div>
         <span class="badge-spatial" data-i18n="spatial_badge">● Enterprise Spatial AI</span>
       </div>
     </section>
 
-    <!-- LIVE TELEMETRY / HEALTH -->
-    <section class="blk" style="padding:28px 0;">
+    <!-- ===== HEALTH / TELEMETRY ===== -->
+    <section class="blk" style="padding:20px 16px">
       <div class="health-box" aria-label="Server Telemetry">
-        <div class="health-item">
-          <h4 data-i18n="health_status_title">ইঞ্জিন স্ট্যাটাস</h4>
-          <span style="color:var(--green)" data-i18n="health_status_val">● চলমান (Operational)</span>
-        </div>
-        <div class="health-item">
-          <h4 data-i18n="health_proto_title">প্রোটোকল</h4>
-          <span>Streamable-HTTP 2024-11-05</span>
-        </div>
-        <div class="health-item">
-          <h4 data-i18n="health_tools_title">নিবন্ধিত টুলস</h4>
-          <span data-i18n="health_tools_val">৯টি প্রোডাকশন টুলস</span>
-        </div>
-        <div class="health-item">
-          <h4 data-i18n="health_wh_title">সক্রিয় ওয়েব-হুক</h4>
-          <span>Steadfast, Pathao, RedX, Paperfly</span>
-        </div>
+        <div class="health-item"><h4 data-i18n="health_status_title">ইঞ্জিন স্ট্যাটাস</h4><span style="color:var(--green)" data-i18n="health_status_val">● চলমান (Operational)</span></div>
+        <div class="health-item"><h4 data-i18n="health_proto_title">প্রোটোকল</h4><span>Streamable-HTTP 2024-11-05</span></div>
+        <div class="health-item"><h4 data-i18n="health_tools_title">নিবন্ধিত টুলস</h4><span data-i18n="health_tools_val">৯টি প্রোডাকশন টুলস</span></div>
+        <div class="health-item"><h4 data-i18n="health_wh_title">সক্রিয় ওয়েব-হুক</h4><span>Steadfast, Pathao, RedX, Paperfly</span></div>
       </div>
     </section>
 
-    <!-- 9 ENTERPRISE TOOLS -->
-    <section class="blk" aria-labelledby="tools-title">
+    <!-- ===== 9 TOOLS ===== -->
+    <section id="tools" class="blk" aria-labelledby="tools-title">
       <div class="blk-head">
         <div class="eyebrow" data-i18n="tools_eyebrow">// এন্টারপ্রাইজ টুলস</div>
-        <h2 id="tools-title" data-i18n="tools_heading">একটি একক ইন্টারফেসে সকল কুরিয়ার ও স্পেশিয়াল ক্ষমতা</h2>
-        <p data-i18n="tools_subtitle">প্রতিটা courier আলাদা API ও কাঠামোর — Aura Courier MCP সবগুলোকে একই সর্বজনীন ও নির্ভরযোগ্য toolset-এ নিয়ে এসেছে। আপনার AI Agent-কে নির্দেশ দিন, বাকি জটিল হিসাব ও ডিসপ্যাচ ও সামলে নেবে।</p>
+        <h2 id="tools-title" data-i18n="tools_heading">একটি একক ইন্টারফেসে সকল কুরিয়ার ও স্পেশিয়াল ক্ষমতা</h2>
+        <p data-i18n="tools_subtitle">প্রতিটা courier আলাদা API ও কাঠামোর — Aura Courier MCP সবগুলোকে একই সর্বজনীন ও নির্ভরযোগ্য toolset-এ নিয়ে এসেছে। আপনার AI Agent-কে নির্দেশ দিন, বাকি জটিল হিসাব ও ডিসপ্যাচ ও সামলে নেবে।</p>
       </div>
-
       <div class="tools">
-        <article class="t-card">
-          <div class="t-head">
-            <h3>create_parcel</h3>
-            <span class="t-tag" data-i18n="tag_order">অর্ডার ডিসপ্যাচ</span>
-          </div>
-          <p data-i18n="tool_create_desc">যেকোনো courier-এ অটোমেটিক ডেলিভারি বুকিং (Steadfast, Pathao, RedX, Paperfly)। Pathao spatial auto-resolver সহ Consignment ID ও ট্র্যাকিং কোড নিশ্চিত করে।</p>
-        </article>
-
-        <article class="t-card">
-          <div class="t-head">
-            <h3>track_parcel</h3>
-            <span class="t-tag" data-i18n="tag_track">ইউনিফাইড ট্র্যাকিং</span>
-          </div>
-          <p data-i18n="tool_track_desc">Consignment, Invoice বা Tracking Code দিয়ে রিয়েল-টাইম ডেলিভারি স্ট্যাটাস ও সর্বজনীন টাইমলাইন ট্র্যাকিং।</p>
-        </article>
-
-        <article class="t-card">
-          <div class="t-head">
-            <h3>get_balance</h3>
-            <span class="t-tag" data-i18n="tag_finance">ফাইন্যান্স</span>
-          </div>
-          <p data-i18n="tool_balance_desc">সব courier মার্চেন্ট একাউন্টের লাইভ ব্যালেন্স, পেন্ডিং ডিসবার্সমেন্ট ও পেআউট স্ট্যাটাস (BDT)।</p>
-        </article>
-
-        <article class="t-card">
-          <div class="t-head">
-            <h3>check_fraud_risk</h3>
-            <span class="t-tag" data-i18n="tag_fraud">ফ্রড এআই</span>
-          </div>
-          <p data-i18n="tool_fraud_desc">পার্সেল পাঠানোর আগেই গ্রাহকের ফোন নম্বর জাতীয় লজিস্টিকস ডাটাবেসে বিশ্লেষণ করে ডেলিভারি সাকসেস রেট ও রিটার্ন রিস্ক স্কোর নির্ধারণ করে। Zero mock data।</p>
-        </article>
-
-        <article class="t-card">
-          <div class="t-head">
-            <h3>list_couriers</h3>
-            <span class="t-tag" data-i18n="tag_discovery">ডিসকভারি</span>
-          </div>
-          <p data-i18n="tool_list_desc">সিস্টেমে সংযুক্ত কুরিয়ারসমূহের অ্যাক্টিভ স্ট্যাটাস, মার্চেন্ট ক্রেডেনশিয়াল কনফিগারেশন ও অপারেশনাল হেলথ যাচাই করুন।</p>
-        </article>
-
-        <article class="t-card">
-          <div class="t-head">
-            <h3>validate_and_geocode_address</h3>
-            <span class="t-tag new" data-i18n="tag_spatial">স্পেশিয়াল এআই</span>
-          </div>
-          <p data-i18n="tool_geocode_desc">Google Maps Platform Geocoding API ও রুটপ-লেভেল কোঅর্ডিনেট ব্যবহার করে ঠিকানা থেকে সাব-লোকালিটি (থানা, জেলা, বিভাগ) নির্ভুলভাবে শনাক্তকরণ।</p>
-        </article>
-
-        <article class="t-card">
-          <div class="t-head">
-            <h3>calculate_delivery_zone_and_fee</h3>
-            <span class="t-tag new" data-i18n="tag_pricing">প্রাইসিং ইঞ্জিন</span>
-          </div>
-          <p data-i18n="tool_fee_desc">ঠিকানা অনুযায়ী অটোমেটিক জোন ক্লাসিফিকেশন (Dhaka: ৳80, Sub-Dhaka: ৳100, Outside Dhaka: ৳150) ও ডেলিভারি চার্জ নির্ধারণ।</p>
-        </article>
-
-        <article class="t-card">
-          <div class="t-head">
-            <h3>compare_courier_rates</h3>
-            <span class="t-tag new" data-i18n="tag_sla">এসএলএ ও খরচ</span>
-          </div>
-          <p data-i18n="tool_compare_desc">সবগুলো কুরিয়ারের রিয়েল-টাইম রেট, COD কমিশন ও প্রত্যাশিত ডেলিভারি টাইমলাইন পাশাপাশি তুলনা করে সেরা কুরিয়ার নির্বাচন।</p>
-        </article>
-
-        <article class="t-card">
-          <div class="t-head">
-            <h3>resolve_ndr_issue</h3>
-            <span class="t-tag new" data-i18n="tag_ndr">এনডিআর সমাধান</span>
-          </div>
-          <p data-i18n="tool_ndr_desc">নন-ডেলিভারি রিপোর্ট (NDR) সমস্যা চিহ্নিত করে গ্রাহকের জন্য অটোমেটিক বাংলা/ইংরেজি WhatsApp মেসেজ ড্রাফট ও কুরিয়ার ডিসপুট গাইডেন্স তৈরি।</p>
-        </article>
+        <article class="t-card"><div class="t-head"><h3>create_parcel</h3><span class="t-tag" data-i18n="tag_order">অর্ডার ডিসপ্যাচ</span></div><p data-i18n="tool_create_desc">যেকোনো courier-এ অটোমেটিক ডেলিভারি বুকিং (Steadfast, Pathao, RedX, Paperfly)। Pathao spatial auto-resolver সহ Consignment ID ও ট্র্যাকিং কোড নিশ্চিত করে।</p></article>
+        <article class="t-card"><div class="t-head"><h3>track_parcel</h3><span class="t-tag" data-i18n="tag_track">ইউনিফাইড ট্র্যাকিং</span></div><p data-i18n="tool_track_desc">Consignment, Invoice বা Tracking Code দিয়ে রিয়েল-টাইম ডেলিভারি স্ট্যাটাস ও সর্বজনীন টাইমলাইন ট্র্যাকিং।</p></article>
+        <article class="t-card"><div class="t-head"><h3>get_balance</h3><span class="t-tag" data-i18n="tag_finance">ফাইন্যান্স</span></div><p data-i18n="tool_balance_desc">সব courier মার্চেন্ট একাউন্টের লাইভ ব্যালেন্স, পেন্ডিং ডিসবার্সমেন্ট ও পেআউট স্ট্যাটাস (BDT)।</p></article>
+        <article class="t-card"><div class="t-head"><h3>check_fraud_risk</h3><span class="t-tag" data-i18n="tag_fraud">ফ্রড এআই</span></div><p data-i18n="tool_fraud_desc">পার্সেল পাঠানোর আগেই গ্রাহকের ফোন নম্বর জাতীয় লজিস্টিকস ডাটাবেসে বিশ্লেষণ করে ডেলিভারি সাকসেস রেট ও রিটার্ন রিস্ক স্কোর নির্ধারণ করে। Zero mock data।</p></article>
+        <article class="t-card"><div class="t-head"><h3>list_couriers</h3><span class="t-tag" data-i18n="tag_discovery">ডিসকভারি</span></div><p data-i18n="tool_list_desc">সিস্টেমে সংযুক্ত কুরিয়ারসমূহের অ্যাক্টিভ স্ট্যাটাস, মার্চেন্ট ক্রেডেনশিয়াল কনফিগারেশন ও অপারেশনাল হেলথ যাচাই করুন।</p></article>
+        <article class="t-card"><div class="t-head"><h3>validate_and_geocode_address</h3><span class="t-tag new" data-i18n="tag_spatial">স্পেশিয়াল এআই</span></div><p data-i18n="tool_geocode_desc">Google Maps Platform Geocoding API ও রুটপ-লেভেল কোঅর্ডিনেট ব্যবহার করে ঠিকানা থেকে সাব-লোকালিটি (থানা, জেলা, বিভাগ) নির্ভুলভাবে শনাক্তকরণ।</p></article>
+        <article class="t-card"><div class="t-head"><h3>calculate_delivery_zone_and_fee</h3><span class="t-tag new" data-i18n="tag_pricing">প্রাইসিং ইঞ্জিন</span></div><p data-i18n="tool_fee_desc">ঠিকানা অনুযায়ী অটোমেটিক জোন ক্লাসিফিকেশন (Dhaka: ৳80, Sub-Dhaka: ৳100, Outside Dhaka: ৳150) ও ডেলিভারি চার্জ নির্ধারণ।</p></article>
+        <article class="t-card"><div class="t-head"><h3>compare_courier_rates</h3><span class="t-tag new" data-i18n="tag_sla">এসএলএ ও খরচ</span></div><p data-i18n="tool_compare_desc">সবগুলো কুরিয়ারের রিয়েল-টাইম রেট, COD কমিশন ও প্রত্যাশিত ডেলিভারি টাইমলাইন পাশাপাশি তুলনা করে সেরা কুরিয়ার নির্বাচন।</p></article>
+        <article class="t-card"><div class="t-head"><h3>resolve_ndr_issue</h3><span class="t-tag new" data-i18n="tag_ndr">এনডিআর সমাধান</span></div><p data-i18n="tool_ndr_desc">নন-ডেলিভারি রিপোর্ট (NDR) সমস্যা চিহ্নিত করে গ্রাহকের জন্য অটোমেটিক বাংলা/ইংরেজি WhatsApp মেসেজ ড্রাফট ও কুরিয়ার ডিসপুট গাইডেন্স তৈরি।</p></article>
       </div>
     </section>
 
-    <!-- REAL-TIME WEBHOOK RECEIVERS FOR ALL 4 COURIERS -->
+    <!-- ===== WEBHOOKS ===== -->
     <section class="blk" aria-labelledby="webhook-title">
       <div class="blk-head">
-        <div class="eyebrow" data-i18n="wh_eyebrow">// রিয়েল-টাইম ওয়েব-হুক</div>
-        <h2 id="webhook-title" data-i18n="wh_heading">৪টি কুরিয়ারেরই রিয়েল-টাইম অটোমেশন ও ইভেন্ট রিসিভার</h2>
-        <p data-i18n="wh_subtitle">যেকোনো কুরিয়ারে ডেলিভারি স্ট্যাটাস পরিবর্তন হওয়া মাত্রই Aura Courier MCP-তে তাৎক্ষণিক সিঙ্ক হয়।</p>
+        <div class="eyebrow" data-i18n="wh_eyebrow">// রিয়েল-টাইম ওয়েব-হুক</div>
+        <h2 id="webhook-title" data-i18n="wh_heading">৪টি কুরিয়ারেরই রিয়েল-টাইম অটোমেশন ও ইভেন্ট রিসিভার</h2>
+        <p data-i18n="wh_subtitle">যেকোনো কুরিয়ারে ডেলিভারি স্ট্যাটাস পরিবর্তন হওয়া মাত্রই Aura Courier MCP-তে তাৎক্ষণিক সিঙ্ক হয়।</p>
       </div>
-
       <div class="webhook-grid">
-        <div class="wh-card">
-          <div>
-            <h3 data-i18n="wh_sf_title">⚡ Steadfast Webhook</h3>
-            <div class="wh-endpoint">POST /webhooks/steadfast</div>
-            <p data-i18n="wh_sf_desc">Steadfast মার্চেন্ট পোর্টালের Webhook URL-এ যুক্ত করুন। ডেলিভারি স্ট্যাটাস ও ট্র্যাকিং ইভেন্ট রিয়েল-টাইমে প্রসেস করে।</p>
-          </div>
-        </div>
-
-        <div class="wh-card">
-          <div>
-            <h3 data-i18n="wh_pt_title">⚡ Pathao Webhook</h3>
-            <div class="wh-endpoint">POST /webhooks/pathao</div>
-            <p data-i18n="wh_pt_desc">Pathao Developer কনসোলে যুক্ত করুন। AI Agent ইভেন্ট ডিসপ্যাচ গ্রহণ ও কনসাইনমেন্টের স্ট্যাটাস অটোমেটিক আপডেট করে।</p>
-          </div>
-        </div>
-
-        <div class="wh-card">
-          <div>
-            <h3 data-i18n="wh_rx_title">⚡ RedX Webhook</h3>
-            <div class="wh-endpoint">POST /webhooks/redx</div>
-            <p data-i18n="wh_rx_desc">RedX মার্চেন্ট কনসোলে রেজিস্টার করুন। ২,৮৪৯টি হাবের ট্র্যাকিং ও ডেলিভারি স্ট্যাটাস স্বয়ংক্রিয়ভাবে সিঙ্ক করে।</p>
-          </div>
-        </div>
-
-        <div class="wh-card">
-          <div>
-            <h3 data-i18n="wh_pf_title">⚡ Paperfly Webhook</h3>
-            <div class="wh-endpoint">POST /webhooks/paperfly</div>
-            <p data-i18n="wh_pf_desc">Paperfly Wing সিস্টেমে যুক্ত করুন। ডোর-টু-ডোর ডেলিভারি ইভেন্ট ও রিটার্ন স্ট্যাটাস ইনস্ট্যান্ট ক্যাপচার করে।</p>
-          </div>
-        </div>
+        <div class="wh-card"><div><h3 class="ttl"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.3c-.4.5-.03 1.2.6 1.2H10l-1.4 7c-.15.8.86 1.25 1.35.6L20 10.8c.4-.5.03-1.2-.6-1.2H14l1.4-7c.15-.8-.86-1.25-1.4-.6z"/></svg><span data-i18n="wh_sf_title">Steadfast Webhook</span></h3><div class="wh-endpoint">POST /webhooks/steadfast</div><p data-i18n="wh_sf_desc">Steadfast মার্চেন্ট পোর্টালের Webhook URL-এ যুক্ত করুন। ডেলিভারি স্ট্যাটাস ও ট্র্যাকিং ইভেন্ট রিয়েল-টাইমে প্রসেস করে।</p></div></div>
+        <div class="wh-card"><div><h3 class="ttl"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.3c-.4.5-.03 1.2.6 1.2H10l-1.4 7c-.15.8.86 1.25 1.35.6L20 10.8c.4-.5.03-1.2-.6-1.2H14l1.4-7c.15-.8-.86-1.25-1.4-.6z"/></svg><span data-i18n="wh_pt_title">Pathao Webhook</span></h3><div class="wh-endpoint">POST /webhooks/pathao</div><p data-i18n="wh_pt_desc">Pathao Developer কনসোলে যুক্ত করুন। AI Agent ইভেন্ট ডিসপ্যাচ গ্রহণ ও কনসাইনমেন্টের স্ট্যাটাস অটোমেটিক আপডেট করে।</p></div></div>
+        <div class="wh-card"><div><h3 class="ttl"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.3c-.4.5-.03 1.2.6 1.2H10l-1.4 7c-.15.8.86 1.25 1.35.6L20 10.8c.4-.5.03-1.2-.6-1.2H14l1.4-7c.15-.8-.86-1.25-1.4-.6z"/></svg><span data-i18n="wh_rx_title">RedX Webhook</span></h3><div class="wh-endpoint">POST /webhooks/redx</div><p data-i18n="wh_rx_desc">RedX মার্চেন্ট কনসোলে রেজিস্টার করুন। ২,৮৪৯টি হাবের ট্র্যাকিং ও ডেলিভারি স্ট্যাটাস স্বয়ংক্রিয়ভাবে সিঙ্ক করে।</p></div></div>
+        <div class="wh-card"><div><h3 class="ttl"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.3c-.4.5-.03 1.2.6 1.2H10l-1.4 7c-.15.8.86 1.25 1.35.6L20 10.8c.4-.5.03-1.2-.6-1.2H14l1.4-7c.15-.8-.86-1.25-1.4-.6z"/></svg><span data-i18n="wh_pf_title">Paperfly Webhook</span></h3><div class="wh-endpoint">POST /webhooks/paperfly</div><p data-i18n="wh_pf_desc">Paperfly Wing সিস্টেমে যুক্ত করুন। ডোর-টু-ডোর ডেলিভারি ইভেন্ট ও রিটার্ন স্ট্যাটাস ইনস্ট্যান্ট ক্যাপচার করে।</p></div></div>
       </div>
     </section>
 
-    <!-- CONNECT MULTI-CLIENT TABS -->
+    <!-- ===== CONNECT TABS ===== -->
     <section class="blk" aria-labelledby="connect-title">
       <div class="blk-head">
         <div class="eyebrow" data-i18n="connect_eyebrow">// কানেক্ট করুন</div>
         <h2 id="connect-title" data-i18n="connect_heading">যুক্ত করুন যেকোনো ক্লায়েন্টে</h2>
-        <p data-i18n="connect_subtitle">Hosted Streamable-HTTP URL বা লোকাল কনফিগারেশন — ৪টি কুরিয়ার ও Google Maps সহ আপনার প্ল্যাটফর্মের পূর্ণাঙ্গ কনফিগ কপি করুন।</p>
+        <p data-i18n="connect_subtitle">Hosted Streamable-HTTP URL বা লোকাল কনফিগারেশন — ৪টি কুরিয়ার ও Google Maps সহ আপনার প্ল্যাটফর্মের পূর্ণাঙ্গ কনফিগ কপি করুন।</p>
       </div>
-
       <div class="config-box">
         <div class="tab-header" role="tablist">
           <button class="tab-btn active" role="tab" aria-selected="true" onclick="switchTab('antigravity', this)">
-            <span class="tab-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" fill="url(#gemini-sparkle-tab)"/>
-                <defs>
-                  <linearGradient id="gemini-sparkle-tab" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#4E82EE"/>
-                    <stop offset="0.5" stop-color="#9B72CB"/>
-                    <stop offset="1" stop-color="#D96570"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            </span>
+            <span class="tab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" fill="url(#gemini-sparkle-tab)"/><defs><linearGradient id="gemini-sparkle-tab" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#4E82EE"/><stop offset="0.5" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs></svg></span>
             <span>Antigravity / Gemini</span>
           </button>
           <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('hosted', this)">
-            <span class="tab-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="2" y1="12" x2="22" y2="12"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-              </svg>
-            </span>
+            <span class="tab-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
             <span>Hosted URL (Streamable-HTTP)</span>
           </button>
           <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('claude', this)">
-            <span class="tab-icon">
-              <svg width="17" height="17" fill="#D97757" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/>
-              </svg>
-            </span>
+            <span class="tab-icon"><svg width="17" height="17" fill="#D97757" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg></span>
             <span>Claude Desktop</span>
           </button>
           <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('cursor', this)">
-            <span class="tab-icon">
-              <svg width="17" height="17" viewBox="0 0 466.73 532.09" fill="#edecec" xmlns="http://www.w3.org/2000/svg">
-                <path d="M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z"/>
-              </svg>
-            </span>
+            <span class="tab-icon"><svg width="17" height="17" viewBox="0 0 466.73 532.09" fill="#edecec" xmlns="http://www.w3.org/2000/svg"><path d="M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z"/></svg></span>
             <span>Cursor / VS Code</span>
           </button>
         </div>
-
         <div class="code-wrapper">
           <button class="copy-btn" onclick="copyCode()" aria-label="Copy Configuration Code" data-i18n="copy_btn">কনফিগ কপি করুন</button>
           <pre id="code-snippet" class="code-body" tabindex="0">{
@@ -576,12 +473,12 @@
       </div>
     </section>
 
-    <!-- THE VISION -->
+    <!-- ===== VISION ===== -->
     <section class="blk" aria-labelledby="vision-title">
       <div class="vision-box">
-        <div class="eyebrow" style="color:var(--cyan); margin-bottom:8px;" data-i18n="vision_eyebrow">// আমাদের ভিশন</div>
+        <div class="eyebrow" style="color:var(--cyan);margin-bottom:8px" data-i18n="vision_eyebrow">// আমাদের ভিশন</div>
         <h3 id="vision-title" data-i18n="vision_heading">এক ছাদের নিচে দেশের সব commerce API</h3>
-        <p data-i18n="vision_desc">Aura বানাচ্ছে বাংলাদেশের agentic commerce স্তর — courier, payments, spatial intelligence এবং আরও অনেক connector — যাতে যেকোনো AI স্বয়ংক্রিয়ভাবে ও বিশ্বমানের নির্ভুলতায় দেশের যেকোনো ব্যবসার অপারেশন পরিচালনা করতে পারে। মানুষের স্বপ্ন · এআই-এর হাত।</p>
+        <p data-i18n="vision_desc">Aura বানাচ্ছে বাংলাদেশের agentic commerce স্তর — courier, payments, spatial intelligence এবং আরও অনেক connector — যাতে যেকোনো AI স্বয়ংক্রিয়ভাবে ও বিশ্বমানের নির্ভুলতায় দেশের যেকোনো ব্যবসার অপারেশন পরিচালনা করতে পারে। মানুষের স্বপ্ন · এআই-এর হাত।</p>
       </div>
     </section>
   </main>
@@ -589,39 +486,38 @@
   <footer role="contentinfo">
     <p data-i18n="footer_license">Aura Courier MCP v2.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b></p>
     <p>
-      <a href="https://auraajenticai.cloud">auraajenticai.cloud</a> · 
-      <a href="https://git.auraajenticai.cloud">git.auraajenticai.cloud</a> · 
-      <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp">Glama Verified</a> · 
+      <a href="https://auraajenticai.cloud">auraajenticai.cloud</a> ·
+      <a href="https://git.auraajenticai.cloud">git.auraajenticai.cloud</a> ·
+      <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp">Glama Verified</a> ·
       <a href="/health" data-i18n="footer_telemetry">Live Telemetry</a>
     </p>
   </footer>
-
 </div>
 
 <script>
 const i18n = {
   bn: {
     header_badge: "এমসিপি বাংলাদেশ v2.4",
-    nav_couriers: "কুরিয়ার",
+    nav_couriers: "কুরিয়ার",
     nav_tools: "টুলস",
     nav_sandbox: "লাইভ স্যান্ডবক্স",
     nav_mcp: "/mcp প্লেগ্রাউন্ড ↗",
     nav_health: "/health স্ট্যাটাস ↗",
-    cta_mcp_playground: "🧪 MCP প্লেগ্রাউন্ড ↗",
-    cta_health_dashboard: "📊 লাইভ সিস্টেম হেলথ ↗",
-    cta_sandbox: "⚡ লাইভ স্যান্ডবক্স ট্রাই করুন",
+    cta_mcp_playground: "MCP প্লেগ্রাউন্ড ↗",
+    cta_health_dashboard: "লাইভ সিস্টেম হেলথ ↗",
+    cta_sandbox: "লাইভ স্যান্ডবক্স ট্রাই করুন",
     cta_aura_main: "Aura মেইন সাইট ↗",
     sandbox_eyebrow: "// ইন্টারেক্টিভ লাইভ স্যান্ডবক্স",
-    sandbox_heading: "ব্রাউজারেই টেস্ট করুন কুরিয়ার এআই ও জোন ক্যালকুলেটর",
-    sandbox_subtitle: "কোনো কোডিং বা ইন্সটলেশন ছাড়াই সরাসরি বাংলাদেশের ৬৪ জেলার জোন ট্যারিফ এবং জিরো-মক ফ্রড রিস্ক ইঞ্জিন যাচাই করুন।",
-    calc_title: "📍 ডেলিভারি জোন ও চার্জ ক্যালকুলেটর",
-    calc_desc: "গন্তব্য জেলা/থানা অনুযায়ী রিয়েল-টাইম কুরিয়ার ট্যারিফ ও SLA নির্ধারণ।",
+    sandbox_heading: "ব্রাউজারেই টেস্ট করুন কুরিয়ার এআই ও জোন ক্যালকুলেটর",
+    sandbox_subtitle: "কোনো কোডিং বা ইন্সটলেশন ছাড়াই সরাসরি বাংলাদেশের ৬৪ জেলার জোন ট্যারিফ এবং জিরো-মক ফ্রড রিস্ক ইঞ্জিন যাচাই করুন।",
+    calc_title: "ডেলিভারি জোন ও চার্জ ক্যালকুলেটর",
+    calc_desc: "গন্তব্য জেলা/থানা অনুযায়ী রিয়েল-টাইম কুরিয়ার ট্যারিফ ও SLA নির্ধারণ।",
     calc_lbl_dest: "গন্তব্য নির্বাচন করুন:",
     calc_lbl_weight: "পার্সেলের ওজন:",
     calc_est_fee: "প্রাক্কলিত ডেলিভারি ফি",
     calc_sla: "প্রত্যাশিত ডেলিভারি",
-    fraud_title: "🛡️ জিরো-মক ফ্রড রিস্ক অ্যানালাইজার",
-    fraud_desc: "জাতীয় কুরিয়ার নেটওয়ার্ক ও টেলকো প্রিফিক্স (013-019) দিয়ে রিস্ক স্কোর যাচাই।",
+    fraud_title: "জিরো-মক ফ্রড রিস্ক অ্যানালাইজার",
+    fraud_desc: "জাতীয় কুরিয়ার নেটওয়ার্ক ও টেলকো প্রিফিক্স (013-019) দিয়ে রিস্ক স্কোর যাচাই।",
     fraud_lbl_phone: "গ্রাহকের ফোন নম্বর লিখুন:",
     fraud_btn_check: "যাচাই",
     fraud_operator: "টেলকো অপারেটর ও বৈধতা",
@@ -630,76 +526,76 @@ const i18n = {
     nav_glama: "গ্লামা রেজিস্ট্রি ↗",
     nav_github: "গিটহাব ↗",
     nav_client: "ক্লায়েন্ট পোর্টাল ↗",
-    badge_glama: "✓ Glama.ai রেজিস্টিতে ভেরিফাইড",
-    badge_couriers: "৪টি কুরিয়ার + গুগল ম্যাপস লাইভ",
+    badge_glama: "Glama.ai রেজিস্টিতে ভেরিফাইড",
+    badge_couriers: "৪টি কুরিয়ার + গুগল ম্যাপস লাইভ",
     hero_tagline: "এক connector — বাংলাদেশের সব courier ও spatial intelligence। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক করুন, ট্র্যাক করুন এবং জিরো-রিস্ক COD নিশ্চিত করুন।",
-    cta_glama: "⚡ Glama.ai-তে দেখুন",
+    cta_glama: "Glama.ai-তে দেখুন",
     cta_github: "★ GitHub-এ দেখুন",
     cta_mcp: "MCP এন্ডপয়েন্ট কানেক্ট করুন ↗",
     meta_tools_count: "৯টি",
     meta_tools: "এন্টারপ্রাইজ টুলস",
     meta_couriers_count: "৪টি",
-    meta_couriers: "কুরিয়ার + গুগল ম্যাপস",
+    meta_couriers: "কুরিয়ার + গুগল ম্যাপস",
     meta_risk: "জিরো-রিস্ক সিওডি · ফ্রড এআই",
-    courier_eyebrow: "// সমর্থিত কুরিয়ার নেটওয়ার্ক",
-    courier_heading: "বাংলাদেশের ৪টি শীর্ষস্থানীয় কুরিয়ার",
-    courier_subtitle: "একই সর্বজনীন ইন্টারফেসে দেশের বৃহত্তম ৪টি লজিস্টিকস নেটওয়ার্ক — সমান গুরুত্ব ও পূর্ণ কার্যক্ষমতায় সক্রিয়।",
-    sf_desc: "Packzy API v1 · সারা দেশে ৬৪ জেলায় ২৪-৪৮ ঘণ্টার ক্যাশ অন ডেলিভারি ও অটোমেটেড ট্র্যাকিং।",
+    courier_eyebrow: "// সমর্থিত কুরিয়ার নেটওয়ার্ক",
+    courier_heading: "বাংলাদেশের ৪টি শীর্ষস্থানীয় কুরিয়ার",
+    courier_subtitle: "একই সর্বজনীন ইন্টারফেসে দেশের বৃহত্তম ৪টি লজিস্টিকস নেটওয়ার্ক — সমান গুরুত্ব ও পূর্ণ কার্যক্ষমতায় সক্রিয়।",
+    sf_desc: "Packzy API v1 · সারা দেশে ৬৪ জেলায় ২৪-৪৮ ঘণ্টার ক্যাশ অন ডেলিভারি ও অটোমেটেড ট্র্যাকিং।",
     sf_meta: "কাভারেজ: ৬৪ জেলা · ২৪-৪৮ ঘণ্টার নেক্সট-ডে পেআউট",
     pt_desc: "AI Agent Dispatch · সিটি ও জোন অটো-রেজলভার সহ দ্রুততম অন-ডিমান্ড ও এক্সপ্রেস ডেলিভারি।",
     pt_meta: "অন-ডিমান্ড পিকআপ · স্যাম-ডে এক্সপ্রেস ডেলিভারি",
-    rx_desc: "OpenAPI v1 · ২,৮৪৯টি ডেলিভারি হাব ও দেশজুড়ে শক্তিশালী ডিস্ট্রিবিউশন নেটওয়ার্ক।",
-    rx_meta: "দেশজুড়ে ২,৮৪৯+ হাব · ডোরস্টেপ পিকআপ নেটওয়ার্ক",
-    pf_desc: "Wing API v1 · প্রত্যন্ত ইউনিয়ন পর্যন্ত ডোরস্টেপ পিকআপ ও হোম ডেলিভারি কাভারেজ।",
-    pf_meta: "প্রত্যন্ত ইউনিয়ন কাভারেজ · ডোর-টু-ডোর ডেলিভারি",
-    spatial_title: "📍 Google Maps Platform — স্পেশিয়াল রাউটিং ইঞ্জিন",
-    spatial_desc: "Geocoding API, Routes API v2 ও রুটপ-লেভেল কোঅর্ডিনেট দিয়ে নিখুঁত থানা/জেলা রেজোলিউশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।",
-    spatial_badge: "● এন্টারপ্রাইজ স্পেশিয়াল এআই",
+    rx_desc: "OpenAPI v1 · ২,৮৪৯টি ডেলিভারি হাব ও দেশজুড়ে শক্তিশালী ডিস্ট্রিবিউশন নেটওয়ার্ক।",
+    rx_meta: "দেশজুড়ে ২,৮৪৯+ হাব · ডোরস্টেপ পিকআপ নেটওয়ার্ক",
+    pf_desc: "Wing API v1 · প্রত্যন্ত ইউনিয়ন পর্যন্ত ডোরস্টেপ পিকআপ ও হোম ডেলিভারি কাভারেজ।",
+    pf_meta: "প্রত্যন্ত ইউনিয়ন কাভারেজ · ডোর-টু-ডোর ডেলিভারি",
+    spatial_title: "Google Maps Platform — স্পেশিয়াল রাউটিং ইঞ্জিন",
+    spatial_desc: "Geocoding API, Routes API v2 ও রুটপ-লেভেল কোঅর্ডিনেট দিয়ে নিখুঁত থানা/জেলা রেজোলিউশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।",
+    spatial_badge: "● এন্টারপ্রাইজ স্পেশিয়াল এআই",
     health_status_title: "ইঞ্জিন স্ট্যাটাস",
     health_status_val: "● চলমান (Operational)",
     health_proto_title: "প্রোটোকল",
     health_tools_title: "নিবন্ধিত টুলস",
     health_tools_val: "৯টি প্রোডাকশন টুলস",
-    health_wh_title: "সক্রিয় ওয়েব-হুক",
+    health_wh_title: "সক্রিয় ওয়েব-হুক",
     tools_eyebrow: "// এন্টারপ্রাইজ টুলস",
-    tools_heading: "একটি একক ইন্টারফেসে সকল কুরিয়ার ও স্পেশিয়াল ক্ষমতা",
-    tools_subtitle: "প্রতিটা courier আলাদা API ও কাঠামোর — Aura Courier MCP সবগুলোকে একই সর্বজনীন ও নির্ভরযোগ্য toolset-এ নিয়ে এসেছে। আপনার AI Agent-কে নির্দেশ দিন, বাকি জটিল হিসাব ও ডিসপ্যাচ ও সামলে নেবে।",
+    tools_heading: "একটি একক ইন্টারফেসে সকল কুরিয়ার ও স্পেশিয়াল ক্ষমতা",
+    tools_subtitle: "প্রতিটা courier আলাদা API ও কাঠামোর — Aura Courier MCP সবগুলোকে একই সর্বজনীন ও নির্ভরযোগ্য toolset-এ নিয়ে এসেছে। আপনার AI Agent-কে নির্দেশ দিন, বাকি জটিল হিসাব ও ডিসপ্যাচ ও সামলে নেবে।",
     tag_order: "অর্ডার ডিসপ্যাচ",
     tag_track: "ইউনিফাইড ট্র্যাকিং",
     tag_finance: "ফাইন্যান্স",
     tag_fraud: "ফ্রড এআই",
     tag_discovery: "ডিসকভারি",
-    tag_spatial: "স্পেশিয়াল এআই",
+    tag_spatial: "স্পেশিয়াল এআই",
     tag_pricing: "প্রাইসিং ইঞ্জিন",
     tag_sla: "এসএলএ ও খরচ",
     tag_ndr: "এনডিআর সমাধান",
     tool_create_desc: "যেকোনো courier-এ অটোমেটিক ডেলিভারি বুকিং (Steadfast, Pathao, RedX, Paperfly)। Pathao spatial auto-resolver সহ Consignment ID ও ট্র্যাকিং কোড নিশ্চিত করে।",
-    tool_track_desc: "Consignment, Invoice বা Tracking Code দিয়ে রিয়েল-টাইম ডেলিভারি স্ট্যাটাস ও সর্বজনীন টাইমলাইন ট্র্যাকিং।",
+    tool_track_desc: "Consignment, Invoice বা Tracking Code দিয়ে রিয়েল-টাইম ডেলিভারি স্ট্যাটাস ও সর্বজনীন টাইমলাইন ট্র্যাকিং।",
     tool_balance_desc: "সব courier মার্চেন্ট একাউন্টের লাইভ ব্যালেন্স, পেন্ডিং ডিসবার্সমেন্ট ও পেআউট স্ট্যাটাস (BDT)।",
-    tool_fraud_desc: "পার্সেল পাঠানোর আগেই গ্রাহকের ফোন নম্বর জাতীয় লজিস্টিকস ডাটাবেসে বিশ্লেষণ করে ডেলিভারি সাকসেস রেট ও রিটার্ন রিস্ক স্কোর নির্ধারণ করে। Zero mock data।",
-    tool_list_desc: "সিস্টেমে সংযুক্ত কুরিয়ারসমূহের অ্যাক্টিভ স্ট্যাটাস, মার্চেন্ট ক্রেডেনশিয়াল কনফিগারেশন ও অপারেশনাল হেলথ যাচাই করুন।",
+    tool_fraud_desc: "পার্সেল পাঠানোর আগেই গ্রাহকের ফোন নম্বর জাতীয় লজিস্টিকস ডাটাবেসে বিশ্লেষণ করে ডেলিভারি সাকসেস রেট ও রিটার্ন রিস্ক স্কোর নির্ধারণ করে। Zero mock data।",
+    tool_list_desc: "সিস্টেমে সংযুক্ত কুরিয়ারসমূহের অ্যাক্টিভ স্ট্যাটাস, মার্চেন্ট ক্রেডেনশিয়াল কনফিগারেশন ও অপারেশনাল হেলথ যাচাই করুন।",
     tool_geocode_desc: "Google Maps Platform Geocoding API ও রুটপ-লেভেল কোঅর্ডিনেট ব্যবহার করে ঠিকানা থেকে সাব-লোকালিটি (থানা, জেলা, বিভাগ) নির্ভুলভাবে শনাক্তকরণ।",
-    tool_fee_desc: "ঠিকানা অনুযায়ী অটোমেটিক জোন ক্লাসিফিকেশন (Dhaka: ৳80, Sub-Dhaka: ৳100, Outside Dhaka: ৳150) ও ডেলিভারি চার্জ নির্ধারণ।",
-    tool_compare_desc: "সবগুলো কুরিয়ারের রিয়েল-টাইম রেট, COD কমিশন ও প্রত্যাশিত ডেলিভারি টাইমলাইন পাশাপাশি তুলনা করে সেরা কুরিয়ার নির্বাচন।",
-    tool_ndr_desc: "নন-ডেলিভারি রিপোর্ট (NDR) সমস্যা চিহ্নিত করে গ্রাহকের জন্য অটোমেটিক বাংলা/ইংরেজি WhatsApp মেসেজ ড্রাফট ও কুরিয়ার ডিসপুট গাইডেন্স তৈরি।",
-    wh_eyebrow: "// রিয়েল-টাইম ওয়েব-হুক",
-    wh_heading: "৪টি কুরিয়ারেরই রিয়েল-টাইম অটোমেশন ও ইভেন্ট রিসিভার",
-    wh_subtitle: "যেকোনো কুরিয়ারে ডেলিভারি স্ট্যাটাস পরিবর্তন হওয়া মাত্রই Aura Courier MCP-তে তাৎক্ষণিক সিঙ্ক হয়।",
-    wh_sf_title: "⚡ Steadfast Webhook",
-    wh_sf_desc: "Steadfast মার্চেন্ট পোর্টালের Webhook URL-এ যুক্ত করুন। ডেলিভারি স্ট্যাটাস ও ট্র্যাকিং ইভেন্ট রিয়েল-টাইমে প্রসেস করে।",
-    wh_pt_title: "⚡ Pathao Webhook",
+    tool_fee_desc: "ঠিকানা অনুযায়ী অটোমেটিক জোন ক্লাসিফিকেশন (Dhaka: ৳80, Sub-Dhaka: ৳100, Outside Dhaka: ৳150) ও ডেলিভারি চার্জ নির্ধারণ।",
+    tool_compare_desc: "সবগুলো কুরিয়ারের রিয়েল-টাইম রেট, COD কমিশন ও প্রত্যাশিত ডেলিভারি টাইমলাইন পাশাপাশি তুলনা করে সেরা কুরিয়ার নির্বাচন।",
+    tool_ndr_desc: "নন-ডেলিভারি রিপোর্ট (NDR) সমস্যা চিহ্নিত করে গ্রাহকের জন্য অটোমেটিক বাংলা/ইংরেজি WhatsApp মেসেজ ড্রাফট ও কুরিয়ার ডিসপুট গাইডেন্স তৈরি।",
+    wh_eyebrow: "// রিয়েল-টাইম ওয়েব-হুক",
+    wh_heading: "৪টি কুরিয়ারেরই রিয়েল-টাইম অটোমেশন ও ইভেন্ট রিসিভার",
+    wh_subtitle: "যেকোনো কুরিয়ারে ডেলিভারি স্ট্যাটাস পরিবর্তন হওয়া মাত্রই Aura Courier MCP-তে তাৎক্ষণিক সিঙ্ক হয়।",
+    wh_sf_title: "Steadfast Webhook",
+    wh_sf_desc: "Steadfast মার্চেন্ট পোর্টালের Webhook URL-এ যুক্ত করুন। ডেলিভারি স্ট্যাটাস ও ট্র্যাকিং ইভেন্ট রিয়েল-টাইমে প্রসেস করে।",
+    wh_pt_title: "Pathao Webhook",
     wh_pt_desc: "Pathao Developer কনসোলে যুক্ত করুন। AI Agent ইভেন্ট ডিসপ্যাচ গ্রহণ ও কনসাইনমেন্টের স্ট্যাটাস অটোমেটিক আপডেট করে।",
-    wh_rx_title: "⚡ RedX Webhook",
-    wh_rx_desc: "RedX মার্চেন্ট কনসোলে রেজিস্টার করুন। ২,৮৪৯টি হাবের ট্র্যাকিং ও ডেলিভারি স্ট্যাটাস স্বয়ংক্রিয়ভাবে সিঙ্ক করে।",
-    wh_pf_title: "⚡ Paperfly Webhook",
+    wh_rx_title: "RedX Webhook",
+    wh_rx_desc: "RedX মার্চেন্ট কনসোলে রেজিস্টার করুন। ২,৮৪৯টি হাবের ট্র্যাকিং ও ডেলিভারি স্ট্যাটাস স্বয়ংক্রিয়ভাবে সিঙ্ক করে।",
+    wh_pf_title: "Paperfly Webhook",
     wh_pf_desc: "Paperfly Wing সিস্টেমে যুক্ত করুন। ডোর-টু-ডোর ডেলিভারি ইভেন্ট ও রিটার্ন স্ট্যাটাস ইনস্ট্যান্ট ক্যাপচার করে।",
     connect_eyebrow: "// কানেক্ট করুন",
     connect_heading: "যুক্ত করুন যেকোনো ক্লায়েন্টে",
-    connect_subtitle: "Hosted Streamable-HTTP URL বা লোকাল কনফিগারেশন — ৪টি কুরিয়ার ও Google Maps সহ আপনার প্ল্যাটফর্মের পূর্ণাঙ্গ কনফিগ কপি করুন।",
+    connect_subtitle: "Hosted Streamable-HTTP URL বা লোকাল কনফিগারেশন — ৪টি কুরিয়ার ও Google Maps সহ আপনার প্ল্যাটফর্মের পূর্ণাঙ্গ কনফিগ কপি করুন।",
     copy_btn: "কনফিগ কপি করুন",
     vision_eyebrow: "// আমাদের ভিশন",
     vision_heading: "এক ছাদের নিচে দেশের সব commerce API",
-    vision_desc: "Aura বানাচ্ছে বাংলাদেশের agentic commerce স্তর — courier, payments, spatial intelligence এবং আরও অনেক connector — যাতে যেকোনো AI স্বয়ংক্রিয়ভাবে ও বিশ্বমানের নির্ভুলতায় দেশের যেকোনো ব্যবসার অপারেশন পরিচালনা করতে পারে। মানুষের স্বপ্ন · এআই-এর হাত।",
+    vision_desc: "Aura বানাচ্ছে বাংলাদেশের agentic commerce স্তর — courier, payments, spatial intelligence এবং আরও অনেক connector — যাতে যেকোনো AI স্বয়ংক্রিয়ভাবে ও বিশ্বমানের নির্ভুলতায় দেশের যেকোনো ব্যবসার অপারেশন পরিচালনা করতে পারে। মানুষের স্বপ্ন · এআই-এর হাত।",
     footer_license: "Aura Courier MCP v2.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b>",
     footer_telemetry: "লাইভ টেলিমেট্রি"
   },
@@ -710,20 +606,20 @@ const i18n = {
     nav_sandbox: "Live Sandbox",
     nav_mcp: "/mcp Playground ↗",
     nav_health: "/health Status ↗",
-    cta_mcp_playground: "🧪 MCP Playground ↗",
-    cta_health_dashboard: "📊 Live Health Telemetry ↗",
-    cta_sandbox: "⚡ Try Live Sandbox",
+    cta_mcp_playground: "MCP Playground ↗",
+    cta_health_dashboard: "Live Health Telemetry ↗",
+    cta_sandbox: "Try Live Sandbox",
     cta_aura_main: "Aura Main Site ↗",
     sandbox_eyebrow: "// INTERACTIVE LIVE SANDBOX",
     sandbox_heading: "Test Courier AI & Zone Calculator in Browser",
     sandbox_subtitle: "Directly calculate 64-district delivery tariffs and test zero-mock fraud risk verification right from your browser.",
-    calc_title: "📍 Delivery Zone & Fee Calculator",
+    calc_title: "Delivery Zone & Fee Calculator",
     calc_desc: "Real-time tariff and SLA calculation based on destination subdistrict and district.",
     calc_lbl_dest: "Select Destination:",
     calc_lbl_weight: "Parcel Weight:",
     calc_est_fee: "Estimated Delivery Fee",
     calc_sla: "Estimated SLA",
-    fraud_title: "🛡️ Zero-Mock Fraud Risk Analyzer",
+    fraud_title: "Zero-Mock Fraud Risk Analyzer",
     fraud_desc: "Evaluate delivery risk using nationwide carrier databases and BD telco prefixes (013-019).",
     fraud_lbl_phone: "Enter Customer Phone:",
     fraud_btn_check: "Verify",
@@ -733,10 +629,10 @@ const i18n = {
     nav_glama: "Glama Registry ↗",
     nav_github: "GitHub ↗",
     nav_client: "Client Portal ↗",
-    badge_glama: "✓ Verified on Glama.ai Registry",
+    badge_glama: "Verified on Glama.ai Registry",
     badge_couriers: "4 Couriers + Google Maps Live",
     hero_tagline: "One unified connector for all Bangladesh courier logistics & Google Maps spatial intelligence. Book parcels, track shipments, and eliminate COD return risk in 1-click from Claude, Antigravity, Cursor, and n8n AI Agents.",
-    cta_glama: "⚡ View on Glama.ai",
+    cta_glama: "View on Glama.ai",
     cta_github: "★ View on GitHub",
     cta_mcp: "Connect MCP Endpoint ↗",
     meta_tools_count: "9",
@@ -755,7 +651,7 @@ const i18n = {
     rx_meta: "Nationwide 2,849+ Hubs · Doorstep Pickup Network",
     pf_desc: "Wing API v1 · Doorstep pickup and home delivery coverage reaching remote rural unions.",
     pf_meta: "Remote Union Coverage · Door-to-Door Delivery",
-    spatial_title: "📍 Google Maps Platform — Spatial Routing Engine",
+    spatial_title: "Google Maps Platform — Spatial Routing Engine",
     spatial_desc: "Accurate Thana/District resolution and real-time driving distance calculation via Geocoding API & Routes API v2.",
     spatial_badge: "● Enterprise Spatial AI",
     health_status_title: "Engine Status",
@@ -788,13 +684,13 @@ const i18n = {
     wh_eyebrow: "// REAL-TIME WEBHOOKS",
     wh_heading: "Real-Time Automation & Event Receivers for All 4 Couriers",
     wh_subtitle: "Instant bidirectional synchronization whenever a delivery status changes on any carrier.",
-    wh_sf_title: "⚡ Steadfast Webhook",
+    wh_sf_title: "Steadfast Webhook",
     wh_sf_desc: "Add to Steadfast Merchant Portal Webhook URL. Processes delivery status and tracking events in real time.",
-    wh_pt_title: "⚡ Pathao Webhook",
+    wh_pt_title: "Pathao Webhook",
     wh_pt_desc: "Add to Pathao Developer Console. Receives AI Agent event dispatches and automatically updates consignment statuses.",
-    wh_rx_title: "⚡ RedX Webhook",
+    wh_rx_title: "RedX Webhook",
     wh_rx_desc: "Register in RedX Merchant Console. Automatically syncs tracking and delivery milestones across 2,849 hubs.",
-    wh_pf_title: "⚡ Paperfly Webhook",
+    wh_pf_title: "Paperfly Webhook",
     wh_pf_desc: "Configure in Paperfly Wing system. Instantly captures door-to-door delivery milestones and return statuses.",
     connect_eyebrow: "// CONNECT",
     connect_heading: "Connect to Any Client or AI Agent",
@@ -919,7 +815,7 @@ function showCopiedFeedback() {
   const btn = document.querySelector('.copy-btn');
   if (!btn) return;
   const origText = btn.textContent;
-  btn.textContent = currentLang === 'bn' ? 'কপি হয়েছে! ✓' : 'Copied! ✓';
+  btn.textContent = currentLang === 'bn' ? 'কপি হয়েছে! ✓' : 'Copied! ✓';
   btn.style.color = 'var(--green)';
   setTimeout(() => {
     btn.textContent = origText;
@@ -953,6 +849,99 @@ function copyCode() {
     fallbackCopy(code);
   }
 }
+
+/* ===== Animated World Courier Hub background (canvas) =====
+   A dark world map of glowing courier hubs with parcels streaming along route arcs.
+   Dhaka is the highlighted origin hub. GPU-cheap; freezes on prefers-reduced-motion. */
+(function worldHub() {
+  const cv = document.getElementById('hubmap');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const HUBS = [
+    ['Dhaka', 23.81, 90.41, 1], ['Singapore', 1.35, 103.8], ['Dubai', 25.2, 55.3], ['Hong Kong', 22.3, 114.2],
+    ['Shanghai', 31.2, 121.5], ['Tokyo', 35.7, 139.7], ['Mumbai', 19.1, 72.9], ['Delhi', 28.6, 77.2],
+    ['Bangkok', 13.75, 100.5], ['Kuala Lumpur', 3.1, 101.7], ['Istanbul', 41.0, 28.98], ['Frankfurt', 50.1, 8.68],
+    ['London', 51.5, -0.13], ['Paris', 48.85, 2.35], ['New York', 40.7, -74.0], ['Los Angeles', 34.05, -118.2],
+    ['Chicago', 41.88, -87.6], ['Sao Paulo', -23.55, -46.6], ['Sydney', -33.87, 151.2], ['Johannesburg', -26.2, 28.0],
+    ['Cairo', 30.04, 31.2], ['Moscow', 55.75, 37.6], ['Seoul', 37.57, 126.98], ['Toronto', 43.65, -79.38],
+    ['Jakarta', -6.2, 106.8], ['Riyadh', 24.7, 46.7], ['Kolkata', 22.57, 88.36], ['Yangon', 16.87, 96.2],
+    ['Mexico City', 19.43, -99.13], ['Buenos Aires', -34.6, -58.38], ['Vancouver', 49.28, -123.12], ['Lagos', 6.52, 3.38], ['Nairobi', -1.29, 36.82]
+  ];
+  const WLABELS = new Set(['Dhaka', 'Singapore', 'Dubai', 'London', 'New York', 'Hong Kong', 'Frankfurt', 'Tokyo', 'Los Angeles', 'Sao Paulo', 'Sydney']);
+  const BD = [
+    ['Dhaka', 23.81, 90.41, 1], ['Tetulia', 26.49, 88.40, 1], ['Teknaf', 20.86, 92.30, 1],
+    ['Rupsha', 22.79, 89.63, 1], ['Pathuria', 24.40, 92.05, 1], ['Chattogram', 22.36, 91.80, 1],
+    ['Sylhet', 24.90, 91.87, 1], ['Khulna', 22.85, 89.56, 1], ['Rajshahi', 24.37, 88.60, 0],
+    ['Rangpur', 25.75, 89.25, 0], ['Barishal', 22.70, 90.37, 0], ['Coxs Bazar', 21.43, 91.99, 0],
+    ['Cumilla', 23.46, 91.18, 0], ['Bogura', 24.85, 89.37, 0], ['Mymensingh', 24.75, 90.40, 0],
+    ['Jashore', 23.17, 89.21, 0], ['Dinajpur', 25.63, 88.64, 0]
+  ];
+  const LAT_TOP = 74, LAT_BOT = -56;
+  let W, H, DPR, pts, conns, bdPts, bdConns, raf, last = 0, dtG = 0.016;
+  const proj = (lat, lon) => [(lon + 180) / 360 * W, (LAT_TOP - lat) / (LAT_TOP - LAT_BOT) * H];
+  const bez = (a, cx, cy, b, t) => { const u = 1 - t; return [u * u * a.x + 2 * u * t * cx + t * t * b.x, u * u * a.y + 2 * u * t * cy + t * t * b.y]; };
+  function mk(a, b, sp) { const d = Math.hypot(b.x - a.x, b.y - a.y); return { a, b, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 - Math.min(d * 0.22, 150), t: Math.random(), sp: sp || (0.10 + Math.random() * 0.14) }; }
+  function build() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = W * DPR; cv.height = H * DPR; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    pts = HUBS.map(h => { const p = proj(h[1], h[2]); return { name: h[0], x: p[0], y: p[1], big: h[3] || 0, lbl: WLABELS.has(h[0]) }; });
+    const dhaka = pts[0];
+    conns = [];
+    for (let i = 1; i < pts.length; i++) conns.push(mk(dhaka, pts[i]));
+    for (let k = 0; k < 18; k++) { const a = pts[1 + (Math.random() * (pts.length - 1) | 0)], b = pts[1 + (Math.random() * (pts.length - 1) | 0)]; if (a !== b) conns.push(mk(a, b)); }
+    const S = Math.max(24, Math.min(58, Math.min(H * 0.082, W * 0.085)));
+    const ax = Math.min(dhaka.x, W - 6.2 * S - 66), ay = Math.min(Math.max(dhaka.y, 3.2 * S + 20), H - 5.2 * S - 10);
+    const lp = (lat, lon) => [ax + (lon - 90.41) * S, ay - (lat - 23.81) * S];
+    bdPts = BD.map(c => { const p = lp(c[1], c[2]); return { name: c[0], x: p[0], y: p[1], lbl: c[3] }; });
+    const byName = {}; bdPts.forEach(p => byName[p.name] = p);
+    const bd0 = bdPts[0];
+    bdConns = [];
+    for (let i = 1; i < bdPts.length; i++) bdConns.push(mk(bd0, bdPts[i], 0.16 + Math.random() * 0.14));
+    [['Teknaf', 'Tetulia'], ['Rupsha', 'Pathuria'], ['Chattogram', 'Sylhet'], ['Khulna', 'Rangpur'], ['Coxs Bazar', 'Dinajpur']].forEach(pr => { const a = byName[pr[0]], b = byName[pr[1]]; if (a && b) bdConns.push(mk(a, b, 0.13 + Math.random() * 0.1)); });
+  }
+  function grid() {
+    ctx.strokeStyle = 'rgba(96,112,160,0.08)'; ctx.lineWidth = 1;
+    for (let la = LAT_TOP - 12; la > LAT_BOT; la -= 22) { const p = proj(la, 0); ctx.beginPath(); ctx.moveTo(0, p[1]); ctx.lineTo(W, p[1]); ctx.stroke(); }
+    for (let lo = -150; lo < 180; lo += 30) { const p = proj(0, lo); ctx.beginPath(); ctx.moveTo(p[0], 0); ctx.lineTo(p[0], H); ctx.stroke(); }
+  }
+  function drawArcs(list, stroke, glow, core, rad) {
+    for (const c of list) {
+      ctx.beginPath(); ctx.moveTo(c.a.x, c.a.y); ctx.quadraticCurveTo(c.cx, c.cy, c.b.x, c.b.y);
+      ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke();
+      if (!reduce) { c.t += c.sp * dtG; if (c.t > 1) c.t -= 1; }
+      const p = bez(c.a, c.cx, c.cy, c.b, reduce ? 0.5 : c.t);
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p[0], p[1], rad, 0, 7); ctx.fill();
+      ctx.fillStyle = core; ctx.beginPath(); ctx.arc(p[0], p[1], 1.7, 0, 7); ctx.fill();
+    }
+  }
+  function frame(ts) {
+    dtG = Math.min((ts - last) / 1000, 0.05) || 0.016; last = ts;
+    ctx.clearRect(0, 0, W, H);
+    grid();
+    drawArcs(conns, 'rgba(88,132,255,0.18)', 'rgba(56,189,248,0.22)', '#a9e6ff', 7.5);
+    for (const p of pts) {
+      ctx.fillStyle = p.big ? 'rgba(56,189,248,0.92)' : 'rgba(130,158,225,0.72)';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.big ? 4.2 : 2.7, 0, 7); ctx.fill();
+      if (p.lbl && p.name !== 'Dhaka') { ctx.fillStyle = 'rgba(160,168,196,0.42)'; ctx.font = '500 12px "JetBrains Mono", monospace'; ctx.fillText(p.name, p.x + 8, p.y + 4); }
+    }
+    drawArcs(bdConns, 'rgba(56,189,248,0.32)', 'rgba(52,211,153,0.34)', '#c9ffe9', 8.5);
+    const pr = (ts % 3000) / 3000;
+    for (const p of bdPts) {
+      if (!reduce && p.lbl) { ctx.strokeStyle = 'rgba(56,189,248,' + (0.42 * (1 - pr)) + ')'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.arc(p.x, p.y, 4 + pr * 24, 0, 7); ctx.stroke(); }
+      ctx.fillStyle = p.lbl ? 'rgba(56,189,248,0.98)' : 'rgba(120,220,255,0.82)';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.lbl ? 4.6 : 3, 0, 7); ctx.fill();
+      if (p.lbl) { ctx.fillStyle = p.name === 'Dhaka' ? 'rgba(56,189,248,1)' : 'rgba(185,232,255,0.66)'; ctx.font = (p.name === 'Dhaka' ? '700 ' : '600 ') + '12.5px "JetBrains Mono", monospace'; ctx.fillText((p.name === 'Dhaka' ? '\u25C6 ' : '') + p.name, p.x + 7, p.y + 3.5); }
+    }
+    if (!reduce) raf = requestAnimationFrame(frame);
+  }
+  function start() { cancelAnimationFrame(raf); build(); last = 0; frame(performance.now()); }
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(start, 200); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !reduce) { cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); } });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
 
 window.i18n = i18n;
 window.setLang = setLang;
