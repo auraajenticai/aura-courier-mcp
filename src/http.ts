@@ -7,6 +7,13 @@ import { loadConfig, EnvSource } from "./config.js";
 import { buildMcpServer, TOOLS } from "./server.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import pg from "pg";
+
+const dbUrl = process.env.DATABASE_URL || "postgresql://postgres:AMeyaNUsvKN9GR4zs33YZFQw2ZjeBXRacp5K09bz4vwDMsLejuO1KxBGIZtDLVCw@ernix50nvuq9ur9jy8na8tgr:5432/aura_auth";
+let dbPool: any = null;
+try {
+  dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
+} catch (_) {}
 
 const PORT = Number(process.env.PORT || 8080);
 const APP_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -244,7 +251,7 @@ app.get("/track/:code", async (req: Request, res: Response) => {
   const code = req.params.code;
   const format = req.query.format as string | undefined;
 
-  let courier = (req.query.courier as string) || "";
+  let courier = ((req.query.courier as string) || "").toLowerCase();
   if (!courier) {
     if (code.toUpperCase().startsWith("DS") || code.toUpperCase().startsWith("DB")) courier = "pathao";
     else if (code.toUpperCase().startsWith("SF") || /^\d{8,12}$/.test(code)) courier = "steadfast";
@@ -253,6 +260,20 @@ app.get("/track/:code", async (req: Request, res: Response) => {
     else courier = "pathao";
   }
 
+  // 1. Check persistent database for authentic booking records (Customer name, destination, COD amount)
+  let dbParcel: any = null;
+  if (dbPool) {
+    try {
+      const qRes = await dbPool.query("SELECT * FROM courier_parcels WHERE tracking_code = $1 LIMIT 1", [code]);
+      if (qRes.rows && qRes.rows.length > 0) {
+        dbParcel = qRes.rows[0];
+      }
+    } catch (e: any) {
+      console.warn("DB lookup error for parcel:", e.message);
+    }
+  }
+
+  // 2. Query carrier live telemetry API via MCP
   const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
   let trackResult: any = null;
   let errorMsg: string | null = null;
@@ -264,20 +285,23 @@ app.get("/track/:code", async (req: Request, res: Response) => {
   }
 
   if (format === "json" || (!req.headers.accept?.includes("text/html") && format !== "html")) {
-    return res.json(trackResult || { success: false, tracking_code: code, error: errorMsg });
+    return res.json(trackResult || (dbParcel ? { success: true, parcel: dbParcel } : { success: false, tracking_code: code, error: errorMsg }));
   }
 
-  const statusText = trackResult?.status || (trackResult?.raw_response?.data?.order_status) || "In Transit";
-  const raw = trackResult?.raw_response?.data || trackResult?.raw_response || {};
-  const recipientName = raw.recipient_name || raw.customer_name || raw.name || "Verified Customer";
-  const recipientAddress = raw.recipient_address || raw.address || "Bangladesh";
-  const codAmount = raw.order_amount || raw.amount_to_collect || raw.cod_amount || raw.collectable_amount || 0;
-  const carrierName = courier === "pathao" ? "Pathao Express" : (courier === "steadfast" ? "Steadfast Courier" : courier === "redx" ? "RedX Delivery" : courier === "paperfly" ? "Paperfly Go" : courier.toUpperCase());
-  const shortLink = raw.short_link || (courier === "pathao" ? `https://merchant.pathao.com/tracking?consignment_id=${code}` : (courier === "steadfast" ? `https://steadfast.com.bd/t/${code}` : ""));
-  const updatedAt = raw.order_status_updated_at || trackResult?.updated_at || new Date().toLocaleString();
+  const raw = trackResult?.raw_response?.data || trackResult?.raw_response || (dbParcel?.raw?.data || dbParcel?.raw) || {};
+  const recipientName = dbParcel?.customer_name || raw.recipient_name || raw.customer_name || raw.name || "Verified Customer";
+  const recipientAddress = dbParcel?.address || raw.recipient_address || raw.address || "Bangladesh";
+  const codAmount = dbParcel?.cod_amount || raw.order_amount || raw.amount_to_collect || raw.cod_amount || raw.collectable_amount || 0;
+  const statusText = trackResult?.status || raw.order_status || (dbParcel?.status ? dbParcel.status.charAt(0).toUpperCase() + dbParcel.status.slice(1) : "In Transit");
+  const resolvedCourier = (dbParcel?.courier || courier || "pathao").toLowerCase();
+  const carrierName = resolvedCourier === "pathao" ? "Pathao Express" : (resolvedCourier === "steadfast" ? "Steadfast Courier" : resolvedCourier === "redx" ? "RedX Delivery" : resolvedCourier === "paperfly" ? "Paperfly Go" : resolvedCourier.toUpperCase());
+  const shortLink = raw.short_link || (carrierName.toLowerCase().includes("pathao") ? `https://merchant.pathao.com/tracking?consignment_id=${code}` : (carrierName.toLowerCase().includes("steadfast") ? `https://steadfast.com.bd/t/${code}` : ""));
+  const updatedAt = raw.order_status_updated_at || raw.updated_at || trackResult?.updated_at || (dbParcel?.updated_at ? new Date(dbParcel.updated_at).toLocaleString('en-GB') : new Date().toLocaleString());
 
-  const isDelivered = statusText.toLowerCase().includes("deliv");
-  const isPickedUp = isDelivered || statusText.toLowerCase().includes("transit") || statusText.toLowerCase().includes("hub") || statusText.toLowerCase().includes("way") || statusText.toLowerCase().includes("pick");
+  const isDelivered = String(statusText).toLowerCase().includes("deliv");
+  const isAtHub = String(statusText).toLowerCase().includes("hub");
+  const isTransit = String(statusText).toLowerCase().includes("way") || String(statusText).toLowerCase().includes("transit") || String(statusText).toLowerCase().includes("progress");
+  const isPickedUp = isDelivered || isAtHub || isTransit || String(statusText).toLowerCase().includes("pick");
 
   res.type("html").send(`<!DOCTYPE html>
 <html lang="en">
