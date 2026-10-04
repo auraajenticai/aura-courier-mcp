@@ -10,10 +10,26 @@ export declare class PathaoAdapter implements CourierAdapter {
     private baseUrl;
     private accessToken;
     private tokenExpiresAt;
-    constructor(clientId: string, clientSecret: string, username: string, password: string, storeId: string, baseUrl: string);
+    private cityCache;
+    private zoneCache;
+    private areaCache;
+    constructor(clientId: string, clientSecret: string, username: string, password: string, storeId?: string, baseUrl?: string);
     isConfigured(): boolean;
     private getAuthToken;
     private getClient;
+    /**
+     * Dynamically resolve merchant store_id from Pathao portal if missing or default
+     */
+    private resolveStoreId;
+    /**
+     * DeepMind Intelligent Spatial Hierarchy Resolver for Pathao
+     * Eliminates 422 Unprocessable Entity by matching address tokens against live Pathao geo catalog
+     */
+    resolveLocation(address: string, req?: ParcelCreateRequest): Promise<{
+        cityId: number;
+        zoneId: number;
+        areaId?: number;
+    }>;
     createParcel(req: ParcelCreateRequest): Promise<ParcelResponse>;
     trackParcel(trackingCode: string): Promise<TrackingResponse>;
     getBalance(): Promise<BalanceResponse>;

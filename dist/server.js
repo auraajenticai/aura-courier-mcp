@@ -4,13 +4,11 @@ import { CallToolRequestSchema, ListToolsRequestSchema, } from "@modelcontextpro
 export const TOOLS = [
     {
         name: "list_couriers",
-        annotations: { title: "List couriers", readOnlyHint: true, destructiveHint: false, openWorldHint: true },
-        description: "Show supported Bangladeshi couriers and check which credentials are active.",
+        description: "Show supported Bangladeshi couriers and spatial services, and check which credentials are active.",
         inputSchema: { type: "object", properties: {}, required: [] },
     },
     {
         name: "create_parcel",
-        annotations: { title: "Create parcel (book delivery)", readOnlyHint: false, destructiveHint: false, openWorldHint: true },
         description: "Book a new parcel delivery across Bangladesh (Steadfast, Pathao, RedX or Paperfly) with normalized response.",
         inputSchema: {
             type: "object",
@@ -33,20 +31,18 @@ export const TOOLS = [
     },
     {
         name: "track_parcel",
-        annotations: { title: "Track parcel", readOnlyHint: true, destructiveHint: false, openWorldHint: true },
-        description: "Track shipment delivery status across Steadfast or Pathao using Tracking Code / Consignment ID.",
+        description: "Track real-time shipment delivery milestones and telemetry across Steadfast, Pathao, RedX, and Paperfly networks using consignment ID or tracking code. Returns normalized status (Booked, Picked Up, In Transit, Delivered, Returned), timestamps, and carrier telemetry.",
         inputSchema: {
             type: "object",
             properties: {
-                tracking_code: { type: "string", description: "Consignment ID or tracking code" },
-                courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly"], description: "Optional courier name if known" },
+                tracking_code: { type: "string", description: "Consignment ID or tracking code (e.g. 'DS190926QZNGJT' for Pathao, 'SF12345678' for Steadfast, 'REDX123' for RedX)" },
+                courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly"], description: "Optional courier provider name. If omitted, provider is auto-detected from tracking code prefix." },
             },
             required: ["tracking_code"],
         },
     },
     {
         name: "get_balance",
-        annotations: { title: "Get merchant balance", readOnlyHint: true, destructiveHint: false, openWorldHint: true },
         description: "Retrieve current merchant account balance and payout details from a courier.",
         inputSchema: {
             type: "object",
@@ -58,14 +54,74 @@ export const TOOLS = [
     },
     {
         name: "check_fraud_risk",
-        annotations: { title: "Check COD fraud risk", readOnlyHint: true, destructiveHint: false, openWorldHint: true },
-        description: "Analyze Bangladeshi customer phone number delivery history and return/fraud risk score before dispatching.",
+        description: "100% Real Live nationwide courier fraud check across Bangladesh logistics networks (Steadfast nationwide API). Returns actual order delivery/cancellation counts, success rate, and risk evaluation. Zero mock data.",
         inputSchema: {
             type: "object",
             properties: {
-                phone: { type: "string", description: "11-digit Bangladeshi phone number to evaluate" },
+                phone: { type: "string", description: "11-digit Bangladeshi mobile number to evaluate" },
             },
             required: ["phone"],
+        },
+    },
+    {
+        name: "validate_and_geocode_address",
+        description: "Validate and geocode a Bangladesh delivery address using Google Maps Platform Geocoding API with administrative sublocality (Thana, District, Division), exact lat/lng coordinates, and delivery confidence score.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                address: { type: "string", description: "Full street or local address (e.g. 'Road 11, House 24, Dhanmondi, Dhaka')" },
+                thana: { type: "string", description: "Optional Thana/Upazila name" },
+                district: { type: "string", description: "Optional District name" },
+            },
+            required: ["address"],
+        },
+    },
+    {
+        name: "calculate_delivery_zone_and_fee",
+        description: "Compute road distance in km, classify Bangladesh delivery zone (inside_dhaka ৳80, sub_dhaka ৳100, outside_dhaka ৳150), and return estimated delivery hours and COD fee using Google Maps Platform Routes API.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                recipient_address: { type: "string", description: "Delivery destination address" },
+                origin_address: { type: "string", description: "Optional merchant warehouse address (defaults to Dhaka Central Hub)" },
+                weight_kg: { type: "number", description: "Parcel weight in KG (default: 0.5)" },
+            },
+            required: ["recipient_address"],
+        },
+    },
+    {
+        name: "compare_courier_rates",
+        description: "Real-time tariff & SLA comparison across Steadfast, Pathao, RedX, and Paperfly for a given destination address, parcel weight, and COD value. Recommends the optimal carrier for cost vs speed.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                recipient_address: { type: "string", description: "Destination delivery address anywhere in Bangladesh" },
+                weight_kg: { type: "number", description: "Parcel weight in KG (default: 0.5)" },
+                cod_amount: { type: "number", description: "Cash On Delivery amount in BDT (default: 0)" },
+                priority: { type: "string", enum: ["cheapest", "fastest", "balanced"], description: "Optimization priority (default: balanced)" },
+            },
+            required: ["recipient_address"],
+        },
+    },
+    {
+        name: "resolve_ndr_issue",
+        description: "Automate Non-Delivery Report (NDR) triage and resolution for failed courier delivery attempts. Generates WhatsApp re-engagement message to customer and official operational escalation/hold instructions for the carrier.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                consignment_id: { type: "string", description: "Tracking code or consignment ID" },
+                courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly"], description: "Courier provider" },
+                issue_type: {
+                    type: "string",
+                    enum: ["customer_phone_off", "reschedule_requested", "wrong_address", "customer_refused", "fake_attempt"],
+                    description: "Reason for failed delivery",
+                },
+                customer_phone: { type: "string", description: "Customer mobile number" },
+                customer_name: { type: "string", description: "Customer full name" },
+                reschedule_date: { type: "string", description: "Preferred delivery date (if rescheduled)" },
+                corrected_address: { type: "string", description: "Corrected delivery address (if wrong address)" },
+            },
+            required: ["consignment_id", "courier", "issue_type"],
         },
     },
 ];
@@ -75,7 +131,7 @@ export const TOOLS = [
  * for HTTP it is built per-request from that client's keys.
  */
 export function buildMcpServer(registry) {
-    const server = new Server({ name: "aura-courier-mcp", version: "2.3.2" }, { capabilities: { tools: {} } });
+    const server = new Server({ name: "aura-courier-mcp", version: "2.4.0" }, { capabilities: { tools: {} } });
     server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
     server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { name, arguments: args } = request.params;
@@ -105,7 +161,44 @@ export function buildMcpServer(registry) {
                     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
                 }
                 case "check_fraud_risk": {
-                    const result = registry.checkFraudRisk(String(args?.phone));
+                    const result = await registry.checkFraudRisk(String(args?.phone));
+                    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+                }
+                case "validate_and_geocode_address": {
+                    const result = await registry.validateAddress({
+                        address: String(args?.address),
+                        thana: args?.thana ? String(args?.thana) : undefined,
+                        district: args?.district ? String(args?.district) : undefined,
+                    });
+                    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+                }
+                case "calculate_delivery_zone_and_fee": {
+                    const result = await registry.calculateZoneAndRate({
+                        recipient_address: String(args?.recipient_address),
+                        origin_address: args?.origin_address ? String(args?.origin_address) : undefined,
+                        weight_kg: args?.weight_kg ? Number(args?.weight_kg) : 0.5,
+                    });
+                    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+                }
+                case "compare_courier_rates": {
+                    const result = await registry.compareRates({
+                        recipient_address: String(args?.recipient_address),
+                        weight_kg: args?.weight_kg ? Number(args?.weight_kg) : 0.5,
+                        cod_amount: args?.cod_amount ? Number(args?.cod_amount) : 0,
+                        priority: args?.priority,
+                    });
+                    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+                }
+                case "resolve_ndr_issue": {
+                    const result = await registry.resolveNdr({
+                        consignment_id: String(args?.consignment_id),
+                        courier: args?.courier,
+                        issue_type: args?.issue_type,
+                        customer_phone: args?.customer_phone ? String(args?.customer_phone) : undefined,
+                        customer_name: args?.customer_name ? String(args?.customer_name) : undefined,
+                        reschedule_date: args?.reschedule_date ? String(args?.reschedule_date) : undefined,
+                        corrected_address: args?.corrected_address ? String(args?.corrected_address) : undefined,
+                    });
                     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
                 }
                 default:

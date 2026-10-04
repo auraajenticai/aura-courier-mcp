@@ -28,6 +28,10 @@ export interface CourierConfig {
         baseUrl: string;
         enabled: boolean;
     };
+    googleMaps: {
+        apiKey: string;
+        enabled: boolean;
+    };
 }
 export type EnvSource = Record<string, string | undefined>;
 /**

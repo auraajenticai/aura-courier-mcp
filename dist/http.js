@@ -8,12 +8,12 @@ import { buildMcpServer, TOOLS } from "./server.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
-
 const dbUrl = process.env.DATABASE_URL || "postgresql://postgres:AMeyaNUsvKN9GR4zs33YZFQw2ZjeBXRacp5K09bz4vwDMsLejuO1KxBGIZtDLVCw@ernix50nvuq9ur9jy8na8tgr:5432/aura_auth";
 let dbPool = null;
 try {
-  dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
-} catch (_) {}
+    dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
+}
+catch (_) { }
 const PORT = Number(process.env.PORT || 8080);
 const APP_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LANDING = path.join(APP_DIR, "index.html");
@@ -218,70 +218,25 @@ app.post("/webhooks/paperfly", (req, res) => {
     });
 });
 /**
- * Health & Live Telemetry Endpoint
- * Serves visual SaaS Dashboard for browsers, and JSON for API monitors & Docker probes.
+ * Live Consumer & Merchant Cyber-Dark Tracking Hub
+ * GET /track/:code
  */
-app.get("/health", (req, res) => {
-    const mem = process.memoryUsage();
-    const data = {
-        ok: true,
-        service: "aura-courier-mcp",
-        version: "2.4.0",
-        tools_count: TOOLS.length,
-        spatial_engine: "Google Maps Platform (gmp_git_agentskills_v1)",
-        fraud_engine: "Steadfast Nationwide API + BD Prefix Validator",
-        webhooks: {
-            steadfast: "/webhooks/steadfast",
-            pathao: "/webhooks/pathao",
-            redx: "/webhooks/redx",
-            paperfly: "/webhooks/paperfly",
-        },
-        performance: {
-            sessions_active: sessions.size,
-            heap_used_mb: Math.round((mem.heapUsed / 1024 / 1024) * 10) / 10,
-            heap_total_mb: Math.round((mem.heapTotal / 1024 / 1024) * 10) / 10,
-            rss_mb: Math.round((mem.rss / 1024 / 1024) * 10) / 10,
-            uptime_seconds: Math.round(process.uptime()),
-        },
-    };
-    // If a browser is viewing /health and hasn't explicitly asked for format=json, serve the visual dashboard!
-    if (req.headers.accept?.includes("text/html") && req.query.format !== "json") {
-        return res.sendFile(HEALTH_HTML, (err) => {
-            if (err && !res.headersSent)
-                res.json(data);
-        });
-    }
-    // Otherwise return JSON for curl, metrics monitors, and Docker health checks
-    res.json(data);
-});
-app.get("/", (_req, res) => {
-    res.sendFile(LANDING, (err) => {
-        if (err && !res.headersSent) {
-            res
-                .type("html")
-                .send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP</title>` +
-                `<style>body{font-family:system-ui,sans-serif;background:#07080a;color:#f4f5f7;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#0f1115;padding:2px 8px;border-radius:6px;color:#00d4ff;font-size:13px}a{color:#00d4ff}p{line-height:1.6;color:#a4a8b3}</style></head>` +
-                `<body><div class="b"><h1>🚚 Aura Courier MCP v2.4.0</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
-                `<p>Connect your AI to <code>POST /mcp</code> with Streamable-HTTP.</p>` +
-                `<p>Webhooks: <code>POST /webhooks/steadfast</code> · <code>POST /webhooks/pathao</code></p>` +
-                `<p>By <a href="https://auraajenticai.cloud">Aura Ajentic AI</a> · <a href="https://courier.auraajenticai.cloud">docs &amp; setup</a></p></div></body></html>`);
-        }
-    });
-});
-
 app.get("/track/:code", async (req, res) => {
     const code = req.params.code;
     const format = req.query.format;
-    
     let courier = (req.query.courier || "").toLowerCase();
     if (!courier) {
-        if (code.toUpperCase().startsWith("DS") || code.toUpperCase().startsWith("DB")) courier = "pathao";
-        else if (code.toUpperCase().startsWith("SF") || /^\d{8,12}$/.test(code)) courier = "steadfast";
-        else if (code.toUpperCase().startsWith("REDX") || code.toUpperCase().startsWith("RX")) courier = "redx";
-        else if (code.toUpperCase().startsWith("PF")) courier = "paperfly";
-        else courier = "pathao";
+        if (code.toUpperCase().startsWith("DS") || code.toUpperCase().startsWith("DB"))
+            courier = "pathao";
+        else if (code.toUpperCase().startsWith("SF") || /^\d{8,12}$/.test(code))
+            courier = "steadfast";
+        else if (code.toUpperCase().startsWith("REDX") || code.toUpperCase().startsWith("RX"))
+            courier = "redx";
+        else if (code.toUpperCase().startsWith("PF"))
+            courier = "paperfly";
+        else
+            courier = "pathao";
     }
-
     // 1. Check persistent database for authentic booking records (Customer name, destination, COD amount)
     let dbParcel = null;
     if (dbPool) {
@@ -290,26 +245,24 @@ app.get("/track/:code", async (req, res) => {
             if (qRes.rows && qRes.rows.length > 0) {
                 dbParcel = qRes.rows[0];
             }
-        } catch (e) {
+        }
+        catch (e) {
             console.warn("DB lookup error for parcel:", e.message);
         }
     }
-
     // 2. Query carrier live telemetry API via MCP
     const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
     let trackResult = null;
     let errorMsg = null;
-
     try {
         trackResult = await registry.trackParcel(code, courier);
-    } catch (err) {
+    }
+    catch (err) {
         errorMsg = err?.message || String(err);
     }
-
     if (format === "json" || (!req.headers.accept?.includes("text/html") && format !== "html")) {
         return res.json(trackResult || (dbParcel ? { success: true, parcel: dbParcel } : { success: false, tracking_code: code, error: errorMsg }));
     }
-
     const raw = trackResult?.raw_response?.data || trackResult?.raw_response || (dbParcel?.raw?.data || dbParcel?.raw) || {};
     const recipientName = dbParcel?.customer_name || raw.recipient_name || raw.customer_name || raw.name || "Verified Customer";
     const recipientAddress = dbParcel?.address || raw.recipient_address || raw.address || "Bangladesh";
@@ -319,12 +272,10 @@ app.get("/track/:code", async (req, res) => {
     const carrierName = resolvedCourier === "pathao" ? "Pathao Express" : (resolvedCourier === "steadfast" ? "Steadfast Courier" : resolvedCourier === "redx" ? "RedX Delivery" : resolvedCourier === "paperfly" ? "Paperfly Go" : resolvedCourier.toUpperCase());
     const shortLink = raw.short_link || (carrierName.toLowerCase().includes("pathao") ? `https://merchant.pathao.com/tracking?consignment_id=${code}` : (carrierName.toLowerCase().includes("steadfast") ? `https://steadfast.com.bd/t/${code}` : ""));
     const updatedAt = raw.order_status_updated_at || raw.updated_at || trackResult?.updated_at || (dbParcel?.updated_at ? new Date(dbParcel.updated_at).toLocaleString('en-GB') : new Date().toLocaleString());
-
     const isDelivered = String(statusText).toLowerCase().includes("deliv");
     const isAtHub = String(statusText).toLowerCase().includes("hub");
     const isTransit = String(statusText).toLowerCase().includes("way") || String(statusText).toLowerCase().includes("transit") || String(statusText).toLowerCase().includes("progress");
     const isPickedUp = isDelivered || isAtHub || isTransit || String(statusText).toLowerCase().includes("pick");
-
     res.type("html").send(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -452,13 +403,13 @@ app.get("/track/:code", async (req, res) => {
         <div class="step-sub">Central Merchant Fulfillment Hub</div>
       </div>
       <div class="timeline-step">
-        <div class="step-dot ${isDelivered ? 'done' : 'active'}"><i class="${isDelivered ? 'fa-solid fa-check' : 'fa-solid fa-truck-fast'}"></i></div>
+        <div class="step-dot ${isDelivered ? 'done' : 'active'}"><i class="fa-solid fa-arrow-right"></i></div>
         <div class="step-title">${statusText}</div>
         <div class="step-sub">Live Telemetry: ${updatedAt}</div>
       </div>
       <div class="timeline-step">
         <div class="step-dot ${isDelivered ? 'done' : ''}"><i class="fa-solid fa-house"></i></div>
-        <div class="step-title">${isDelivered ? 'Delivered to Recipient' : 'Destination Delivery'}</div>
+        <div class="step-title">Destination Delivery</div>
         <div class="step-sub">Destination: ${recipientAddress}</div>
       </div>
     </div>
@@ -482,7 +433,57 @@ app.get("/track/:code", async (req, res) => {
 </body>
 </html>`);
 });
-
+/**
+ * Health & Live Telemetry Endpoint
+ * Serves visual SaaS Dashboard for browsers, and JSON for API monitors & Docker probes.
+ */
+app.get("/health", (req, res) => {
+    const mem = process.memoryUsage();
+    const data = {
+        ok: true,
+        service: "aura-courier-mcp",
+        version: "2.4.0",
+        tools_count: TOOLS.length,
+        spatial_engine: "Google Maps Platform (gmp_git_agentskills_v1)",
+        fraud_engine: "Steadfast Nationwide API + BD Prefix Validator",
+        webhooks: {
+            steadfast: "/webhooks/steadfast",
+            pathao: "/webhooks/pathao",
+            redx: "/webhooks/redx",
+            paperfly: "/webhooks/paperfly",
+        },
+        performance: {
+            sessions_active: sessions.size,
+            heap_used_mb: Math.round((mem.heapUsed / 1024 / 1024) * 10) / 10,
+            heap_total_mb: Math.round((mem.heapTotal / 1024 / 1024) * 10) / 10,
+            rss_mb: Math.round((mem.rss / 1024 / 1024) * 10) / 10,
+            uptime_seconds: Math.round(process.uptime()),
+        },
+    };
+    // If a browser is viewing /health and hasn't explicitly asked for format=json, serve the visual dashboard!
+    if (req.headers.accept?.includes("text/html") && req.query.format !== "json") {
+        return res.sendFile(HEALTH_HTML, (err) => {
+            if (err && !res.headersSent)
+                res.json(data);
+        });
+    }
+    // Otherwise return JSON for curl, metrics monitors, and Docker health checks
+    res.json(data);
+});
+app.get("/", (_req, res) => {
+    res.sendFile(LANDING, (err) => {
+        if (err && !res.headersSent) {
+            res
+                .type("html")
+                .send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP</title>` +
+                `<style>body{font-family:system-ui,sans-serif;background:#07080a;color:#f4f5f7;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#0f1115;padding:2px 8px;border-radius:6px;color:#00d4ff;font-size:13px}a{color:#00d4ff}p{line-height:1.6;color:#a4a8b3}</style></head>` +
+                `<body><div class="b"><h1>🚚 Aura Courier MCP v2.4.0</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
+                `<p>Connect your AI to <code>POST /mcp</code> with Streamable-HTTP.</p>` +
+                `<p>Webhooks: <code>POST /webhooks/steadfast</code> · <code>POST /webhooks/pathao</code></p>` +
+                `<p>By <a href="https://auraajenticai.cloud">Aura Ajentic AI</a> · <a href="https://courier.auraajenticai.cloud">docs &amp; setup</a></p></div></body></html>`);
+        }
+    });
+});
 app.listen(PORT, () => {
     console.log(`Aura Courier MCP (HTTP) listening on :${PORT} — POST /mcp`);
 });

@@ -9,4 +9,10 @@ export declare class SteadfastAdapter implements CourierAdapter {
     createParcel(req: ParcelCreateRequest): Promise<ParcelResponse>;
     trackParcel(trackingCode: string): Promise<TrackingResponse>;
     getBalance(): Promise<BalanceResponse>;
+    /**
+     * 100% Real Live Steadfast Fraud Check API
+     * Endpoint: GET /fraud_check/{phone}
+     * Returns nationwide parcel history across Bangladesh: total_parcels, total_delivered, total_cancelled
+     */
+    fraudCheck(phone: string): Promise<any>;
 }
