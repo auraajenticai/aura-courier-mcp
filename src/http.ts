@@ -55,6 +55,18 @@ function keysFromRequest(req: Request): EnvSource {
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
+// Robust Malformed JSON Syntax Error Guard
+app.use((err: any, req: Request, res: Response, next: any) => {
+  if (err && (err.type === "entity.parse.failed" || err.status === 400)) {
+    return res.status(400).json({
+      error: "Malformed JSON payload in request body",
+      details: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+  next(err);
+});
+
 // Allow browser-based and cross-origin MCP clients.
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");

@@ -86,30 +86,54 @@ export class CourierRegistry {
     return this.googleMaps;
   }
 
-  async createParcel(req: ParcelCreateRequest): Promise<ParcelResponse> {
-    let courierName: SupportedCourier = "steadfast";
+  resolveSmartAutoCourierOrder(address: string, priority: string = "balanced"): SupportedCourier[] {
+    const addr = String(address || "").toLowerCase();
+    const isSubDhaka = /savar|ashulia|keraniganj|gajipur|gazipur|tongi|narayanganj|siddhirganj|fatullah|dohar|nawabganj|সাভার|আশুলিয়া|কেরানীগঞ্জ|গাজীপুর|টঙ্গী|নারায়ণগঞ্জ/.test(addr);
+    const isDhakaMetro = !isSubDhaka && (/dhaka|ঢাকা|gulshan|banani|dhanmondi|uttara|mirpur|mohammadpur|motijheel|badda|rampura|bashundhara|tejgaon|khilgaon|malibagh|mogbazar|farmgate|shahbag|hatirpool|lalmatia|wari|jatrabari|গুলশান|বনানী|ধানমন্ডি|উত্তরা|মিরপুর|মোহাম্মদপুর|মতিঝিল|বাড্ডা|রামপুরা|বসুন্ধরা|তেজগাঁও|খিলগাঁও|মালিবাগ|মগবাজার|ফার্মগেট|শাহবাগ|হাতিরপুল|ওয়ারী|যাত্রাবাড়ী/.test(addr));
 
-    if (req.courier && req.courier !== "auto") {
-      courierName = req.courier;
+    let idealOrder: SupportedCourier[];
+    if (isDhakaMetro) {
+      idealOrder = priority === "cheapest"
+        ? ["pathao", "redx", "paperfly", "steadfast"]
+        : ["pathao", "redx", "steadfast", "paperfly"];
+    } else if (isSubDhaka) {
+      idealOrder = priority === "fastest"
+        ? ["pathao", "steadfast", "redx", "paperfly"]
+        : ["paperfly", "steadfast", "pathao", "redx"];
     } else {
-      // Smart routing: inside Dhaka metro with Pathao configured prefers Pathao, else Steadfast
-      const addr = req.recipient_address.toLowerCase();
-      if (
-        addr.includes("dhaka") &&
-        (addr.includes("gulshan") ||
-          addr.includes("banani") ||
-          addr.includes("dhanmondi") ||
-          addr.includes("uttara") ||
-          addr.includes("mirpur"))
-      ) {
-        courierName = this.adapters.get("pathao")?.isConfigured() ? "pathao" : "steadfast";
-      } else {
-        courierName = "steadfast";
+      idealOrder = priority === "cheapest"
+        ? ["paperfly", "pathao", "steadfast", "redx"]
+        : ["steadfast", "paperfly", "pathao", "redx"];
+    }
+
+    const configured = idealOrder.filter((c) => this.adapters.get(c)?.isConfigured());
+    return configured.length > 0 ? configured : idealOrder;
+  }
+
+  async createParcel(req: ParcelCreateRequest): Promise<ParcelResponse> {
+    const rawChoice = String(req.courier || "auto").toLowerCase();
+    const isAuto = rawChoice === "auto" || rawChoice.startsWith("auto_");
+    const priority = rawChoice === "auto_fastest" ? "fastest" : rawChoice === "auto_cheapest" ? "cheapest" : "balanced";
+
+    const candidates: SupportedCourier[] = isAuto
+      ? this.resolveSmartAutoCourierOrder(req.recipient_address, priority)
+      : [rawChoice as SupportedCourier];
+
+    let lastErr: any = null;
+    for (const courierName of candidates) {
+      try {
+        const adapter = this.getAdapter(courierName);
+        const res = await adapter.createParcel({ ...req, courier: courierName });
+        if (res && res.success !== false && (res.tracking_code || res.consignment_id)) {
+          return res;
+        }
+        lastErr = new Error((res as any)?.message || (res as any)?.error || `${courierName} rejected parcel`);
+      } catch (err: any) {
+        lastErr = err;
       }
     }
 
-    const adapter = this.getAdapter(courierName);
-    return await adapter.createParcel(req);
+    throw lastErr || new Error("All configured courier gateways failed to book parcel.");
   }
 
   async trackParcel(trackingCode: string, courierName?: SupportedCourier): Promise<TrackingResponse> {
@@ -150,6 +174,7 @@ export class CourierRegistry {
     const cid = req.consignment_id;
     const name = req.customer_name || "গ্রাহক";
     const courier = req.courier;
+    const phoneTag = req.customer_phone ? ` [Customer Phone: ${req.customer_phone}]` : "";
 
     let status: "DISPUTE_FILED" | "RESCHEDULE_QUEUED" | "ADDRESS_UPDATED" | "CUSTOMER_REENGAGED" = "CUSTOMER_REENGAGED";
     let actionTaken = "";
@@ -200,7 +225,7 @@ export class CourierRegistry {
       resolution_status: status,
       action_taken: actionTaken,
       customer_whatsapp_message: customerMsg,
-      carrier_instruction: carrierInstr,
+      carrier_instruction: carrierInstr + phoneTag,
       timestamp: new Date().toISOString(),
     };
   }

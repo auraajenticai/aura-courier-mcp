@@ -12,6 +12,7 @@ export declare class CourierRegistry {
     }[];
     getAdapter(name: SupportedCourier): CourierAdapter;
     getGoogleMaps(): GoogleMapsAdapter;
+    resolveSmartAutoCourierOrder(address: string, priority?: string): SupportedCourier[];
     createParcel(req: ParcelCreateRequest): Promise<ParcelResponse>;
     trackParcel(trackingCode: string, courierName?: SupportedCourier): Promise<TrackingResponse>;
     getBalance(courierName: SupportedCourier): Promise<BalanceResponse>;
