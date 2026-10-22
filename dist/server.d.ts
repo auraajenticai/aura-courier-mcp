@@ -7,4 +7,7 @@ export declare const TOOLS: Tool[];
  * The registry carries the credentials — for STDIO it comes from env,
  * for HTTP it is built per-request from that client's keys.
  */
-export declare function buildMcpServer(registry: CourierRegistry): Server;
+export declare function buildMcpServer(registry: CourierRegistry, authChecker?: (toolName: string) => {
+    permitted: boolean;
+    reason?: string;
+}): Server;

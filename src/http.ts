@@ -5,6 +5,8 @@ import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { CourierRegistry } from "./registry.js";
 import { loadConfig, EnvSource } from "./config.js";
 import { buildMcpServer, TOOLS } from "./server.js";
+import { createRateLimiter } from "./middleware/rate_limit.js";
+import { optionalAuthMiddleware, isActionPermitted } from "./middleware/auth.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
@@ -15,9 +17,29 @@ try {
   dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
 } catch (_) {}
 
+// Automated Data Retention Engine (Daily Midnight Sweep)
+// Anonymizes customer PII older than 90 days in accordance with data retention policy
+setInterval(async () => {
+  if (dbPool) {
+    try {
+      const pruneRes = await dbPool.query(
+        `UPDATE courier_parcels 
+         SET recipient_name = 'ANONYMIZED', recipient_phone = 'ANONYMIZED', recipient_address = 'ANONYMIZED'
+         WHERE created_at < NOW() - INTERVAL '90 days' AND recipient_name != 'ANONYMIZED'`
+      );
+      if (pruneRes.rowCount && pruneRes.rowCount > 0) {
+        console.log(`[Data Retention Engine] Anonymized ${pruneRes.rowCount} legacy order records older than 90 days.`);
+      }
+    } catch (err: any) {
+      // Table may not exist in standalone mode; continue safely
+    }
+  }
+}, 24 * 60 * 60 * 1000).unref();
+
 const PORT = Number(process.env.PORT || 8080);
 const APP_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LANDING = path.join(APP_DIR, "index.html");
+const PRIVACY_HTML = path.join(APP_DIR, "privacy.html");
 const HEALTH_HTML = path.join(APP_DIR, "health.html");
 const MCP_EXPLORER_HTML = path.join(APP_DIR, "mcp_explorer.html");
 
@@ -83,6 +105,19 @@ app.use((req, res, next) => {
   next();
 });
 
+// Enterprise Sliding-Window Rate Limiters
+const generalLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "General Gateway" });
+const mcpLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 60, name: "MCP Protocol Gateway" });
+const trackingLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 30, name: "Live Tracking Hub" });
+const webhookLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "Courier Webhook Gateway" });
+
+// Apply global rate limiting and optional auth context evaluation
+app.use(generalLimiter);
+app.use(optionalAuthMiddleware);
+
+// Static brand assets (app icons, favicons, logos)
+app.use("/assets", express.static(path.join(APP_DIR, "assets")));
+
 // Memory Leak Prevention: Managed Session with Automatic Idle Eviction & Garbage Collection
 interface ManagedSession {
   transport: StreamableHTTPServerTransport;
@@ -106,7 +141,7 @@ setInterval(() => {
   }
 }, 15 * 60 * 1000).unref();
 
-app.post("/mcp", async (req: Request, res: Response) => {
+app.post("/mcp", mcpLimiter, async (req: Request, res: Response) => {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
   let transport: StreamableHTTPServerTransport;
 
@@ -116,7 +151,7 @@ app.post("/mcp", async (req: Request, res: Response) => {
     transport = entry.transport;
   } else if (!sessionId && isInitializeRequest(req.body)) {
     const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
-    const server = buildMcpServer(registry);
+    const server = buildMcpServer(registry, (toolName) => isActionPermitted(req, toolName));
     transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
       // Return application/json for POST responses instead of SSE — far more compatible with
@@ -153,7 +188,7 @@ app.post("/mcp", async (req: Request, res: Response) => {
 });
 
 // GET (server->client SSE stream or Browser Explorer)
-app.get("/mcp", async (req: Request, res: Response) => {
+app.get("/mcp", mcpLimiter, async (req: Request, res: Response) => {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
   if (!sessionId || !sessions.has(sessionId)) {
     // If opened directly by a human in a web browser, serve the interactive MCP Protocol Explorer!
@@ -188,7 +223,7 @@ app.delete("/mcp", async (req: Request, res: Response) => {
  * Official Steadfast Webhook Integration Endpoint
  * Callback URL: https://courier.auraajenticai.cloud/webhooks/steadfast
  */
-app.post("/webhooks/steadfast", (req: Request, res: Response) => {
+app.post("/webhooks/steadfast", webhookLimiter, (req: Request, res: Response) => {
   const payload = req.body;
   console.log("[Steadfast Webhook Received]:", JSON.stringify(payload));
 
@@ -220,7 +255,7 @@ app.post("/webhooks/steadfast", (req: Request, res: Response) => {
  * Official Pathao Webhook Integration Endpoint
  * Callback URL: https://courier.auraajenticai.cloud/webhooks/pathao
  */
-app.post("/webhooks/pathao", (req: Request, res: Response) => {
+app.post("/webhooks/pathao", webhookLimiter, (req: Request, res: Response) => {
   const payload = req.body;
   console.log("[Pathao Webhook Received]:", JSON.stringify(payload));
   return res.status(200).json({
@@ -233,7 +268,7 @@ app.post("/webhooks/pathao", (req: Request, res: Response) => {
  * Official RedX Webhook Integration Endpoint
  * Callback URL: https://courier.auraajenticai.cloud/webhooks/redx
  */
-app.post("/webhooks/redx", (req: Request, res: Response) => {
+app.post("/webhooks/redx", webhookLimiter, (req: Request, res: Response) => {
   const payload = req.body;
   console.log("[RedX Webhook Received]:", JSON.stringify(payload));
   return res.status(200).json({
@@ -246,7 +281,7 @@ app.post("/webhooks/redx", (req: Request, res: Response) => {
  * Official Paperfly Webhook Integration Endpoint
  * Callback URL: https://courier.auraajenticai.cloud/webhooks/paperfly
  */
-app.post("/webhooks/paperfly", (req: Request, res: Response) => {
+app.post("/webhooks/paperfly", webhookLimiter, (req: Request, res: Response) => {
   const payload = req.body;
   console.log("[Paperfly Webhook Received]:", JSON.stringify(payload));
   return res.status(200).json({
@@ -259,7 +294,7 @@ app.post("/webhooks/paperfly", (req: Request, res: Response) => {
  * Live Consumer & Merchant Cyber-Dark Tracking Hub
  * GET /track/:code
  */
-app.get("/track/:code", async (req: Request, res: Response) => {
+app.get("/track/:code", trackingLimiter, async (req: Request, res: Response) => {
   const code = req.params.code;
   const format = req.query.format as string | undefined;
 
@@ -510,6 +545,14 @@ app.get("/health", (req, res) => {
 
   // Otherwise return JSON for curl, metrics monitors, and Docker health checks
   res.json(data);
+});
+
+app.get("/privacy", (_req, res) => {
+  res.sendFile(PRIVACY_HTML, (err) => {
+    if (err && !res.headersSent) {
+      res.redirect("/");
+    }
+  });
 });
 
 app.get("/", (_req, res) => {

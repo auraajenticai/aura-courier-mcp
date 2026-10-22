@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Aura Courier MCP — Privacy Policy & Data Retention Policy. Enterprise privacy, transparency, and data lifecycle management for Bangladesh courier logistics.">
+<title>Privacy Policy & Data Retention — Aura Courier MCP</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/courier-favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/assets/courier-favicon.png">
+<link rel="apple-touch-icon" href="/assets/courier-app-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090f;
+    --bg2: #11121d;
+    --card: rgba(17, 18, 29, 0.72);
+    --line: rgba(255, 255, 255, 0.08);
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --blue: #4d7cff;
+    --cyan: #38bdf8;
+    --green: #34d399;
+    --grad: linear-gradient(135deg, #4d7cff 0%, #8b5cf6 50%, #38bdf8 100%);
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --maxw: 960px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 15.5px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: var(--cyan); text-decoration: none; transition: color 0.18s; }
+  a:hover { color: #fff; text-decoration: underline; }
+  .mono { font-family: var(--font-mono); }
+  .grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 30; backdrop-filter: blur(14px);
+    background: rgba(9, 9, 15, 0.82); border-bottom: 1px solid var(--line);
+  }
+  .hbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    max-width: var(--maxw); margin: 0 auto; padding: 14px 20px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; color: #fff;
+  }
+  .logo img {
+    width: 36px; height: 36px; border-radius: 9px; box-shadow: 0 0 12px rgba(56, 189, 248, 0.35); flex: none;
+  }
+  .header-actions { display: flex; align-items: center; gap: 14px; }
+  .btn-back {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600;
+    padding: 7px 14px; border-radius: 999px; background: rgba(77, 124, 255, 0.12);
+    border: 1px solid rgba(77, 124, 255, 0.3); color: #fff;
+  }
+  .btn-back:hover { background: rgba(77, 124, 255, 0.24); text-decoration: none; }
+  .lang-switch {
+    display: flex; gap: 3px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg2);
+  }
+  .lang-btn {
+    font-family: var(--font-sans); font-size: 11.5px; font-weight: 600; color: var(--muted);
+    background: transparent; border: none; padding: 4px 10px; border-radius: 999px; cursor: pointer; transition: 0.18s;
+  }
+  .lang-btn.active { color: #fff; background: var(--grad); }
+
+  /* Main Container */
+  .container { max-width: var(--maxw); margin: 0 auto; padding: 40px 20px 80px; }
+  .hero-policy { margin-bottom: 36px; text-align: center; }
+  .badge-policy {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+    color: var(--cyan); padding: 5px 12px; border-radius: 999px; background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.28); margin-bottom: 14px;
+  }
+  h1 { font-size: 32px; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 12px; }
+  .subtitle { color: var(--muted); font-size: 15px; max-width: 680px; margin: 0 auto; }
+
+  /* Policy Sections */
+  .policy-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 28px 30px; margin-bottom: 24px; backdrop-filter: blur(8px);
+  }
+  .policy-card h2 {
+    font-size: 19px; font-weight: 700; color: #fff; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .policy-card h2 .sec-num {
+    font-size: 13px; font-family: var(--font-mono); color: var(--cyan);
+    background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 6px;
+  }
+  .policy-card p { margin-bottom: 14px; color: #cbd5e1; }
+  .policy-card p:last-child { margin-bottom: 0; }
+  .policy-card ul { margin-left: 20px; margin-bottom: 14px; color: #cbd5e1; }
+  .policy-card li { margin-bottom: 8px; }
+  .policy-card b { color: #fff; }
+
+  /* Table */
+  .retention-table {
+    width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px;
+  }
+  .retention-table th, .retention-table td {
+    border: 1px solid var(--line); padding: 12px 14px; text-align: left;
+  }
+  .retention-table th {
+    background: rgba(255, 255, 255, 0.04); color: #fff; font-weight: 600;
+  }
+  .retention-table tr:hover { background: rgba(255, 255, 255, 0.02); }
+  .tag {
+    display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11.5px; font-family: var(--font-mono);
+  }
+  .tag-green { background: rgba(52, 211, 153, 0.12); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.28); }
+  .tag-blue { background: rgba(77, 124, 255, 0.12); color: var(--blue); border: 1px solid rgba(77, 124, 255, 0.28); }
+  .tag-cyan { background: rgba(56, 189, 248, 0.12); color: var(--cyan); border: 1px solid rgba(56, 189, 248, 0.28); }
+
+  /* Footer */
+  footer {
+    text-align: center; padding: 36px 16px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--muted);
+  }
+  footer p { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hbar">
+    <a href="/" class="logo" aria-label="Aura Courier MCP">
+      <img src="/assets/courier-app-icon.png" alt="Aura Courier MCP" />
+      <span>Aura Courier MCP</span>
+    </a>
+    <div class="header-actions">
+      <a href="/" class="btn-back">← <span data-i18n="nav_back">মেইন হাব (Main Hub)</span></a>
+      <div class="lang-switch" role="group" aria-label="Language Selector">
+        <button id="lang-bn" class="lang-btn active" onclick="setLang('bn')">🇧🇩 বাংলা</button>
+        <button id="lang-en" class="lang-btn" onclick="setLang('en')">🇬🇧 English</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="hero-policy">
+    <div class="badge-policy mono">
+      <span data-i18n="badge_text">ISO & Cyber Security Aligned · Universal Logistics Layer</span>
+    </div>
+    <h1 data-i18n="title">প্রাইভেসি পলিসি ও ডেটা রিটেনশন গাইডলাইন</h1>
+    <p class="subtitle" data-i18n="subtitle">Aura Courier MCP এন্টারপ্রাইজ গ্রেড লজিস্টিকস প্ল্যাটফর্মে কাস্টমার ও মার্চেন্ট ডেটা নিরাপত্তা, ক্যারিয়ার ট্রানজিট এবং স্বয়ংক্রিয় রিটেনশন মেকানিজম সংক্রান্ত স্বচ্ছ নীতিমালা।</p>
+  </div>
+
+  <!-- Section 1 -->
+  <article class="policy-card">
+    <h2><span class="sec-num">01</span> <span data-i18n="sec1_title">প্ল্যাটফর্ম পরিচিতি ও ডেটা কন্ট্রোলার (Data Controller)</span></h2>
+    <p data-i18n="sec1_p1"><b>Aura Courier MCP</b> (হোস্টেড ডোমেইন: <code>courier.auraajenticai.cloud</code>) হলো <b>Aura Agentic AI</b> দ্বারা পরিচালিত বাংলাদেশের প্রথম ইউনিফাইড AI লজিস্টিকস ইঞ্জিন। এই প্ল্যাটফর্মটি স্বয়ংক্রিয় এআই এজেন্ট (যেমন Claude, Cursor, Antigravity, n8n) এবং ই-কমার্স মার্চেন্টদের পক্ষ থেকে বাংলাদেশের ৪টি প্রধান কুরিয়ার (Steadfast, Pathao, RedX, Paperfly) এবং Google Maps স্পেশিয়াল রাউটিং পরিচালনা করে।</p>
+    <p data-i18n="sec1_p2">ডেটা সুরক্ষার ক্ষেত্রে Aura Agentic AI ডেটা প্রসেসর ও ডেটা ট্রানজিট কন্ট্রোলার হিসেবে কাজ করে। আমরা মার্চেন্টদের অনুমোদিত API ক্রেডেনশিয়াল ব্যবহার করে সরাসরি কুরিয়ার ক্যারিয়ারে নিরাপদ এন্ড-টু-এন্ড এনক্রিপ্টেড রিকোয়েস্ট প্রেরণ করি।</p>
+  </article>
+
+  <!-- Section 2 -->
+  <article class="policy-card">
+    <h2><span class="sec-num">02</span> <span data-i18n="sec2_title">যেসব ডেটা প্রসেস ও ট্রানজিট করা হয় (Data Processed)</span></h2>
+    <p data-i18n="sec2_p1">পার্সেল বুকিং, লাইভ ট্র্যাকিং এবং ডেলিভারি জোন নির্ধারণের জন্য প্ল্যাটফর্মটিতে শুধুমাত্র প্রয়োজনীয় তথ্য প্রসেস করা হয়:</p>
+    <ul>
+      <li><b data-i18n="sec2_item1_title">গ্রাহকের ডেলিভারি পরিচিতি:</b> <span data-i18n="sec2_item1_desc">প্রাপকের নাম, মোবাইল ফোন নম্বর এবং পূর্ণাঙ্গ ডেলিভারি ঠিকানা (জেলা, থানা ও সাব-লোকালিটি সহ)।</span></li>
+      <li><b data-i18n="sec2_item2_title">পার্সেল ও আর্থিক স্পেসিফিকেশন:</b> <span data-i18n="sec2_item2_desc">ক্যাশ-অন-ডেলিভারি (COD) অ্যামাউন্ট, ইনভয়েস নম্বর, পার্সেল ওজন (কেজি) এবং প্রডাক্ট ডেসক্রিপশন।</span></li>
+      <li><b data-i18n="sec2_item3_title">ট্র্যাকিং ও টেলিমেট্রি:</b> <span data-i18n="sec2_item3_desc">ক্যারিয়ার কনসাইনমেন্ট আইডি, ডেলিভারি ট্র্যাকিং কোড, ডেলিভারি স্ট্যাটাস (যেমন: ইন-ট্রানজিট, ডেলিভার্ড, আরটিও)।</span></li>
+      <li><b data-i18n="sec2_item4_title">প্রযুক্তিগত লগ:</b> <span data-i18n="sec2_item4_desc">রিকোয়েস্টের সোর্স আইপি (রেট লিমিটিংয়ের জন্য), ইউজার এজেন্ট এবং টাইমস্ট্যাম্প।</span></li>
+    </ul>
+  </article>
+
+  <!-- Section 3 -->
+  <article class="policy-card">
+    <h2><span class="sec-num">03</span> <span data-i18n="sec3_title">থার্ড-পার্টি কুরিয়ার ক্যারিয়ার ইন্টিগ্রেশন (Third-Party Processors)</span></h2>
+    <p data-i18n="sec3_p1">পার্সেল ডেলিভারি কার্যকর করতে গ্রাহকের শিপিং তথ্য শুধুমাত্র মার্চেন্টের নির্বাচিত ও অথরাইজড কুরিয়ার সার্ভিস প্রোভাইডারের অফিসিয়াল এন্ডপয়েন্টে পাঠানো হয়:</p>
+    <ul>
+      <li><b>Steadfast Courier Ltd.</b> (API: <code>portal.packzy.com/api/v1</code>)</li>
+      <li><b>Pathao Express</b> (API: <code>api-hermes.pathao.com</code>)</li>
+      <li><b>RedX Logistics</b> (API: <code>openapi.redx.com.bd</code>)</li>
+      <li><b>Paperfly Go</b> (API: <code>api.paperfly.com.bd</code>)</li>
+      <li><b>Google Maps Platform</b> (API: <code>routes.googleapis.com</code> ও Geocoding API)</li>
+    </ul>
+    <p data-i18n="sec3_p2"><b>জিরো ডেটা রিসেল গ্যারান্টি:</b> আমরা কোনো অবস্থাতেই কোনো কাস্টমার বা মার্চেন্টের ডেটা বিক্রি করি না, কোনো বিজ্ঞাপনদাতা নেটওয়ার্কের সাথে শেয়ার করি না এবং পাবলিক AI মডেল ট্রেনিংয়ে ব্যবহার করি না।</p>
+  </article>
+
+  <!-- Section 4 -->
+  <article class="policy-card" id="retention">
+    <h2><span class="sec-num">04</span> <span data-i18n="sec4_title">স্বচ্ছ ডেটা রিটেনশন পলিসি ও লাইফসাইকেল (Data Retention Schedule)</span></h2>
+    <p data-i18n="sec4_p1">ডেটা মিনিমাইজেশন নীতির আলোকে আমরা প্রতিটি ধরণের ডেটার জন্য সুনির্দিষ্ট ও কঠোর রিটেনশন টাইমলাইন অনুসরণ করি:</p>
+    
+    <table class="retention-table">
+      <thead>
+        <tr>
+          <th data-i18n="th_type">ডেটার ধরণ (Data Scope)</th>
+          <th data-i18n="th_window">সংরক্ষণ মেয়াদ (Retention Window)</th>
+          <th data-i18n="th_action">মেয়াদোত্তীর্ণ অ্যাকশন (Lifecycle Action)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b data-i18n="row1_type">Active MCP Sessions</b></td>
+          <td><span class="tag tag-cyan">৬০ মিনিট (Idle Expiration)</span></td>
+          <td data-i18n="row1_desc">ইন-মেমরি সেশন ক্লোজ এবং মেমোরি গারবেজ কালেকশন (Zero disk storage)।</td>
+        </tr>
+        <tr>
+          <td><b data-i18n="row2_type">Live Tracking Cache</b></td>
+          <td><span class="tag tag-blue">২ মিনিট</span></td>
+          <td data-i18n="row2_desc">ক্যারিয়ার কোটা বাঁচানোর জন্য সাময়িক ক্যাশ, এরপর স্বয়ংক্রিয়ভাবে মুছে ফেলা হয়।</td>
+        </tr>
+        <tr>
+          <td><b data-i18n="row3_type">Carrier Webhooks</b></td>
+          <td><span class="tag tag-cyan">৩০ দিন</span></td>
+          <td data-i18n="row3_desc">ডেলিভারি রিকনসিলিয়েশন ও ডিসপিউট মিটমাটের পর স্বয়ংক্রিয়ভাবে ডিলিট হয়।</td>
+        </tr>
+        <tr>
+          <td><b data-i18n="row4_type">Durable Courier Parcels</b></td>
+          <td><span class="tag tag-green">৯০ দিন (RTO Window)</span></td>
+          <td data-i18n="row4_desc">৯০ দিন পর কাস্টমারের নাম, ফোন ও ঠিকানা স্বয়ংক্রিয় প্রুনার দ্বারা অ্যানোনিমাইজ করা হয়।</td>
+        </tr>
+      </tbody>
+    </table>
+    <p data-i18n="sec4_p2">সার্ভারের ব্যাকগ্রাউন্ডে দৈনিক স্বয়ংক্রিয় প্রুনার রুটিন চলে যা ৯০ দিনের পুরনো ট্র্যাকিং পার্সেল থেকে কাস্টমার নাম, ফোন ও ঠিকানা মুছে ফেলে শুধু ফাইন্যান্সিয়াল রিপোর্ট অক্ষত রাখে।</p>
+  </article>
+
+  <!-- Section 5 -->
+  <article class="policy-card">
+    <h2><span class="sec-num">05</span> <span data-i18n="sec5_title">সিকিউরিটি ও এনক্রিপশন প্রটোকল (Security Safeguards)</span></h2>
+    <ul>
+      <li><b data-i18n="sec5_item1_title">ইন-ট্রানজিট এনক্রিপশন:</b> <span data-i18n="sec5_item1_desc">সমস্ত রিকোয়েস্ট TLS 1.3 ও আধুনিক সাইফার স্যুট দ্বারা সম্পূর্ণ সুরক্ষিত।</span></li>
+      <li><b data-i18n="sec5_item2_title">ক্রেডেনশিয়াল সিকিউরিটি:</b> <span data-i18n="sec5_item2_desc">মার্চেন্টদের কুরিয়ার পাসওয়ার্ড ও এপিআই কি মেমরিতে বা AES-256 এনক্রিপ্টেড ভল্টে সংরক্ষিত থাকে; কোনো প্লেন-টেক্সট ফাইলে সংরক্ষণ করা হয় না।</span></li>
+      <li><b data-i18n="sec5_item3_title">ইন-মেমরি স্লাইডিং-উইন্ডো রেট লিমিটিং:</b> <span data-i18n="sec5_item3_desc">DDoS ও স্ক্র্যাপিং রোধে প্রতিটি এন্ডপয়েন্ট রেট লিমিটেড (প্রতি মিনিটে সর্বোচ্চ ১২০ রিকোয়েস্ট)।</span></li>
+      <li><b data-i18n="sec5_item4_title">ঐচ্ছিক অথেন্টিকেশন গার্ড:</b> <span data-i18n="sec5_item4_desc">মাস্টার মার্চেন্ট একাউন্ট দিয়ে পার্সেল বুকিং সম্পূর্ণ সুরক্ষিত, শুধুমাত্র অনুমোদিত বিয়ারার টোকেন বা ক্লায়েন্টের নিজস্ব ক্রেডেনশিয়াল দিয়েই বুকিং সম্ভব।</span></li>
+    </ul>
+  </article>
+
+  <!-- Section 6 -->
+  <article class="policy-card">
+    <h2><span class="sec-num">06</span> <span data-i18n="sec6_title">আপনার অধিকার ও যোগাযোগ (Merchant Rights & Contact)</span></h2>
+    <p data-i18n="sec6_p1">যেকোনো মার্চেন্ট বা কাস্টমার তার সংরক্ষিত তথ্যের বিবরণ জানতে বা তাৎক্ষণিক মুছে ফেলার (Right to be Forgotten) অনুরোধ করতে পারেন। এ সংক্রান্ত যেকোনো প্রশ্ন বা ডেটা রিমুভাল রিকোয়েস্টের জন্য আমাদের সাথে সরাসরি যোগাযোগ করুন:</p>
+    <p>
+      <b>Data Protection Officer (DPO):</b> Redwan Khondokar<br>
+      <b>Official Email:</b> <a href="mailto:ceo@auraajenticai.cloud">ceo@auraajenticai.cloud</a> / <a href="mailto:hello@auraajenticai.cloud">hello@auraajenticai.cloud</a><br>
+      <b>Company:</b> Aura Agentic AI — Enterprise AI & Logistics Automation
+    </p>
+  </article>
+</main>
+
+<footer>
+  <p>Aura Courier MCP v2.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b></p>
+  <p>
+    <a href="https://auraajenticai.cloud" target="_blank" rel="noopener">auraajenticai.cloud</a> ·
+    <a href="https://github.com/auraajenticai/aura-courier-mcp" target="_blank" rel="noopener">github.com/auraajenticai</a> ·
+    <a href="https://git.auraajenticai.cloud/khondokar/aura-courier-mcp" target="_blank" rel="noopener">git.auraajenticai.cloud</a> ·
+    <a href="/privacy">Privacy & Data Retention</a> ·
+    <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp" target="_blank" rel="noopener">Glama Verified</a> ·
+    <a href="/health">Live Telemetry</a>
+  </p>
+</footer>
+
+<script>
+const i18n = {
+  bn: {
+    nav_back: "মেইন হাব (Main Hub)",
+    badge_text: "ISO & Cyber Security Aligned · Universal Logistics Layer",
+    title: "প্রাইভেসি পলিসি ও ডেটা রিটেনশন গাইডলাইন",
+    subtitle: "Aura Courier MCP এন্টারপ্রাইজ গ্রেড লজিস্টিকস প্ল্যাটফর্মে কাস্টমার ও মার্চেন্ট ডেটা নিরাপত্তা, ক্যারিয়ার ট্রানজিট এবং স্বয়ংক্রিয় রিটেনশন মেকানিজম সংক্রান্ত স্বচ্ছ নীতিমালা।",
+    sec1_title: "প্ল্যাটফর্ম পরিচিতি ও ডেটা কন্ট্রোলার (Data Controller)",
+    sec1_p1: "Aura Courier MCP (হোস্টেড ডোমেইন: courier.auraajenticai.cloud) হলো Aura Agentic AI দ্বারা পরিচালিত বাংলাদেশের প্রথম ইউনিফাইড AI লজিস্টিকস ইঞ্জিন। এই প্ল্যাটফর্মটি স্বয়ংক্রিয় এআই এজেন্ট (যেমন Claude, Cursor, Antigravity, n8n) এবং ই-কমার্স মার্চেন্টদের পক্ষ থেকে বাংলাদেশের ৪টি প্রধান কুরিয়ার (Steadfast, Pathao, RedX, Paperfly) এবং Google Maps স্পেশিয়াল রাউটিং পরিচালনা করে।",
+    sec1_p2: "ডেটা সুরক্ষার ক্ষেত্রে Aura Agentic AI ডেটা প্রসেসর ও ডেটা ট্রানজিট কন্ট্রোলার হিসেবে কাজ করে। আমরা মার্চেন্টদের অনুমোদিত API ক্রেডেনশিয়াল ব্যবহার করে সরাসরি কুরিয়ার ক্যারিয়ারে নিরাপদ এন্ড-টু-এন্ড এনক্রিপ্টেড রিকোয়েস্ট প্রেরণ করি।",
+    sec2_title: "যেসব ডেটা প্রসেস ও ট্রানজিট করা হয় (Data Processed)",
+    sec2_p1: "পার্সেল বুকিং, লাইভ ট্র্যাকিং এবং ডেলিভারি জোন নির্ধারণের জন্য প্ল্যাটফর্মটিতে শুধুমাত্র প্রয়োজনীয় তথ্য প্রসেস করা হয়:",
+    sec2_item1_title: "গ্রাহকের ডেলিভারি পরিচিতি:",
+    sec2_item1_desc: "প্রাপকের নাম, মোবাইল ফোন নম্বর এবং পূর্ণাঙ্গ ডেলিভারি ঠিকানা (জেলা, থানা ও সাব-লোকালিটি সহ)।",
+    sec2_item2_title: "পার্সেল ও আর্থিক স্পেসিফিকেশন:",
+    sec2_item2_desc: "ক্যাশ-অন-ডেলিভারি (COD) অ্যামাউন্ট, ইনভয়েস নম্বর, পার্সেল ওজন (কেজি) এবং প্রডাক্ট ডেসক্রিপশন।",
+    sec2_item3_title: "ট্র্যাকিং ও টেলিমেট্রি:",
+    sec2_item3_desc: "ক্যারিয়ার কনসাইনমেন্ট আইডি, ডেলিভারি ট্র্যাকিং কোড, ডেলিভারি স্ট্যাটাস (যেমন: ইন-ট্রানজিট, ডেলিভার্ড, আরটিও)।",
+    sec2_item4_title: "প্রযুক্তিগত লগ:",
+    sec2_item4_desc: "রিকোয়েস্টের সোর্স আইপি (রেট লিমিটিংয়ের জন্য), ইউজার এজেন্ট এবং টাইমস্ট্যাম্প।",
+    sec3_title: "থার্ড-পার্টি কুরিয়ার ক্যারিয়ার ইন্টিগ্রেশন (Third-Party Processors)",
+    sec3_p1: "পার্সেল ডেলিভারি কার্যকর করতে গ্রাহকের শিপিং তথ্য শুধুমাত্র মার্চেন্টের নির্বাচিত ও অথরাইজড কুরিয়ার সার্ভিস প্রোভাইডারের অফিসিয়াল এন্ডপয়েন্টে পাঠানো হয়:",
+    sec3_p2: "জিরো ডেটা রিসেল গ্যারান্টি: আমরা কোনো অবস্থাতেই কোনো কাস্টমার বা মার্চেন্টের ডেটা বিক্রি করি না, কোনো বিজ্ঞাপনদাতা নেটওয়ার্কের সাথে শেয়ার করি না এবং পাবলিক AI মডেল ট্রেনিংয়ে ব্যবহার করি না।",
+    sec4_title: "স্বচ্ছ ডেটা রিটেনশন পলিসি ও লাইফসাইকেল (Data Retention Schedule)",
+    sec4_p1: "ডেটা মিনিমাইজেশন নীতির আলোকে আমরা প্রতিটি ধরণের ডেটার জন্য সুনির্দিষ্ট ও কঠোর রিটেনশন টাইমলাইন অনুসরণ করি:",
+    th_type: "ডেটার ধরণ (Data Scope)",
+    th_window: "সংরক্ষণ মেয়াদ (Retention Window)",
+    th_action: "মেয়াদোত্তীর্ণ অ্যাকশন (Lifecycle Action)",
+    row1_type: "Active MCP Sessions",
+    row1_desc: "ইন-মেমরি সেশন ক্লোজ এবং মেমোরি গারবেজ কালেকশন (Zero disk storage)।",
+    row2_type: "Live Tracking Cache",
+    row2_desc: "ক্যারিয়ার কোটা বাঁচানোর জন্য সাময়িক ক্যাশ, এরপর স্বয়ংক্রিয়ভাবে মুছে ফেলা হয়।",
+    row3_type: "Carrier Webhooks",
+    row3_desc: "ডেলিভারি রিকনসিলিয়েশন ও ডিসপিউট মিটমাটের পর স্বয়ংক্রিয়ভাবে ডিলিট হয়।",
+    row4_type: "Durable Courier Parcels",
+    row4_desc: "৯০ দিন পর কাস্টমারের নাম, ফোন ও ঠিকানা স্বয়ংক্রিয় প্রুনার দ্বারা অ্যানোনিমাইজ করা হয়।",
+    sec4_p2: "সার্ভারের ব্যাকগ্রাউন্ডে দৈনিক স্বয়ংক্রিয় প্রুনার রুটিন চলে যা ৯০ দিনের পুরনো ট্র্যাকিং পার্সেল থেকে কাস্টমার নাম, ফোন ও ঠিকানা মুছে ফেলে শুধু ফাইন্যান্সিয়াল রিপোর্ট অক্ষত রাখে।",
+    sec5_title: "সিকিউরিটি ও এনক্রিপশন প্রটোকল (Security Safeguards)",
+    sec5_item1_title: "ইন-ট্রানজিট এনক্রিপশন:",
+    sec5_item1_desc: "সমস্ত রিকোয়েস্ট TLS 1.3 ও আধুনিক সাইফার স্যুট দ্বারা সম্পূর্ণ সুরক্ষিত।",
+    sec5_item2_title: "ক্রেডেনশিয়াল সিকিউরিটি:",
+    sec5_item2_desc: "মার্চেন্টদের কুরিয়ার পাসওয়ার্ড ও এপিআই কি মেমরিতে বা AES-256 এনক্রিপ্টেড ভল্টে সংরক্ষিত থাকে; কোনো প্লেন-টেক্সট ফাইলে সংরক্ষণ করা হয় না।",
+    sec5_item3_title: "ইন-মেমরি স্লাইডিং-উইন্ডো রেট লিমিটিং:",
+    sec5_item3_desc: "DDoS ও স্ক্র্যাপিং রোধে প্রতিটি এন্ডপয়েন্ট রেট লিমিটেড (প্রতি মিনিটে সর্বোচ্চ ১২০ রিকোয়েস্ট)।",
+    sec5_item4_title: "ঐচ্ছিক অথেন্টিকেশন গার্ড:",
+    sec5_item4_desc: "মাস্টার মার্চেন্ট একাউন্ট দিয়ে পার্সেল বুকিং সম্পূর্ণ সুরক্ষিত, শুধুমাত্র অনুমোদিত বিয়ারার টোকেন বা ক্লায়েন্টের নিজস্ব ক্রেডেনশিয়াল দিয়েই বুকিং সম্ভব।",
+    sec6_title: "আপনার অধিকার ও যোগাযোগ (Merchant Rights & Contact)",
+    sec6_p1: "যেকোনো মার্চেন্ট বা কাস্টমার তার সংরক্ষিত তথ্যের বিবরণ জানতে বা তাৎক্ষণিক মুছে ফেলার (Right to be Forgotten) অনুরোধ করতে পারেন। এ সংক্রান্ত যেকোনো প্রশ্ন বা ডেটা রিমুভাল রিকোয়েস্টের জন্য আমাদের সাথে সরাসরি যোগাযোগ করুন:"
+  },
+  en: {
+    nav_back: "Main Hub",
+    badge_text: "ISO & Cyber Security Aligned · Universal Logistics Layer",
+    title: "Privacy Policy & Data Retention Guidelines",
+    subtitle: "Enterprise-grade privacy governance, carrier data transit transparency, and automated lifecycle retention mechanisms for Aura Courier MCP.",
+    sec1_title: "Platform Overview & Data Controller",
+    sec1_p1: "Aura Courier MCP (hosted at courier.auraajenticai.cloud) is Bangladesh's foundational agentic logistics layer operated by Aura Agentic AI. It connects autonomous AI agents (Claude, Cursor, Antigravity, n8n) and e-commerce merchants to Bangladesh's top 4 couriers (Steadfast, Pathao, RedX, Paperfly) and Google Maps spatial routing.",
+    sec1_p2: "Under data privacy frameworks, Aura Agentic AI acts as a secure Data Processor and Transit Gateway. Using authorized merchant API credentials, orders and telemetry are securely transmitted directly to carrier endpoints via encrypted pipelines.",
+    sec2_title: "Categories of Personal Data Processed",
+    sec2_p1: "To process parcel bookings, live tracking queries, and delivery zone classification, only necessary operational data is handled:",
+    sec2_item1_title: "Recipient Delivery Identity:",
+    sec2_item1_desc: "Recipient Full Name, Mobile Phone Number, and Full Delivery Address (including District, Thana, and Sub-locality).",
+    sec2_item2_title: "Parcel & Financial Specifications:",
+    sec2_item2_desc: "Cash on Delivery (COD) Amount, Merchant Invoice Number, Parcel Weight (kg), and Item Description.",
+    sec2_item3_title: "Tracking & Telemetry:",
+    sec2_item3_desc: "Carrier Consignment ID, Tracking Number, Status Timeline (In-Transit, Delivered, Cancelled, RTO).",
+    sec2_item4_title: "Technical Logs:",
+    sec2_item4_desc: "Client Source IP (strictly for sliding-window rate limiting), User-Agent header, and request timestamps.",
+    sec3_title: "Authorized Third-Party Carrier Processors",
+    sec3_p1: "To fulfill delivery, customer shipping details are transmitted exclusively to merchant-authorized logistics providers:",
+    sec3_p2: "Strict Zero-Resale Guarantee: We never sell, lease, monetize, share customer data with third-party advertising networks, or use merchant data to train public LLM models.",
+    sec4_title: "Transparent Data Retention Schedule",
+    sec4_p1: "Adhering to strict data minimization principles, we enforce the following retention lifecycle:",
+    th_type: "Data Scope",
+    th_window: "Retention Window",
+    th_action: "Lifecycle Action",
+    row1_type: "Active MCP Sessions",
+    row1_desc: "In-memory session cleanup and garbage collection after 60 min idle (zero persistent disk write).",
+    row2_type: "Live Tracking Cache",
+    row2_desc: "2-minute in-memory cache to prevent carrier API rate exhaustion, then discarded.",
+    row3_type: "Carrier Webhooks",
+    row3_desc: "Retained for 30 days for financial reconciliation, then permanently purged.",
+    row4_type: "Durable Courier Parcels",
+    row4_desc: "Customer Name, Phone, and Address are permanently anonymized after 90 days (RTO window closed).",
+    sec4_p2: "An automated background retention pruner runs daily at midnight to scrub customer PII from parcel records older than 90 days while preserving non-identifiable financial aggregates.",
+    sec5_title: "Security & Encryption Safeguards",
+    sec5_item1_title: "In-Transit Encryption:",
+    sec5_item1_desc: "All HTTP and MCP communications are enforced over TLS 1.3 with modern AEAD cipher suites.",
+    sec5_item2_title: "Credential Isolation:",
+    sec5_item2_desc: "Merchant courier secrets are stored strictly in memory or PostgreSQL AES-256 encrypted vaults; never logged in plain text.",
+    sec5_item3_title: "Sliding-Window Rate Limiting:",
+    sec5_item3_desc: "Active in-memory throttling prevents scraping, DDoS, and carrier quota exhaustion (max 120 req/min).",
+    sec5_item4_title: "Optional Auth Layer:",
+    sec5_item4_desc: "Dispatching parcels on the default merchant account is secured behind Bearer token authentication or Bring-Your-Own-Keys (BYOK).",
+    sec6_title: "Merchant Rights & Contact",
+    sec6_p1: "Merchants and individuals retain full rights to query, export, or request immediate erasure (Right to be Forgotten) of any stored delivery record. Contact our Data Protection Officer at:"
+  }
+};
+
+let currentLang = localStorage.getItem('aura_lang') || 'bn';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('aura_lang', lang);
+  document.documentElement.lang = lang;
+  document.getElementById('lang-bn').classList.toggle('active', lang === 'bn');
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+
+  const dict = i18n[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) {
+      el.innerHTML = dict[key];
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => setLang(currentLang));
+</script>
+
+</body>
+</html>

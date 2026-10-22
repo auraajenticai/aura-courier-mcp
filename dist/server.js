@@ -130,11 +130,20 @@ export const TOOLS = [
  * The registry carries the credentials — for STDIO it comes from env,
  * for HTTP it is built per-request from that client's keys.
  */
-export function buildMcpServer(registry) {
+export function buildMcpServer(registry, authChecker) {
     const server = new Server({ name: "aura-courier-mcp", version: "2.4.0" }, { capabilities: { tools: {} } });
     server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
     server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { name, arguments: args } = request.params;
+        if (authChecker) {
+            const auth = authChecker(name);
+            if (!auth.permitted) {
+                return {
+                    isError: true,
+                    content: [{ type: "text", text: JSON.stringify({ error: "Unauthorized", message: auth.reason }, null, 2) }],
+                };
+            }
+        }
         try {
             switch (name) {
                 case "list_couriers":
