@@ -1,6 +1,12 @@
-# 🚚 AURA COURIER MCP v2.4 — THE ENTERPRISE LOGISTICS MASTER MANUAL
+# 🚚 AURA COURIER MCP v2.4.2 — THE ENTERPRISE LOGISTICS MASTER MANUAL
 ### Universal Multi-Carrier Logistics Engine, Spatial Intelligence Hub & Zero-Risk COD Gateway
 **Published by Aura Agentic AI · Architected with DeepMind Principles & Google Maps Platform**
+
+[![auraajenticai/aura-courier-mcp MCP server](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp/badges/score.svg)](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Status](https://img.shields.io/badge/Status-Production%20Active-success.svg)](https://courier.auraajenticai.cloud)
+[![Node](https://img.shields.io/badge/Node-%3E%3D20.0.0-green.svg)](https://nodejs.org)
+
 
 ---
 

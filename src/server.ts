@@ -85,7 +85,7 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "calculate_delivery_zone_and_fee",
-    description: "Compute road distance in km, classify Bangladesh delivery zone (inside_dhaka ৳80, sub_dhaka ৳100, outside_dhaka ৳150), and return estimated delivery hours and COD fee using Google Maps Platform Routes API.",
+    description: "Calculate standard delivery zone (inside Dhaka ৳80, sub Dhaka ৳100, outside Dhaka ৳150), road distance via Google Maps Routes API, estimated SLA turnaround, and applicable COD percentage for a single delivery address.",
     inputSchema: {
       type: "object",
       properties: {
@@ -98,7 +98,7 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "compare_courier_rates",
-    description: "Real-time tariff & SLA comparison across Steadfast, Pathao, RedX, and Paperfly for a given destination address, parcel weight, and COD value. Recommends the optimal carrier for cost vs speed.",
+    description: "Multi-carrier pricing and SLA comparison engine. Compares live rate quotes side-by-side across Steadfast, Pathao, RedX, and Paperfly based on weight, COD value, and priority (cheapest, fastest, balanced) to select the optimal logistics provider.",
     inputSchema: {
       type: "object",
       properties: {
@@ -143,7 +143,7 @@ export function buildMcpServer(
   authChecker?: (toolName: string) => { permitted: boolean; reason?: string }
 ): Server {
   const server = new Server(
-    { name: "aura-courier-mcp", version: "2.4.0" },
+    { name: "aura-courier-mcp", version: "2.4.2" },
     { capabilities: { tools: {} } }
   );
 
