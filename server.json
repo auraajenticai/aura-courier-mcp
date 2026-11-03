@@ -1,0 +1,96 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.auraajenticai/aura-courier-mcp",
+  "title": "Aura Courier MCP",
+  "description": "Bangladesh courier connector: Steadfast, Pathao, RedX, Paperfly normalized delivery and tracking.",
+  "version": "2.4.2",
+  "websiteUrl": "https://github.com/auraajenticai/aura-courier-mcp",
+  "repository": {
+    "url": "https://github.com/auraajenticai/aura-courier-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "aura-courier-mcp",
+      "version": "2.4.2",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "STEADFAST_API_KEY",
+          "description": "Steadfast Courier API Key",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "STEADFAST_SECRET_KEY",
+          "description": "Steadfast Courier Secret Key",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "PATHAO_CLIENT_ID",
+          "description": "Pathao Courier Client ID",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "PATHAO_CLIENT_SECRET",
+          "description": "Pathao Courier Client Secret",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "PATHAO_USERNAME",
+          "description": "Pathao Courier registered email",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "PATHAO_PASSWORD",
+          "description": "Pathao Courier password",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "REDX_API_TOKEN",
+          "description": "RedX Courier API Access Token",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "PAPERFLY_API_KEY",
+          "description": "Paperfly API Key",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "PAPERFLY_STORE_NAME",
+          "description": "Paperfly Registered Store Name",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "PAPERFLY_USERNAME",
+          "description": "Paperfly Username",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "PAPERFLY_PASSWORD",
+          "description": "Paperfly Password",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "GOOGLE_MAPS_API_KEY",
+          "description": "Google Maps Platform API Key for routing",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
