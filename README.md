@@ -2,7 +2,9 @@
 ### Universal Multi-Carrier Logistics Engine, Spatial Intelligence Hub & Zero-Risk COD Gateway
 **Published by Aura Agentic AI · Architected with DeepMind Principles & Google Maps Platform**
 
+[![Google Cloud Partner Advantage](https://img.shields.io/badge/Google_Cloud_Partner-Aura_Ajentic_AI-4285F4?logo=google-cloud&logoColor=white)](https://cloud.google.com/find-a-partner/partner/aura-ajentic-ai)
 [![auraajenticai/aura-courier-mcp MCP server](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp/badges/score.svg)](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp)
+[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.4.2-0676FF?logo=google&logoColor=white)](plugin.json)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Status](https://img.shields.io/badge/Status-Production%20Active-success.svg)](https://courier.auraajenticai.cloud)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20.0.0-green.svg)](https://nodejs.org)
@@ -309,6 +311,23 @@ Add this configuration block to your client settings (`claude_desktop_config.jso
 Or connect directly via **Streamable-HTTP** URL:
 * **Server URL**: `https://courier.auraajenticai.cloud/mcp`
 * **Client Protocol**: MCP Streamable-HTTP (`2024-11-05`)
+
+### Google Antigravity Plugin (One-Click Marketplace Activation)
+For Google Antigravity agents, activate directly via the [Antigravity Marketplace Card](https://cloud.google.com/find-a-partner/partner/aura-ajentic-ai):
+```markdown
+<plugin-card catalog-id="antigravity-plugins-partners/plugin/aura-courier"></plugin-card>
+```
+Or declare in your Antigravity `plugins.json`:
+```json
+{
+  "plugins": {
+    "aura-courier": {
+      "source": "https://github.com/auraajenticai/aura-courier-mcp"
+    }
+  }
+}
+```
+Bundles the complete `courier-ops` skill (9 tools), `rules/COURIER_RULES.md` (smart auto-routing cascade & zero-mock policies), and `mcp_config.json`.
 
 ---
 
