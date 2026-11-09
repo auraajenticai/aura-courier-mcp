@@ -4,12 +4,12 @@ import { CallToolRequestSchema, ListToolsRequestSchema, } from "@modelcontextpro
 export const TOOLS = [
     {
         name: "list_couriers",
-        description: "Show supported Bangladeshi couriers and spatial services, and check which credentials are active.",
+        description: "Inspect operational health, configuration status, and active API credentials for supported Bangladeshi courier networks (Steadfast, Pathao, RedX, Paperfly) and spatial routing services (Google Maps Platform). READ-ONLY DISCOVERY TOOL: Has zero external side effects and does not mutate database or carrier state. Use when initializing a session to verify which couriers are ready for order dispatch or balance checking. Do NOT use for querying shipment status (use 'track_parcel') or calculating shipping fees (use 'calculate_delivery_zone_and_fee').",
         inputSchema: { type: "object", properties: {}, required: [] },
     },
     {
         name: "create_parcel",
-        description: "Book a new parcel delivery across Bangladesh (Steadfast, Pathao, RedX or Paperfly) with normalized response.",
+        description: "Book and dispatch a physical parcel consignment across Bangladesh through Steadfast, Pathao, RedX, Paperfly, or AI smart cascading routing. STATE-MUTATING ACTION: This call creates a real, billable shipment record in the carrier's production database, assigns an official tracking code, and deducts courier fees upon pickup. Once booked, cancellations require direct courier portal operations. Use only after customer address and phone number are verified. Do NOT use for preliminary fee estimation (use 'calculate_delivery_zone_and_fee' or 'compare_courier_rates') or address validation (use 'validate_and_geocode_address'). Throws an error if required courier credentials are not configured or recipient phone is invalid.",
         inputSchema: {
             type: "object",
             properties: {
@@ -31,7 +31,7 @@ export const TOOLS = [
     },
     {
         name: "track_parcel",
-        description: "Track real-time shipment delivery milestones and telemetry across Steadfast, Pathao, RedX, and Paperfly networks using consignment ID or tracking code. Returns normalized status (Booked, Picked Up, In Transit, Delivered, Returned), timestamps, and carrier telemetry.",
+        description: "Query live, real-time tracking milestones and delivery telemetry across Steadfast, Pathao, RedX, and Paperfly networks using consignment ID or tracking code. READ-ONLY OPERATION: Does not alter shipment state or carrier data. Returns normalized status (Booked, In Review, Picked Up, In Transit, Delivered, Partial Delivered, Cancelled, Returned), current location, carrier status notes, and timestamp history. Use when an end-customer or merchant inquires about existing shipment progress. Do NOT use for creating consignments (use 'create_parcel') or resolving failed deliveries (use 'resolve_ndr_issue'). Carrier provider is auto-detected from consignment prefix if omitted.",
         inputSchema: {
             type: "object",
             properties: {
@@ -43,7 +43,7 @@ export const TOOLS = [
     },
     {
         name: "get_balance",
-        description: "Retrieve current merchant account balance and payout details from a courier.",
+        description: "Retrieve live merchant cash-on-delivery (COD) vault balance, pending disbursement amounts, and payout ledger from Steadfast or Pathao merchant portals. READ-ONLY FINANCIAL INQUIRY: Does not initiate payouts or mutate accounting ledgers. Use when accounting or merchant finance operators want to verify accrued COD collections or payout readiness. Do NOT use for customer balance or shipping quote estimation (use 'calculate_delivery_zone_and_fee'). Requires active merchant API keys for the requested courier; throws an error if unconfigured.",
         inputSchema: {
             type: "object",
             properties: {
@@ -54,7 +54,7 @@ export const TOOLS = [
     },
     {
         name: "check_fraud_risk",
-        description: "100% Real Live nationwide courier fraud check across Bangladesh logistics networks (Steadfast nationwide API). Returns actual order delivery/cancellation counts, success rate, and risk evaluation. Zero mock data.",
+        description: "Screen a customer phone number against live nationwide Bangladesh logistics databases (millions of historical consignments) for delivery success rate, cancellation counts, and return fraud risk score. READ-ONLY DIAGNOSTIC QUERY: Zero mock data, authentic carrier telemetry only. Use before confirming high-value COD orders to screen for chronic returners or fake orders. Do NOT use for address geocoding (use 'validate_and_geocode_address') or parcel booking (use 'create_parcel'). Expects an 11-digit Bangladeshi mobile number ('01XXXXXXXXX').",
         inputSchema: {
             type: "object",
             properties: {
@@ -65,7 +65,7 @@ export const TOOLS = [
     },
     {
         name: "validate_and_geocode_address",
-        description: "Validate and geocode a Bangladesh delivery address using Google Maps Platform Geocoding API with administrative sublocality (Thana, District, Division), exact lat/lng coordinates, and delivery confidence score.",
+        description: "Validate, clean, and geocode an unformatted Bangladesh delivery address into structured administrative boundaries (Thana, District, Division), rooftop latitude/longitude coordinates, and a deliverability confidence score (0-100) via Google Maps Platform Geocoding API with OpenStreetMap gazetteer fallback. READ-ONLY SPATIAL LOOKUP: Has zero side effects and does not mutate booking data. Use before booking parcels to detect spelling errors, verify Thana/District matching, and obtain precise coordinates. Do NOT use for calculating delivery fees or road routing distance (use 'calculate_delivery_zone_and_fee' instead).",
         inputSchema: {
             type: "object",
             properties: {
@@ -78,7 +78,7 @@ export const TOOLS = [
     },
     {
         name: "calculate_delivery_zone_and_fee",
-        description: "Calculate standard delivery zone (inside Dhaka ৳80, sub Dhaka ৳100, outside Dhaka ৳150), road distance via Google Maps Routes API, estimated SLA turnaround, and applicable COD percentage for a single delivery address.",
+        description: "Calculate standard delivery zone (inside_dhaka ≤22km ৳80, sub_dhaka 22-45km ৳100, outside_dhaka >45km ৳150), actual road distance via Google Maps Platform Routes API (v2:computeRoutes), SLA turnaround time (24-72h), and applicable COD percentage for a SINGLE delivery destination. READ-ONLY ESTIMATION TOOL: Has zero external side effects and does NOT book shipments. Use when quoting shipping charges to a customer or determining flat delivery tiers for an order. Do NOT use if you need side-by-side multi-carrier tariff quotes with weight breaks and priority sorting across all 4 couriers (use 'compare_courier_rates' instead).",
         inputSchema: {
             type: "object",
             properties: {
@@ -91,7 +91,7 @@ export const TOOLS = [
     },
     {
         name: "compare_courier_rates",
-        description: "Multi-carrier pricing and SLA comparison engine. Compares live rate quotes side-by-side across Steadfast, Pathao, RedX, and Paperfly based on weight, COD value, and priority (cheapest, fastest, balanced) to select the optimal logistics provider.",
+        description: "Execute side-by-side tariff, SLA, and COD collection fee comparisons across all four major Bangladeshi couriers (Steadfast, Pathao, RedX, Paperfly) for any destination nationwide. Evaluates exact parcel weight, declared COD amount, and optimization priority ('cheapest', 'fastest', 'balanced') to select the recommended courier. READ-ONLY CALCULATION ENGINE: Has zero external side effects and does not create orders. Use when deciding which carrier offers the best commercial rate or fastest SLA for a specific shipment before booking. Do NOT use for single flat-rate zone lookup (use 'calculate_delivery_zone_and_fee') or for actually booking the shipment (use 'create_parcel').",
         inputSchema: {
             type: "object",
             properties: {
@@ -105,7 +105,7 @@ export const TOOLS = [
     },
     {
         name: "resolve_ndr_issue",
-        description: "Automate Non-Delivery Report (NDR) triage and resolution for failed courier delivery attempts. Generates WhatsApp re-engagement message to customer and official operational escalation/hold instructions for the carrier.",
+        description: "Automate Non-Delivery Report (NDR) triage and dispute resolution when a courier delivery attempt fails. GENERATION-ONLY TOOL (NO DIRECT DISPATCH): Generates empathetic, conversion-tested Bengali WhatsApp re-engagement copy for the customer and formal operational escalation tickets with hold instructions for the carrier. Does NOT send network messages or modify courier bookings automatically; output must be reviewed or dispatched through messaging channels. Use when a parcel status changes to failed attempt, customer phone off, or reschedule requested. Do NOT use for general order tracking (use 'track_parcel') or creating orders (use 'create_parcel').",
         inputSchema: {
             type: "object",
             properties: {

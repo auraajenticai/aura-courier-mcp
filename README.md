@@ -1,10 +1,10 @@
-# 🚚 AURA COURIER MCP v2.4.2 — THE ENTERPRISE LOGISTICS MASTER MANUAL
+# 🚚 AURA COURIER MCP v2.5.0 — THE ENTERPRISE LOGISTICS MASTER MANUAL
 ### Universal Multi-Carrier Logistics Engine, Spatial Intelligence Hub & Zero-Risk COD Gateway
 **Published by Aura Agentic AI · Architected with DeepMind Principles & Google Maps Platform**
 
 [![Google Cloud Partner Advantage](https://img.shields.io/badge/Google_Cloud_Partner-Aura_Ajentic_AI-4285F4?logo=google-cloud&logoColor=white)](https://cloud.google.com/find-a-partner/partner/aura-ajentic-ai)
 [![auraajenticai/aura-courier-mcp MCP server](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp/badges/score.svg)](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp)
-[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.4.2-0676FF?logo=google&logoColor=white)](plugin.json)
+[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.5.0-0676FF?logo=google&logoColor=white)](plugin.json)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Status](https://img.shields.io/badge/Status-Production%20Active-success.svg)](https://courier.auraajenticai.cloud)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20.0.0-green.svg)](https://nodejs.org)
@@ -341,7 +341,18 @@ Bundles the complete `courier-ops` skill (9 tools), `rules/COURIER_RULES.md` (sm
 
 ---
 
-## 9. License & Legal Protection
+## 9. Version History & Glama TDQS 5.0 Audit Log
+
+* **v2.5.0 (Nov 9, 2026)**:
+  - **Zero Hardcoded Credentials**: Purged all merchant secrets from repository code, enforcing strict runtime environment variable isolation.
+  - **Glama TDQS 5.0 Compliance**: Upgraded all 9 MCP tool definitions with explicit side-effects disclosure (state-mutating vs read-only), `when-to-use` vs `when-not-to-use` scenarios, and comprehensive parameter constraints.
+  - **Service Telemetry Update**: Updated `/health` endpoint to reflect v2.5.0 and automated release tag synchronization.
+* **v2.4.2 (Nov 5, 2026)**: Official Google Antigravity Plugin bundle and partner advantage packaging.
+* **v2.4.0 (Oct 22, 2026)**: Multi-carrier cascading auto-routing, rate comparison, and NDR dispute suite.
+
+---
+
+## 10. License & Legal Protection
 
 Copyright © 2026 Aura Agentic AI <khondokartowsif171@gmail.com>.
 

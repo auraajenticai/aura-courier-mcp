@@ -483,7 +483,7 @@ app.get("/health", (req, res) => {
     const data = {
         ok: true,
         service: "aura-courier-mcp",
-        version: "2.4.0",
+        version: "2.5.0",
         tools_count: TOOLS.length,
         spatial_engine: "Google Maps Platform (gmp_git_agentskills_v1)",
         fraud_engine: "Steadfast Nationwide API + BD Prefix Validator",

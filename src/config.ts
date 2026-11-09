@@ -46,13 +46,13 @@ export type EnvSource = Record<string, string | undefined>;
  * entrypoint passes a per-request map built from that client's headers/query.
  */
 export function loadConfig(src: EnvSource = process.env): CourierConfig {
-  const steadfastApiKey = src.STEADFAST_API_KEY || "e4pss5dglu3efhbgxlvx4nfgxizvpla5";
-  const steadfastSecretKey = src.STEADFAST_SECRET_KEY || "8dityj8hfeuvkg4cmuafsmxk";
+  const steadfastApiKey = src.STEADFAST_API_KEY || "";
+  const steadfastSecretKey = src.STEADFAST_SECRET_KEY || "";
 
-  const pathaoClientId = src.PATHAO_CLIENT_ID || "46dBOyYe79";
-  const pathaoClientSecret = src.PATHAO_CLIENT_SECRET || "50yOJz09VSdfhzAaRMMeuiQ87lgrO1z8LmK0LbCb";
+  const pathaoClientId = src.PATHAO_CLIENT_ID || "";
+  const pathaoClientSecret = src.PATHAO_CLIENT_SECRET || "";
 
-  const googleMapsKey = src.GOOGLE_MAPS_API_KEY || "AIzaSyByHxLB69J9h0f70irbNBPbzsbmDE0Innc";
+  const googleMapsKey = src.GOOGLE_MAPS_API_KEY || "";
 
   return {
     steadfast: {
@@ -64,9 +64,9 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
     pathao: {
       clientId: pathaoClientId,
       clientSecret: pathaoClientSecret,
-      username: src.PATHAO_USERNAME || "snehalatabestonline@gmail.com",
-      password: src.PATHAO_PASSWORD || "Redwan877091@&",
-      storeId: src.PATHAO_STORE_ID || "356230",
+      username: src.PATHAO_USERNAME || "",
+      password: src.PATHAO_PASSWORD || "",
+      storeId: src.PATHAO_STORE_ID || "",
       baseUrl: src.PATHAO_BASE_URL || "https://api-hermes.pathao.com",
       enabled: Boolean(pathaoClientId && pathaoClientSecret),
     },
@@ -80,7 +80,7 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
       apiKey: src.PAPERFLY_API_KEY || "",
       username: src.PAPERFLY_USERNAME || "",
       password: src.PAPERFLY_PASSWORD || "",
-      storeName: src.PAPERFLY_STORE_NAME || "Aura Merchant",
+      storeName: src.PAPERFLY_STORE_NAME || "",
       baseUrl: src.PAPERFLY_BASE_URL || "https://api.paperfly.com.bd",
       enabled: Boolean(src.PAPERFLY_API_KEY && src.PAPERFLY_USERNAME),
     },
