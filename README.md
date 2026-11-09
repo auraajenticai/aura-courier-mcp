@@ -1,10 +1,10 @@
-# 🚚 AURA COURIER MCP v2.5.0 — THE ENTERPRISE LOGISTICS MASTER MANUAL
+# 🚚 AURA COURIER MCP v2.5.1 — THE ENTERPRISE LOGISTICS MASTER MANUAL
 ### Universal Multi-Carrier Logistics Engine, Spatial Intelligence Hub & Zero-Risk COD Gateway
 **Published by Aura Agentic AI · Architected with DeepMind Principles & Google Maps Platform**
 
 [![Google Cloud Partner Advantage](https://img.shields.io/badge/Google_Cloud_Partner-Aura_Ajentic_AI-4285F4?logo=google-cloud&logoColor=white)](https://cloud.google.com/find-a-partner/partner/aura-ajentic-ai)
 [![auraajenticai/aura-courier-mcp MCP server](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp/badges/score.svg)](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp)
-[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.5.0-0676FF?logo=google&logoColor=white)](plugin.json)
+[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.5.1-0676FF?logo=google&logoColor=white)](plugin.json)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Status](https://img.shields.io/badge/Status-Production%20Active-success.svg)](https://courier.auraajenticai.cloud)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20.0.0-green.svg)](https://nodejs.org)
@@ -223,7 +223,7 @@ curl -s https://courier.auraajenticai.cloud/health | jq
 {
   "ok": true,
   "service": "aura-courier-mcp",
-  "version": "2.4.0",
+  "version": "2.5.1",
   "tools_count": 9,
   "spatial_engine": "Google Maps Platform (gmp_git_agentskills_v1)",
   "fraud_engine": "Steadfast Nationwide API + BD Prefix Validator",
@@ -281,7 +281,7 @@ Add this configuration block to your client settings (`claude_desktop_config.jso
   "mcpServers": {
     "aura-courier": {
       "command": "npx",
-      "args": ["-y", "aura-courier-mcp@2.4.0"],
+      "args": ["-y", "aura-courier-mcp@2.5.1"],
       "env": {
         "PORT": "8080",
         "GOOGLE_MAPS_API_KEY": "<GOOGLE_MAPS_API_KEY>",
@@ -343,6 +343,9 @@ Bundles the complete `courier-ops` skill (9 tools), `rules/COURIER_RULES.md` (sm
 
 ## 9. Version History & Glama TDQS 5.0 Audit Log
 
+* **v2.5.1 (Nov 10, 2026)**:
+  - **Zero-Knowledge AES-256 Cryptographic Vault & Zero Admin Visibility**: Explicitly documented international cryptographic vault isolation in `/privacy`, guaranteeing that client Courier MCP API keys cannot be viewed or read by administrators.
+  - **Direct Dashboard Login & 3-in-1 E-Commerce Store Bridge**: Streamlined landing navigation (`Login ↗`) and synchronized MCP server metadata across all endpoints (`v2.5.1`).
 * **v2.5.0 (Nov 9, 2026)**:
   - **Zero Hardcoded Credentials**: Purged all merchant secrets from repository code, enforcing strict runtime environment variable isolation.
   - **Glama TDQS 5.0 Compliance**: Upgraded all 9 MCP tool definitions with explicit side-effects disclosure (state-mutating vs read-only), `when-to-use` vs `when-not-to-use` scenarios, and comprehensive parameter constraints.

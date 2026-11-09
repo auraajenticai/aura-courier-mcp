@@ -131,7 +131,7 @@ export const TOOLS = [
  * for HTTP it is built per-request from that client's keys.
  */
 export function buildMcpServer(registry, authChecker) {
-    const server = new Server({ name: "aura-courier-mcp", version: "2.4.2" }, { capabilities: { tools: {} } });
+    const server = new Server({ name: "aura-courier-mcp", version: "2.5.1" }, { capabilities: { tools: {} } });
     server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
     server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { name, arguments: args } = request.params;

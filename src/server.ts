@@ -143,7 +143,7 @@ export function buildMcpServer(
   authChecker?: (toolName: string) => { permitted: boolean; reason?: string }
 ): Server {
   const server = new Server(
-    { name: "aura-courier-mcp", version: "2.4.2" },
+    { name: "aura-courier-mcp", version: "2.5.1" },
     { capabilities: { tools: {} } }
   );
 
