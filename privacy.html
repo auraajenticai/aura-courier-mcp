@@ -229,13 +229,15 @@
   </article>
 
   <!-- Section 5 -->
-  <article class="policy-card">
-    <h2><span class="sec-num">05</span> <span data-i18n="sec5_title">সিকিউরিটি ও এনক্রিপশন প্রটোকল (Security Safeguards)</span></h2>
+  <article class="policy-card" style="border-color: rgba(52, 211, 153, 0.35); background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(17, 18, 29, 0.85) 100%);">
+    <h2><span class="sec-num" style="color: var(--green); background: rgba(52, 211, 153, 0.14);">05</span> <span data-i18n="sec5_title">আন্তর্জাতিক AES-256 জিরো-নলেজ ভল্ট ও সিকিউরিটি গ্যারান্টি (Zero-Knowledge API Vault)</span></h2>
+    <p data-i18n="sec5_intro"><b>🔒 শতভাগ ট্রাস্টেড API সুরক্ষা নীতি (কোনো ক্লায়েন্টের কুরিয়ার API আমরা দেখতে পারি না):</b> Aura Courier MCP যেহেতু মার্চেন্টদের অত্যন্ত সংবেদনশীল কুরিয়ার ও স্টোর API নিয়ে কাজ করে, তাই আন্তর্জাতিক সাইবার সিকিউরিটি ও ডেটা প্রোটেকশন মানদণ্ড (ISO/IEC 27001 ও GDPR Cryptographic Standard) মেনে আমাদের সিস্টেমে <b>Zero-Knowledge AES-256 Vault</b> প্রযুক্তি ব্যবহার করা হয়েছে:</p>
     <ul>
-      <li><b data-i18n="sec5_item1_title">ইন-ট্রানজিট এনক্রিপশন:</b> <span data-i18n="sec5_item1_desc">সমস্ত রিকোয়েস্ট TLS 1.3 ও আধুনিক সাইফার স্যুট দ্বারা সম্পূর্ণ সুরক্ষিত।</span></li>
-      <li><b data-i18n="sec5_item2_title">ক্রেডেনশিয়াল সিকিউরিটি:</b> <span data-i18n="sec5_item2_desc">মার্চেন্টদের কুরিয়ার পাসওয়ার্ড ও এপিআই কি মেমরিতে বা AES-256 এনক্রিপ্টেড ভল্টে সংরক্ষিত থাকে; কোনো প্লেন-টেক্সট ফাইলে সংরক্ষণ করা হয় না।</span></li>
-      <li><b data-i18n="sec5_item3_title">ইন-মেমরি স্লাইডিং-উইন্ডো রেট লিমিটিং:</b> <span data-i18n="sec5_item3_desc">DDoS ও স্ক্র্যাপিং রোধে প্রতিটি এন্ডপয়েন্ট রেট লিমিটেড (প্রতি মিনিটে সর্বোচ্চ ১২০ রিকোয়েস্ট)।</span></li>
-      <li><b data-i18n="sec5_item4_title">ঐচ্ছিক অথেন্টিকেশন গার্ড:</b> <span data-i18n="sec5_item4_desc">মাস্টার মার্চেন্ট একাউন্ট দিয়ে পার্সেল বুকিং সম্পূর্ণ সুরক্ষিত, শুধুমাত্র অনুমোদিত বিয়ারার টোকেন বা ক্লায়েন্টের নিজস্ব ক্রেডেনশিয়াল দিয়েই বুকিং সম্ভব।</span></li>
+      <li><b data-i18n="sec5_item0_title">জিরো অ্যাডমিন ভিজিবিলিটি (Zero Admin Visibility):</b> <span data-i18n="sec5_item0_desc">যেকোনো মার্চেন্ট বা ক্লায়েন্ট যখন তাদের কুরিয়ার API (Steadfast, Pathao, RedX, Paperfly) বা স্টোর API কানেক্ট করেন, তা সাথে সাথে স্বয়ংক্রিয়ভাবে এনক্রিপ্ট হয়ে সরাসরি সিকিউর ভল্টে চলে যায়। <b>আমাদের নিজস্ব অ্যাডমিন, ডেভেলপার বা ইঞ্জিনিয়াররাও কোনো ক্লায়েন্টের কুরিয়ার MCP-এর API Key বা Secret কখনোই দেখতে বা পড়তে (Read) পারেন না।</b></span></li>
+      <li><b data-i18n="sec5_item1_title">ইন-ট্রানজিট ও ভল্ট এনক্রিপশন (TLS 1.3 + AES-256):</b> <span data-i18n="sec5_item1_desc">সমস্ত রিকোয়েস্ট TLS 1.3 দ্বারা সুরক্ষিত এবং ক্রেডেনশিয়ালসমূহ PostgreSQL AES-256 এনক্রিপ্টেড ভল্টে সংরক্ষিত থাকে; কোনো প্লেন-টেক্সট ফাইলে বা লগে কখনোই সংরক্ষণ করা হয় না।</span></li>
+      <li><b data-i18n="sec5_item2_title">ইন-মেমরি মিলিসেকেন্ড এক্সিকিউশন:</b> <span data-i18n="sec5_item2_desc">শুধুমাত্র পার্সেল বুকিং বা ব্যালেন্স চেক করার মুহূর্তে র‍্যামে (In-Memory Runtime) মিলিসেকেন্ডের জন্য কি ডিক্রিপ্ট হয়ে সরাসরি সংশ্লিষ্ট কুরিয়ারের অফিসিয়াল সার্ভারে রিকোয়েস্ট পাঠায় এবং সাথে সাথে মেমোরি থেকে মুছে যায়।</span></li>
+      <li><b data-i18n="sec5_item3_title">কঠোর মাল্টি-টেন্যান্ট আইসোলেশন ও রেট লিমিটিং:</b> <span data-i18n="sec5_item3_desc">প্রতিটি ক্লায়েন্টের ভল্ট তার নিজস্ব ক্রিপ্টোগ্রাফিক টেন্যান্ট আইডি দ্বারা শতভাগ বিচ্ছিন্ন (এক ক্লায়েন্টের কি অন্য ক্লায়েন্টে কখনোই ব্যবহৃত হয় না) এবং DDoS রোধে প্রতি মিনিটে সর্বোচ্চ ১২০ রিকোয়েস্ট রেট লিমিটেড।</span></li>
+      <li><b data-i18n="sec5_item4_title">ঐচ্ছিক অথেন্টিকেশন গার্ড:</b> <span data-i18n="sec5_item4_desc">মাস্টার মার্চেন্ট একাউন্ট বা স্টোর প্লাগইন দিয়ে পার্সেল বুকিং সম্পূর্ণ HMAC-SHA256 টোকেন ও বিয়ারার অথেন্টিকেশন দ্বারা সুরক্ষিত।</span></li>
     </ul>
   </article>
 
@@ -300,15 +302,18 @@ const i18n = {
     row4_type: "Durable Courier Parcels",
     row4_desc: "৯০ দিন পর কাস্টমারের নাম, ফোন ও ঠিকানা স্বয়ংক্রিয় প্রুনার দ্বারা অ্যানোনিমাইজ করা হয়।",
     sec4_p2: "সার্ভারের ব্যাকগ্রাউন্ডে দৈনিক স্বয়ংক্রিয় প্রুনার রুটিন চলে যা ৯০ দিনের পুরনো ট্র্যাকিং পার্সেল থেকে কাস্টমার নাম, ফোন ও ঠিকানা মুছে ফেলে শুধু ফাইন্যান্সিয়াল রিপোর্ট অক্ষত রাখে।",
-    sec5_title: "সিকিউরিটি ও এনক্রিপশন প্রটোকল (Security Safeguards)",
-    sec5_item1_title: "ইন-ট্রানজিট এনক্রিপশন:",
-    sec5_item1_desc: "সমস্ত রিকোয়েস্ট TLS 1.3 ও আধুনিক সাইফার স্যুট দ্বারা সম্পূর্ণ সুরক্ষিত।",
-    sec5_item2_title: "ক্রেডেনশিয়াল সিকিউরিটি:",
-    sec5_item2_desc: "মার্চেন্টদের কুরিয়ার পাসওয়ার্ড ও এপিআই কি মেমরিতে বা AES-256 এনক্রিপ্টেড ভল্টে সংরক্ষিত থাকে; কোনো প্লেন-টেক্সট ফাইলে সংরক্ষণ করা হয় না।",
-    sec5_item3_title: "ইন-মেমরি স্লাইডিং-উইন্ডো রেট লিমিটিং:",
-    sec5_item3_desc: "DDoS ও স্ক্র্যাপিং রোধে প্রতিটি এন্ডপয়েন্ট রেট লিমিটেড (প্রতি মিনিটে সর্বোচ্চ ১২০ রিকোয়েস্ট)।",
+    sec5_title: "আন্তর্জাতিক AES-256 জিরো-নলেজ ভল্ট ও সিকিউরিটি গ্যারান্টি (Zero-Knowledge API Vault)",
+    sec5_intro: "🔒 শতভাগ ট্রাস্টেড API সুরক্ষা নীতি (কোনো ক্লায়েন্টের কুরিয়ার API আমরা দেখতে পারি না): Aura Courier MCP যেহেতু মার্চেন্টদের অত্যন্ত সংবেদনশীল কুরিয়ার ও স্টোর API নিয়ে কাজ করে, তাই আন্তর্জাতিক সাইবার সিকিউরিটি ও ডেটা প্রোটেকশন মানদণ্ড (ISO/IEC 27001 ও GDPR Cryptographic Standard) মেনে আমাদের সিস্টেমে Zero-Knowledge AES-256 Vault প্রযুক্তি ব্যবহার করা হয়েছে:",
+    sec5_item0_title: "জিরো অ্যাডমিন ভিজিবিলিটি (Zero Admin Visibility):",
+    sec5_item0_desc: "যেকোনো মার্চেন্ট বা ক্লায়েন্ট যখন তাদের কুরিয়ার API (Steadfast, Pathao, RedX, Paperfly) বা স্টোর API কানেক্ট করেন, তা সাথে সাথে স্বয়ংক্রিয়ভাবে এনক্রিপ্ট হয়ে সরাসরি সিকিউর ভল্টে চলে যায়। আমাদের নিজস্ব অ্যাডমিন, ডেভেলপার বা ইঞ্জিনিয়াররাও কোনো ক্লায়েন্টের কুরিয়ার MCP-এর API Key বা Secret কখনোই দেখতে বা পড়তে (Read) পারেন না।",
+    sec5_item1_title: "ইন-ট্রানজিট ও ভল্ট এনক্রিপশন (TLS 1.3 + AES-256):",
+    sec5_item1_desc: "সমস্ত রিকোয়েস্ট TLS 1.3 দ্বারা সুরক্ষিত এবং ক্রেডেনশিয়ালসমূহ PostgreSQL AES-256 এনক্রিপ্টেড ভল্টে সংরক্ষিত থাকে; কোনো প্লেন-টেক্সট ফাইলে বা লগে কখনোই সংরক্ষণ করা হয় না।",
+    sec5_item2_title: "ইন-মেমরি মিলিসেকেন্ড এক্সিকিউশন:",
+    sec5_item2_desc: "শুধুমাত্র পার্সেল বুকিং বা ব্যালেন্স চেক করার মুহূর্তে র‍্যামে (In-Memory Runtime) মিলিসেকেন্ডের জন্য কি ডিক্রিপ্ট হয়ে সরাসরি সংশ্লিষ্ট কুরিয়ারের অফিসিয়াল সার্ভারে রিকোয়েস্ট পাঠায় এবং সাথে সাথে মেমোরি থেকে মুছে যায়।",
+    sec5_item3_title: "কঠোর মাল্টি-টেন্যান্ট আইসোলেশন ও রেট লিমিটিং:",
+    sec5_item3_desc: "প্রতিটি ক্লায়েন্টের ভল্ট তার নিজস্ব ক্রিপ্টোগ্রাফিক টেন্যান্ট আইডি দ্বারা শতভাগ বিচ্ছিন্ন (এক ক্লায়েন্টের কি অন্য ক্লায়েন্টে কখনোই ব্যবহৃত হয় না) এবং DDoS রোধে প্রতি মিনিটে সর্বোচ্চ ১২০ রিকোয়েস্ট রেট লিমিটেড।",
     sec5_item4_title: "ঐচ্ছিক অথেন্টিকেশন গার্ড:",
-    sec5_item4_desc: "মাস্টার মার্চেন্ট একাউন্ট দিয়ে পার্সেল বুকিং সম্পূর্ণ সুরক্ষিত, শুধুমাত্র অনুমোদিত বিয়ারার টোকেন বা ক্লায়েন্টের নিজস্ব ক্রেডেনশিয়াল দিয়েই বুকিং সম্ভব।",
+    sec5_item4_desc: "মাস্টার মার্চেন্ট একাউন্ট বা স্টোর প্লাগইন দিয়ে পার্সেল বুকিং সম্পূর্ণ HMAC-SHA256 টোকেন ও বিয়ারার অথেন্টিকেশন দ্বারা সুরক্ষিত।",
     sec6_title: "আপনার অধিকার ও যোগাযোগ (Merchant Rights & Contact)",
     sec6_p1: "যেকোনো মার্চেন্ট বা কাস্টমার তার সংরক্ষিত তথ্যের বিবরণ জানতে বা তাৎক্ষণিক মুছে ফেলার (Right to be Forgotten) অনুরোধ করতে পারেন। এ সংক্রান্ত যেকোনো প্রশ্ন বা ডেটা রিমুভাল রিকোয়েস্টের জন্য আমাদের সাথে সরাসরি যোগাযোগ করুন:"
   },
@@ -347,15 +352,18 @@ const i18n = {
     row4_type: "Durable Courier Parcels",
     row4_desc: "Customer Name, Phone, and Address are permanently anonymized after 90 days (RTO window closed).",
     sec4_p2: "An automated background retention pruner runs daily at midnight to scrub customer PII from parcel records older than 90 days while preserving non-identifiable financial aggregates.",
-    sec5_title: "Security & Encryption Safeguards",
-    sec5_item1_title: "In-Transit Encryption:",
-    sec5_item1_desc: "All HTTP and MCP communications are enforced over TLS 1.3 with modern AEAD cipher suites.",
-    sec5_item2_title: "Credential Isolation:",
-    sec5_item2_desc: "Merchant courier secrets are stored strictly in memory or PostgreSQL AES-256 encrypted vaults; never logged in plain text.",
-    sec5_item3_title: "Sliding-Window Rate Limiting:",
-    sec5_item3_desc: "Active in-memory throttling prevents scraping, DDoS, and carrier quota exhaustion (max 120 req/min).",
-    sec5_item4_title: "Optional Auth Layer:",
-    sec5_item4_desc: "Dispatching parcels on the default merchant account is secured behind Bearer token authentication or Bring-Your-Own-Keys (BYOK).",
+    sec5_title: "International AES-256 Zero-Knowledge Vault & Security Guarantee",
+    sec5_intro: "🔒 100% Trusted API Governance (Zero Admin Visibility — We Can Never See Any Client's Courier API Keys): Because Aura Courier MCP processes mission-critical courier and store credentials from our global directory and merchant dashboards, our architecture enforces international cryptographic standards (ISO/IEC 27001 & GDPR-aligned AES-256 Vault):",
+    sec5_item0_title: "Strict Zero Admin Visibility:",
+    sec5_item0_desc: "Whenever any client connects their Courier API keys (Steadfast, Pathao, RedX, Paperfly) or Store credentials, the keys are immediately encrypted and sealed directly inside our cryptographic vault. Neither Aura Agentic AI's administrators, engineers, nor support staff can ever view, read, or export any client's raw Courier MCP API keys.",
+    sec5_item1_title: "In-Transit & At-Rest Encryption (TLS 1.3 + AES-256):",
+    sec5_item1_desc: "All HTTP and MCP traffic is enforced over TLS 1.3, and all secrets are sealed in our PostgreSQL AES-256 encrypted vault—never written to plain-text files or application logs.",
+    sec5_item2_title: "Ephemeral In-Memory Execution:",
+    sec5_item2_desc: "Credentials are decrypted strictly in ephemeral RAM for milliseconds during an authorized carrier API dispatch or balance check, transmitted directly to the official courier endpoint, and immediately wiped from memory.",
+    sec5_item3_title: "Strict Multi-Tenant Isolation & Rate Limiting:",
+    sec5_item3_desc: "Every merchant's vault is cryptographically scoped by tenant and client_id (zero cross-tenant leakage) with active sliding-window throttling (max 120 req/min).",
+    sec5_item4_title: "HMAC-SHA256 Signed Bridge & Auth Guard:",
+    sec5_item4_desc: "In-dashboard store plugins and parcel dispatches are protected by HMAC-SHA256 signed bridge tokens and Bearer authentication.",
     sec6_title: "Merchant Rights & Contact",
     sec6_p1: "Merchants and individuals retain full rights to query, export, or request immediate erasure (Right to be Forgotten) of any stored delivery record. Contact our Data Protection Officer at:"
   }
