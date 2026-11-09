@@ -39,6 +39,7 @@ const LANDING = path.join(APP_DIR, "index.html");
 const PRIVACY_HTML = path.join(APP_DIR, "privacy.html");
 const HEALTH_HTML = path.join(APP_DIR, "health.html");
 const MCP_EXPLORER_HTML = path.join(APP_DIR, "mcp_explorer.html");
+const GUIDE_HTML = path.join(APP_DIR, "guide.html");
 // Pull this client's courier keys from request headers or query params, with fallback to environment
 function keysFromRequest(req) {
     const h = req.headers;
@@ -483,7 +484,7 @@ app.get("/health", (req, res) => {
     const data = {
         ok: true,
         service: "aura-courier-mcp",
-        version: "2.5.1",
+        version: "2.5.2",
         tools_count: TOOLS.length,
         spatial_engine: "Google Maps Platform (gmp_git_agentskills_v1)",
         fraud_engine: "Steadfast Nationwide API + BD Prefix Validator",
@@ -518,6 +519,13 @@ app.get("/privacy", (_req, res) => {
         }
     });
 });
+app.get("/guide", (_req, res) => {
+    res.sendFile(GUIDE_HTML, (err) => {
+        if (err && !res.headersSent) {
+            res.redirect("/");
+        }
+    });
+});
 app.get("/", (_req, res) => {
     res.sendFile(LANDING, (err) => {
         if (err && !res.headersSent) {
@@ -525,7 +533,7 @@ app.get("/", (_req, res) => {
                 .type("html")
                 .send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP</title>` +
                 `<style>body{font-family:system-ui,sans-serif;background:#07080a;color:#f4f5f7;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#0f1115;padding:2px 8px;border-radius:6px;color:#00d4ff;font-size:13px}a{color:#00d4ff}p{line-height:1.6;color:#a4a8b3}</style></head>` +
-                `<body><div class="b"><h1>🚚 Aura Courier MCP v2.5.1</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
+                `<body><div class="b"><h1>🚚 Aura Courier MCP v2.5.2</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
                 `<p>Connect your AI to <code>POST /mcp</code> with Streamable-HTTP.</p>` +
                 `<p>Webhooks: <code>POST /webhooks/steadfast</code> · <code>POST /webhooks/pathao</code></p>` +
                 `<p>By <a href="https://auraajenticai.cloud">Aura Ajentic AI</a> · <a href="https://courier.auraajenticai.cloud">docs &amp; setup</a></p></div></body></html>`);

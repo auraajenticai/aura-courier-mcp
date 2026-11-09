@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Guide & Business Benefits — Aura Courier MCP v2.5.2 (বাংলা ও English)</title>
+  <meta name="description" content="Complete Bilingual (বাংলা ও English) User Guide & Business Benefits for Aura Courier MCP: In-Dashboard WooCommerce & Shopify 1-Click Dispatch, 6-Pillar WhatsApp/Messenger AI Bot, Real-Time Fraud Check, and AES-256 Zero-Knowledge Vault." />
+  <link rel="icon" type="image/svg+xml" href="/assets/icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050811;
+      --surface: #0b1224;
+      --surface-2: #111b33;
+      --border: rgba(56, 189, 248, 0.18);
+      --cyan: #00f0ff;
+      --blue: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --purple: #a855f7;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at 15% 0%, rgba(0,240,255,0.08), transparent 45%),
+                  radial-gradient(circle at 85% 20%, rgba(168,85,247,0.08), transparent 45%),
+                  var(--bg);
+      color: var(--text);
+      font-family: 'Inter', 'Hind Siliguri', system-ui, sans-serif;
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: rgba(5, 8, 17, 0.88);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 14px 24px;
+    }
+    .topbar-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 800;
+      font-size: 17px;
+    }
+    .brand img { width: 32px; height: 32px; border-radius: 8px; }
+    .ver-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .lang-toggle {
+      display: inline-flex;
+      background: #0f172a;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 99px;
+      padding: 3px;
+    }
+    .lang-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    .lang-btn.active {
+      background: linear-gradient(135deg, #00f0ff, #38bdf8);
+      color: #050811;
+      box-shadow: 0 2px 12px rgba(0, 240, 255, 0.3);
+    }
+    .nav-btn {
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 10px;
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: 0.2s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.12); }
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      border: none;
+      color: #fff;
+    }
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+    .hero {
+      text-align: center;
+      max-width: 880px;
+      margin: 0 auto 44px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(26px, 4vw, 42px);
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 14px;
+      background: linear-gradient(90deg, #ffffff, #7dd3fc, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 15.5px;
+    }
+    .sec-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 800;
+      margin: 42px 0 18px;
+      color: #fff;
+    }
+    .sec-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 4px 9px;
+      border-radius: 8px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--blue);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 18px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 20px;
+    }
+    @media (max-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(17, 27, 51, 0.85) 0%, rgba(11, 18, 36, 0.92) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 16px;
+      padding: 22px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-2px);
+    }
+    .card-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--blue);
+    }
+    .card h3 {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .card p, .card li {
+      font-size: 13.8px;
+      color: #cbd5e1;
+    }
+    .card ol, .card ul {
+      padding-left: 18px;
+      margin-top: 8px;
+    }
+    .card li { margin-bottom: 6px; }
+    .vault-banner {
+      margin-top: 28px;
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.1));
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 16px;
+      padding: 22px 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .code-box {
+      background: #050811;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    .cta-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .btn-sm {
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 9px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-sm:hover { background: rgba(56, 189, 248, 0.25); color: #fff; }
+    .footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .footer a { color: var(--blue); text-decoration: none; margin: 0 8px; }
+    body.lang-bn [data-lang="en"] { display: none !important; }
+    body.lang-en [data-lang="bn"] { display: none !important; }
+  </style>
+</head>
+<body class="lang-both">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/" class="brand">
+        <img src="/assets/icon.svg" alt="Aura Courier MCP" />
+        <span>Aura Courier MCP</span>
+        <span class="ver-pill">v2.5.2</span>
+      </a>
+      <div class="nav-actions">
+        <div class="lang-toggle" role="group" aria-label="Language Switcher">
+          <button type="button" id="btn-both" class="lang-btn active" onclick="setGuideLang('both')">🇧🇩 বাংলা + 🇬🇧 EN</button>
+          <button type="button" id="btn-bn" class="lang-btn" onclick="setGuideLang('bn')">🇧🇩 শুধু বাংলা</button>
+          <button type="button" id="btn-en" class="lang-btn" onclick="setGuideLang('en')">🇬🇧 English Only</button>
+        </div>
+        <a href="/" class="nav-btn">🏠 Home</a>
+        <a href="/privacy" class="nav-btn">🔒 Privacy &amp; Vault</a>
+        <a href="https://client.auraajenticai.cloud" class="nav-btn primary">🚀 Login to Portal ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-badge">
+        <span>🛡️ 100% Real-Time Fraud Shield • 4-Carrier 1-Click Dispatch • AES-256 Zero-Knowledge Vault</span>
+      </div>
+      <h1 data-lang="bn">Aura Courier MCP — ব্যবহারের সম্পূর্ণ গাইড ও ব্যবসায়িক সুবিধা</h1>
+      <h1 data-lang="en">Aura Courier MCP — Complete User Guide &amp; Business Benefits</h1>
+      <p data-lang="bn">
+        আপনার WooCommerce, Shopify, কাস্টম ওয়েবসাইট, অথবা ৬-পিলার WhatsApp ও Messenger AI বটের সাথে <b>Aura Courier MCP</b> কিভাবে ব্যবহার করবেন এবং এটি ব্যবহার করলে আপনার ই-কমার্স ব্যবসার কী কী লাভ হবে—তার বিস্তারিত গাইড।
+      </p>
+      <p data-lang="en" style="margin-top:6px">
+        Step-by-step instructions on how to connect and use <b>Aura Courier MCP</b> across WooCommerce, Shopify, Custom/Supabase stores, 6-Pillar WhatsApp/Messenger AI Bots, and MCP AI Agents—and how it boosts your delivery profit.
+      </p>
+    </section>
+
+    <!-- SECTION 1: WHY USE AURA COURIER MCP (BENEFITS) -->
+    <div class="sec-title">
+      <span class="sec-num">01</span>
+      <span data-lang="bn">এটা ব্যবহার করলে আপনার লাভ কী? (৫টি প্রধান ব্যবসায়িক সুবিধা)</span>
+      <span data-lang="en">Why Use Aura Courier MCP? (5 Core Business Benefits)</span>
+    </div>
+
+    <div class="grid-3">
+      <!-- Benefit 1 -->
+      <div class="card">
+        <span class="card-tag">100% Real-Time • Zero Mock Data</span>
+        <h3 data-lang="bn">১. ফেইক অর্ডার ও রিটার্ন (RTO) ৩০%–৪০% কমান</h3>
+        <h3 data-lang="en">1. Cut Fake Orders &amp; RTO Losses by 30%–40%</h3>
+        <p data-lang="bn">
+          পার্সেল পাঠানোর আগেই কাস্টমারের মোবাইল নাম্বার দিয়ে <b>Steadfast Nationwide Fraud Database</b> ও মাল্টি-ক্যারিয়ার হিস্ট্রি থেকে রিয়েল-টাইমে চেক হয় কাস্টমার আগে কয়টি পার্সেল রিসিভ করেছে এবং কয়টি রিটার্ন করেছে। কোনো মক বা অনুমাননির্ভর ডেটা নেই।
+        </p>
+        <p data-lang="en" style="margin-top:6px">
+          Before booking any parcel, Aura checks the customer's 11-digit BD mobile number against the live <b>Steadfast Nationwide Logistics Database</b> and historical carrier records to show exact delivered vs. returned counts—100% real-time with zero mock data.
+        </p>
+      </div>
+
+      <!-- Benefit 2 -->
+      <div class="card">
+        <span class="card-tag">In-Dashboard • Zero Portal Switching</span>
+        <h3 data-lang="bn">২. নিজের ওয়েবসাইটের ড্যাশবোর্ড থেকেই ১-ক্লিক বুকিং</h3>
+        <h3 data-lang="en">2. 1-Click 4-Carrier Booking Inside Your Own Store</h3>
+        <p data-lang="bn">
+          মার্চেন্টকে বার বার অন্য পোর্টালে লগইন করতে হয় না। আপনার নিজস্ব <b>WordPress / WooCommerce</b> বা <b>Shopify</b>-এর অর্ডার পেজের ভেতরেই <b>Steadfast, Pathao, RedX ও Paperfly</b>-তে ১-ক্লিকে বুকিং, ট্র্যাকিং এবং থার্মাল লেবেল প্রিন্ট করতে পারবেন।
+        </p>
+        <p data-lang="en" style="margin-top:6px">
+          No need to log into multiple courier portals. Book <b>Steadfast, Pathao, RedX, and Paperfly</b> with 1 click and print thermal labels directly inside your own WooCommerce, Shopify, or Custom Order Details screen.
+        </p>
+      </div>
+
+      <!-- Benefit 3 -->
+      <div class="card">
+        <span class="card-tag">6-Pillar AI Bot Harmony</span>
+        <h3 data-lang="bn">৩. ৬-পিলার WhatsApp ও Messenger অটো-সেলস ও কুরিয়ার</h3>
+        <h3 data-lang="en">3. 6-Pillar WhatsApp &amp; Messenger AI Auto-Closing</h3>
+        <p data-lang="bn">
+          কাস্টমার ফেসবুক মেসেঞ্জার বা হোয়াটসঅ্যাপে চ্যাট করার সময় নাম, মোবাইল ও ঠিকানা দিলেই ৬-পিলার AI বট অটোমেটিক অর্ডার তৈরি করে, ফ্রড রিস্ক যাচাই করে এবং সরাসরি কুরিয়ারে পার্সেল ডিসপ্যাচ করে।
+        </p>
+        <p data-lang="en" style="margin-top:6px">
+          Works seamlessly with Aura's 6-Pillar Conversational Sales Engine on WhatsApp &amp; Facebook Messenger—capturing Name + Phone + Address in chat and auto-dispatching parcels without breaking any existing bot rules.
+        </p>
+      </div>
+
+      <!-- Benefit 4 -->
+      <div class="card">
+        <span class="card-tag">Multi-Tenant Isolation</span>
+        <h3 data-lang="bn">৪. প্রতিটি ক্লায়েন্টের জন্য ১০০% আলাদা ও নিরাপদ মোড</h3>
+        <h3 data-lang="en">4. Strict Multi-Tenant Store &amp; Ledger Isolation</h3>
+        <p data-lang="bn">
+          আপনার ৬-পিলার বট, আপনার WooCommerce/Shopify স্টোর এবং অন্য ক্লায়েন্টদের আলাদা স্টোর—সবকিছু নিজ নিজ <code>tenant</code> ও <code>clientId</code> ভল্টে সম্পূর্ণ আলাদা থাকে। এক ক্লায়েন্টের সেটআপ বা অর্ডারের সাথে অন্য কারো কোনো সংঘর্ষ হয় না।
+        </p>
+        <p data-lang="en" style="margin-top:6px">
+          Every merchant operates in an isolated <code>tenant</code> and <code>clientId</code> namespace. Whether a client uses only WooCommerce, only Shopify, or the full 6-Pillar WhatsApp/Messenger Bot, each setup remains 100% independent.
+        </p>
+      </div>
+
+      <!-- Benefit 5 -->
+      <div class="card">
+        <span class="card-tag">Google Maps Spatial Routing</span>
+        <h3 data-lang="bn">৫. অটো ডেলিভারি জোন, ফি ও স্মার্ট কুরিয়ার রেট তুলনা</h3>
+        <h3 data-lang="en">5. Spatial Geocoding &amp; Smart Carrier Rate Comparison</h3>
+        <p data-lang="bn">
+          বাংলা বা ইংরেজি যেকোনো ঠিকানা থেকে অটোমেটিক ঢাকা (৳৮০), সাব-ঢাকা (৳১০০) ও ঢাকার বাইরে (৳১৫০) জোন নির্ণয় এবং কোন কুরিয়ারে খরচ কম ও দ্রুত যাবে তার রিয়েল-টাইম তুলনা।
+        </p>
+        <p data-lang="en" style="margin-top:6px">
+          Automatically geocodes Bengali &amp; English addresses via Google Maps Platform + 64-District BD Gazetteer, calculates exact delivery zones (Dhaka ৳80, Sub-Dhaka ৳100, Outside Dhaka ৳150), and compares SLA &amp; rates across carriers.
+        </p>
+      </div>
+
+      <!-- Benefit 6 -->
+      <div class="card">
+        <span class="card-tag">Zero-Knowledge AES-256 Vault</span>
+        <h3 data-lang="bn">৬. আন্তর্জাতিক মানের AES-256 ভল্ট (কেউ আপনার API দেখে না)</h3>
+        <h3 data-lang="en">6. Zero-Knowledge AES-256 Encrypted Credential Vault</h3>
+        <p data-lang="bn">
+          আপনার Steadfast, Pathao, RedX, Paperfly বা স্টোরের API সরাসরি <b>AES-256 Cryptographic Vault</b>-এ এনক্রিপ্ট হয়ে যায়। এমনকি Aura-র নিজস্ব অ্যাডমিন বা ইঞ্জিনিয়াররাও কোনো ক্লায়েন্টের API Key দেখতে বা পড়তে পারে না।
+        </p>
+        <p data-lang="en" style="margin-top:6px">
+          All courier and store API keys are encrypted immediately via AES-256-CBC before storage. Even Aura platform administrators cannot view or read any client's raw courier credentials.
+        </p>
+      </div>
+    </div>
+
+    <!-- SECTION 2: HOW TO USE IN WOOCOMMERCE / SHOPIFY / CUSTOM STORES -->
+    <div class="sec-title">
+      <span class="sec-num">02</span>
+      <span data-lang="bn">কিভাবে আপনার WooCommerce, Shopify বা কাস্টম স্টোরে ব্যবহার করবেন?</span>
+      <span data-lang="en">How to Use Inside WooCommerce, Shopify &amp; Custom Stores</span>
+    </div>
+
+    <div class="grid-2">
+      <!-- WooCommerce 3-in-1 -->
+      <div class="card">
+        <span class="card-tag">WooCommerce / WordPress • 3 Easy Options</span>
+        <h3 data-lang="bn">পদ্ধতি A: WooCommerce স্টোরে কানেক্ট করার ৩টি উপায় (একবার করলেই আজীবন অটোমেটিক)</h3>
+        <h3 data-lang="en">Mode A: 3 Zero-Code Ways to Connect WooCommerce (One-Time Setup)</h3>
+        <ol data-lang="bn">
+          <li><b>পদ্ধতি ১ (১-ক্লিক অটো কানেক্ট):</b> <a href="https://client.auraajenticai.cloud/#view-woo" style="color:#38bdf8">Client Dashboard ➔ Store Analytics</a>-এ গিয়ে আপনার ওয়েবসাইটের লিংক দিন এবং WordPress-এ <b>"Approve"</b> বাটনে ক্লিক করুন—কোনো API কপি-পেস্ট ছাড়াই কানেক্ট হয়ে যাবে।</li>
+          <li><b>পদ্ধতি ২ (প্রি-কানেক্টেড <code>.zip</code> প্লাগইন):</b> ড্যাশবোর্ড থেকে রেডিমেড <code>aura-courier-mcp-woocommerce.zip</code> ডাউনলোড করে আপনার ওয়ার্ডপ্রেসের <b>Plugins ➔ Add New ➔ Upload</b>-এ আপলোড করে Activate করুন।</li>
+          <li><b>পদ্ধতি ৩ (ম্যানুয়াল API / Admin Supabase Bridge):</b> ক্লায়েন্ট ড্যাশবোর্ডে Consumer Key/Secret দিয়ে অথবা অ্যাডমিন ড্যাশবোর্ড থেকে ব্রিজ করে সেভ করুন।</li>
+        </ol>
+        <ol data-lang="en" style="margin-top:8px">
+          <li><b>Option 1 (1-Click Auto-Approve):</b> Enter your store URL in <a href="https://client.auraajenticai.cloud/#view-woo" style="color:#38bdf8">Client Dashboard ➔ Store Analytics</a> and click <b>"Approve"</b> on WordPress—no manual API keys required.</li>
+          <li><b>Option 2 (Pre-Connected <code>.zip</code> Plugin):</b> Download your pre-linked <code>aura-courier-mcp-woocommerce.zip</code> and upload it in <b>WordPress ➔ Plugins ➔ Add New ➔ Activate</b>.</li>
+          <li><b>Option 3 (Manual REST API / Admin Bridge):</b> Paste your WooCommerce REST API keys or bridge via Admin Dashboard.</li>
+        </ol>
+        <div class="cta-row">
+          <a href="https://client.auraajenticai.cloud/#view-woo" class="btn-sm">⚡ Open WooCommerce Connector ↗</a>
+        </div>
+      </div>
+
+      <!-- Shopify & Custom / Supabase -->
+      <div class="card">
+        <span class="card-tag">Shopify &amp; Custom / Supabase Websites</span>
+        <h3 data-lang="bn">পদ্ধতি B: Shopify এবং কাস্টম / Supabase ওয়েবসাইটে ব্যবহারবিধি</h3>
+        <h3 data-lang="en">Mode B: How to Use with Shopify &amp; Custom / Supabase Websites</h3>
+        <ol data-lang="bn">
+          <li><b>Shopify স্টোর:</b> <a href="https://client.auraajenticai.cloud/#view-shop" style="color:#38bdf8">Client Dashboard ➔ Shopify Store</a>-এ গিয়ে আপনার <code>.myshopify.com</code> ডোমেইন ও Admin Token দিন অথবা প্রি-কানেক্টেড উইজেট ডাউনলোড করুন।</li>
+          <li><b>কাস্টম ওয়েবসাইট / Supabase:</b> অ্যাডমিন ড্যাশবোর্ডে আপনার Supabase URL ও Key কানেক্ট করুন এবং ১-ক্লিকে কাস্টম উইজেট কোডটি আপনার অর্ডার পেজে বসিয়ে নিন।</li>
+          <li><b>ফলাফল:</b> প্রতিটি নতুন অর্ডারে অটোমেটিক বাংলা ও ইংরেজি দুই ভাষাতেই ফ্রড রিপোর্ট এবং ১-ক্লিকে ৪টি কুরিয়ারে পার্সেল বুকিং বাটন চলে আসবে।</li>
+        </ol>
+        <ol data-lang="en" style="margin-top:8px">
+          <li><b>Shopify Store:</b> Go to <a href="https://client.auraajenticai.cloud/#view-shop" style="color:#38bdf8">Client Dashboard ➔ Shopify Store</a>, enter your shop domain &amp; Admin API token, or download the pre-connected widget.</li>
+          <li><b>Custom Website / Supabase:</b> Connect your Supabase URL in Admin/Client Dashboard and embed the 1-line Quick-Ship iframe widget in your order view.</li>
+          <li><b>Result:</b> Switch seamlessly between <b>🇧🇩 বাংলা</b> and <b>🇬🇧 English</b> inside the order widget, check live fraud risk, and book parcels in 1 click.</li>
+        </ol>
+        <div class="cta-row">
+          <a href="https://client.auraajenticai.cloud/#view-shop" class="btn-sm">🛍️ Open Shopify &amp; Custom Connector ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: 6-PILLAR WHATSAPP & MESSENGER BOT + AI AGENTS -->
+    <div class="sec-title">
+      <span class="sec-num">03</span>
+      <span data-lang="bn">৬-পিলার WhatsApp/Messenger AI বট এবং MCP AI এজেন্টে ব্যবহারবিধি</span>
+      <span data-lang="en">Using with 6-Pillar WhatsApp/Messenger Bots &amp; AI Agents (MCP)</span>
+    </div>
+
+    <div class="grid-2">
+      <!-- 6-Pillar Bot -->
+      <div class="card">
+        <span class="card-tag">6-Pillar Conversational Sales Engine</span>
+        <h3 data-lang="bn">পদ্ধতি C: WhatsApp, Messenger ও Omnichannel Inbox থেকে অটো বুকিং</h3>
+        <h3 data-lang="en">Mode C: 6-Pillar WhatsApp &amp; Messenger AI Sales + Omnichannel Inbox</h3>
+        <p data-lang="bn">
+          আপনার ক্লায়েন্ট মোডে কানেক্ট করা <b>WhatsApp, Facebook Messenger ও Instagram</b>-এর ৬-পিলার সেলস বট সম্পূর্ণ অক্ষুণ্ণ ও সচল থাকে:
+        </p>
+        <ul data-lang="bn">
+          <li>কাস্টমার চ্যাটে অর্ডার কনফার্ম করলে বট নিজেই নাম, মোবাইল নাম্বার ও ঠিকানা সংগ্রহ করে।</li>
+          <li><b>Omnichannel Inbox</b> ও <b>Logistics Profit Guard (#view-risk)</b> থেকে ১-ক্লিকে <code>🔍 Scan Risk</code> ও বাল্ক পার্সেল ডিসপ্যাচ করা যায়।</li>
+        </ul>
+        <p data-lang="en" style="margin-top:8px">
+          Your existing 6-Pillar WhatsApp &amp; Messenger AI sales workflow stays 100% intact:
+        </p>
+        <ul data-lang="en">
+          <li>AI diagnoses customer needs, upsells gently, and captures Name + 11-digit BD Phone + Full Address in chat.</li>
+          <li>Use <b>Omnichannel Inbox</b> or <b>Risk Shield (#view-risk)</b> for 1-click fraud scanning and bulk courier dispatch.</li>
+        </ul>
+      </div>
+
+      <!-- MCP AI Agents -->
+      <div class="card">
+        <span class="card-tag">Model Context Protocol (MCP v2.5.2)</span>
+        <h3 data-lang="bn">পদ্ধতি D: Claude, Cursor, Antigravity IDE ও n8n এজেন্টে কানেক্ট করুন</h3>
+        <h3 data-lang="en">Mode D: Connect to Claude Desktop, Cursor, Antigravity IDE &amp; n8n</h3>
+        <p data-lang="bn">
+          যেকোনো MCP-সাপোর্টেড AI এজেন্টে নিচের কনফিগারেশন ব্যবহার করে ৯টি লাইভ কুরিয়ার টুল (`check_fraud_risk`, `create_parcel`, `track_parcel`, `compare_courier_rates` ইত্যাদি) ব্যবহার করুন:
+        </p>
+        <p data-lang="en" style="margin-top:4px">
+          Connect any MCP client via Streamable HTTP (<code>POST /mcp</code>) or <code>npx aura-courier-mcp</code> to access all 9 live Bangladesh logistics tools:
+        </p>
+        <div class="code-box">{
+  "mcpServers": {
+    "aura-courier": {
+      "url": "https://courier.auraajenticai.cloud/mcp",
+      "headers": {
+        "x-steadfast-api-key": "YOUR_STEADFAST_API_KEY",
+        "x-steadfast-secret-key": "YOUR_STEADFAST_SECRET_KEY"
+      }
+    }
+  }
+}</div>
+        <div class="cta-row">
+          <a href="/explorer" class="btn-sm">🧪 Open Interactive MCP Tool Explorer ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- VAULT GUARANTEE BANNER -->
+    <div class="vault-banner">
+      <div style="max-width:820px">
+        <h3 style="color:#34d399;font-size:17px;margin-bottom:6px" data-lang="bn">🔒 আন্তর্জাতিক মানের AES-256 Zero-Knowledge Vault ও গোপনীয়তার গ্যারান্টি</h3>
+        <h3 style="color:#34d399;font-size:17px;margin-bottom:6px" data-lang="en">🔒 International-Standard AES-256 Zero-Knowledge Vault Guarantee</h3>
+        <p style="font-size:13.5px;color:#cbd5e1" data-lang="bn">
+          যেকোনো মার্চেন্ট বা ক্লায়েন্ট তাদের কুরিয়ার বা স্টোর API কানেক্ট করার সাথে সাথে তা সরাসরি আমাদের <b>AES-256 এনক্রিপ্টেড ভল্টে</b> চলে যায় এবং ইন-মেমোরি আইসোলেশনে কাজ করে। কোনো ক্লায়েন্টের কুরিয়ার MCP-এর API Key আমরা বা আমাদের কোনো অ্যাডমিন কখনোই দেখতে পাই না।
+        </p>
+        <p style="font-size:13.5px;color:#cbd5e1;margin-top:6px" data-lang="en">
+          When any merchant connects their courier or store API keys, they are immediately encrypted into our <b>AES-256 Cryptographic Vault</b> or processed transiently in isolated memory. Neither Aura administrators nor engineers can ever view or access any client's courier API keys.
+        </p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <a href="/privacy" class="nav-btn primary">📜 Read Full Privacy &amp; Vault Policy ↗</a>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>
+        <b>Aura Courier MCP v2.5.2</b> • Powered by <a href="https://auraajenticai.cloud">Aura Ajentic AI</a>
+        | <a href="/">Home</a>
+        | <a href="/guide">User Guide (গাইড)</a>
+        | <a href="/explorer">MCP Explorer</a>
+        | <a href="/health">Live Health</a>
+        | <a href="/privacy">Privacy &amp; Zero-Knowledge Vault Policy</a>
+      </p>
+    </footer>
+  </main>
+
+  <script>
+    function setGuideLang(mode) {
+      document.body.className = 'lang-' + mode;
+      ['both', 'bn', 'en'].forEach(function(m) {
+        var b = document.getElementById('btn-' + m);
+        if (b) b.classList.toggle('active', m === mode);
+      });
+      try { localStorage.setItem('aura_guide_lang', mode); } catch (e) {}
+    }
+    (function() {
+      var q = new URLSearchParams(window.location.search).get('lang');
+      var saved = '';
+      try { saved = localStorage.getItem('aura_guide_lang') || ''; } catch (e) {}
+      if (q === 'bn' || q === 'en' || q === 'both') setGuideLang(q);
+      else if (saved === 'bn' || saved === 'en' || saved === 'both') setGuideLang(saved);
+    })();
+  </script>
+</body>
+</html>

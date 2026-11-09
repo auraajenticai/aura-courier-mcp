@@ -11,13 +11,13 @@ export class FraudRiskEngine {
             return {
                 phone: phoneNumber,
                 risk_level: "CRITICAL",
-                delivery_success_rate: "0%",
+                delivery_success_rate: "0% (অবৈধ নম্বর / Invalid BD Number)",
                 total_parcels: 0,
                 total_delivered: 0,
                 total_cancelled: 0,
                 cancellation_rate: "100%",
                 is_verified_buyer: false,
-                recommendation: "ভুল বা অকার্যকর বাংলাদেশি মোবাইল নম্বর। ম্যানুয়াল ভেরিফিকেশন ছাড়া পার্সেল বুক করবেন না।",
+                recommendation: "🇧🇩 ভুল বা অকার্যকর বাংলাদেশি মোবাইল নম্বর। ম্যানুয়াল ভেরিফিকেশন ছাড়া পার্সেল বুক করবেন না। | 🇬🇧 Invalid Bangladesh mobile number (11 digits starting with 013–019 required). Do not dispatch without manual verification.",
                 carrier_source: "operator_prefix_validator",
                 carrier_verified: false,
             };
@@ -34,13 +34,13 @@ export class FraudRiskEngine {
                     return {
                         phone: cleanPhone,
                         risk_level: "NEW_BUYER",
-                        delivery_success_rate: "N/A (নতুন ক্রেতা)",
+                        delivery_success_rate: "N/A (নতুন ক্রেতা / New Buyer)",
                         total_parcels: 0,
                         total_delivered: 0,
                         total_cancelled: 0,
                         cancellation_rate: "0%",
                         is_verified_buyer: true,
-                        recommendation: "সারা দেশের কুরিয়ার ডেটাবেজে কোনো রেকর্ড নেই (নতুন ক্রেতা)। ফোনে ঠিকানা ও অর্ডার কনফার্ম করে ক্যাশ অন ডেলিভারিতে পাঠানো যেতে পারে।",
+                        recommendation: "🇧🇩 সারা দেশের কুরিয়ার ডেটাবেজে কোনো রিটার্ন রেকর্ড নেই (নতুন ক্রেতা)। ফোনে ঠিকানা কনফার্ম করে ক্যাশ অন ডেলিভারিতে পাঠানো যেতে পারে। | 🇬🇧 No prior return record in nationwide courier database (New Buyer). Safe to ship via COD after phone confirmation.",
                         carrier_source: "steadfast_nationwide_api",
                         carrier_verified: true,
                     };
@@ -59,7 +59,7 @@ export class FraudRiskEngine {
                         total_cancelled: cancelled,
                         cancellation_rate: cancelRateStr,
                         is_verified_buyer: true,
-                        recommendation: `কাস্টমার অত্যন্ত নির্ভরযোগ্য (সফল ডেলিভারি: ${delivered}/${total}টি, সাকসেস রেট: ${successRateStr})। ১০০% নির্দ্বিধায় ক্যাশ অন ডেলিভারি (COD) পাঠান।`,
+                        recommendation: `🇧🇩 কাস্টমার অত্যন্ত নির্ভরযোগ্য (সফল ডেলিভারি: ${delivered}/${total}টি, সাকসেস রেট: ${successRateStr})। ১০০% নির্দ্বিধায় ক্যাশ অন ডেলিভারি (COD) পাঠান। | 🇬🇧 Highly reliable buyer (${delivered}/${total} delivered, ${successRateStr} success rate). Safe for immediate COD dispatch.`,
                         carrier_source: "steadfast_nationwide_api",
                         carrier_verified: true,
                     };
@@ -74,7 +74,7 @@ export class FraudRiskEngine {
                         total_cancelled: cancelled,
                         cancellation_rate: cancelRateStr,
                         is_verified_buyer: true,
-                        recommendation: `মাঝারি ঝুঁকি (সফল: ${delivered}টি, ক্যানসেল: ${cancelled}টি, ক্যানসেলেশন রেট: ${cancelRateStr})। পার্সেল পাঠানোর আগে কাস্টমারকে ফোন দিয়ে অর্ডার কনফার্ম করুন।`,
+                        recommendation: `🇧🇩 মাঝারি ঝুঁকি (সফল: ${delivered}টি, ক্যানসেল: ${cancelled}টি, ক্যানসেলেশন রেট: ${cancelRateStr})। পার্সেল পাঠানোর আগে কাস্টমারকে ফোন দিয়ে অর্ডার কনফার্ম করুন। | 🇬🇧 Moderate risk (${delivered} delivered, ${cancelled} cancelled, ${cancelRateStr} cancel rate). Confirm order via phone call before dispatch.`,
                         carrier_source: "steadfast_nationwide_api",
                         carrier_verified: true,
                     };
@@ -89,7 +89,7 @@ export class FraudRiskEngine {
                         total_cancelled: cancelled,
                         cancellation_rate: cancelRateStr,
                         is_verified_buyer: false,
-                        recommendation: `উচ্চ ঝুঁকির ক্রেতা! পূর্ববর্তী অর্ডারের ${cancelRateStr} ক্যানসেল/রিটার্ন করেছেন (${cancelled}টি ক্যানসেল)। পার্সেল পাঠানোর আগে ডেলিভারি চার্জ (১৫০৳) অগ্রিম নেওয়ার সুপারিশ করা হচ্ছে।`,
+                        recommendation: `🇧🇩 উচ্চ ঝুঁকির ক্রেতা! পূর্ববর্তী অর্ডারের ${cancelRateStr} ক্যানসেল/রিটার্ন করেছেন (${cancelled}টি ক্যানসেল)। পার্সেল পাঠানোর আগে ডেলিভারি চার্জ (১৫০৳) অগ্রিম নেওয়ার সুপারিশ করা হচ্ছে। | 🇬🇧 High fraud risk! Buyer cancelled/returned ${cancelRateStr} of past orders (${cancelled} returned). Collect advance delivery charge (150 BDT) before shipping.`,
                         carrier_source: "steadfast_nationwide_api",
                         carrier_verified: true,
                     };
@@ -100,13 +100,13 @@ export class FraudRiskEngine {
                 return {
                     phone: cleanPhone,
                     risk_level: "MODERATE",
-                    delivery_success_rate: "অজানা (API ত্রুটি)",
+                    delivery_success_rate: "অজানা / Unknown (API Error)",
                     total_parcels: 0,
                     total_delivered: 0,
                     total_cancelled: 0,
-                    cancellation_rate: "অজানা",
+                    cancellation_rate: "অজানা / Unknown",
                     is_verified_buyer: false,
-                    recommendation: `সঠিক বাংলাদেশি নম্বর। Steadfast লাইভ ডেটাবেজ চেক করার সময় ত্রুটি ঘটেছে (${apiErr.message})। ফোন করে নিশ্চিত করুন।`,
+                    recommendation: `🇧🇩 সঠিক বাংলাদেশি নম্বর। লাইভ ডেটাবেজ চেক করার সময় ত্রুটি ঘটেছে (${apiErr.message})। ফোন করে নিশ্চিত করুন। | 🇬🇧 Valid BD number. Live carrier lookup encountered a temporary error (${apiErr.message}). Please verify via phone call.`,
                     carrier_source: "steadfast_api_error_fallback",
                     carrier_verified: false,
                 };
@@ -116,13 +116,13 @@ export class FraudRiskEngine {
         return {
             phone: cleanPhone,
             risk_level: "MODERATE",
-            delivery_success_rate: "অজানা (ক্রেডেনশিয়াল প্রয়োজন)",
+            delivery_success_rate: "অজানা (ক্রেডেনশিয়াল প্রয়োজন) / Unknown (API Key Required)",
             total_parcels: 0,
             total_delivered: 0,
             total_cancelled: 0,
-            cancellation_rate: "অজানা",
+            cancellation_rate: "অজানা / Unknown",
             is_verified_buyer: false,
-            recommendation: "সঠিক বাংলাদেশি মোবাইল নম্বর। লাইভ কুরিয়ার হিস্ট্রি ও ফ্রড রেট চেক করতে Steadfast API Key কনফিগার করুন।",
+            recommendation: "🇧🇩 সঠিক বাংলাদেশি মোবাইল নম্বর। লাইভ কুরিয়ার হিস্ট্রি ও ফ্রড রেট চেক করতে Steadfast API Key কনফিগার করুন। | 🇬🇧 Valid BD mobile number. Configure Steadfast API Key in your AES-256 Vault to query live nationwide delivery history.",
             carrier_source: "bd_operator_validator_unverified",
             carrier_verified: false,
         };
