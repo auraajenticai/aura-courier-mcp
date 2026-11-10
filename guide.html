@@ -936,6 +936,29 @@
       .carrier-chips-row { grid-template-columns: repeat(2, 1fr); }
       .nav-links { display: none; }
     }
+  
+    .login-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.18), rgba(59, 130, 246, 0.18));
+      border: 1px solid var(--cyan);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .login-btn:hover {
+      background: var(--cyan);
+      color: #040914;
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.55);
+      transform: translateY(-1px);
+    }
+
   </style>
 </head>
 <body>
@@ -964,6 +987,7 @@
         <a href="/mcp" class="nav-item" data-i18n="nav_playground">Playground</a>
         <a href="#setup" class="nav-item" data-i18n="nav_docs">Docs</a>
         
+        <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" class="login-btn" style="margin-right:6px;" data-i18n="nav_login">লগইন</a>
         <div style="display:flex; gap:4px; margin-left:8px;">
           <button id="btn-bn" class="lang-btn active" onclick="setLang('bn')">BN</button>
           <button id="btn-en" class="lang-btn" onclick="setLang('en')">EN</button>
@@ -1504,6 +1528,7 @@
         nav_pricing: "প্রাইসিং",
         nav_playground: "প্লেগ্রাউন্ড",
         nav_docs: "ডকুমেন্টেশন",
+        nav_login: "লগইন",
         badge_guide: "অফিসিয়াল ব্যবহারবিধি",
         hero_h2: "ব্যবহার নির্দেশিকা, স্টোর সিমুলেটর ও ১৫ দিন ফ্রি ট্রায়াল",
         hero_desc: "বাংলাদেশের ই-কমার্সের জন্য মাল্টি-কুরিয়ার ইন্টিগ্রেশন সমাধান — আপনার স্টোর (WooCommerce/Shopify/Custom) থেকে সরাসরি Steadfast, Pathao, RedX ও Paperfly-তে অর্ডার বুকিং।",
@@ -1573,6 +1598,7 @@
         nav_pricing: "Pricing",
         nav_playground: "Playground",
         nav_docs: "Docs",
+        nav_login: "Login",
         badge_guide: "Official Guide",
         hero_h2: "Complete User Guide, Store Simulator & 15-Day Free Trial",
         hero_desc: "The all-in-one multi-carrier logistics integration for Bangladesh e-commerce — book parcels directly with Steadfast, Pathao, RedX, and Paperfly from WooCommerce, Shopify, or Custom Stores.",

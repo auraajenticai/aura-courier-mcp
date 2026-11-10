@@ -827,6 +827,29 @@
       .endpoint-box { flex-direction: column; align-items: stretch; }
       .btn-copy { justify-content: center; }
     }
+  
+    .login-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.18), rgba(59, 130, 246, 0.18));
+      border: 1px solid var(--cyan);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .login-btn:hover {
+      background: var(--cyan);
+      color: #040914;
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.55);
+      transform: translateY(-1px);
+    }
+
   </style>
 </head>
 <body>
@@ -859,7 +882,7 @@
           <span class="health-dot"></span>
           <span>Health OK</span>
         </a>
-        <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" class="nav-item" data-i18n="nav_portal">Client Portal ↗</a>
+        <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" class="login-btn" data-i18n="nav_login">লগইন</a>
         
         <div style="display:flex; gap:4px; margin-left:8px;">
           <button id="btn-bn" class="lang-btn active" onclick="setLang('bn')">BN</button>
@@ -1326,7 +1349,7 @@
     </a>
     <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" class="dock-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span>Portal</span>
+      <span data-i18n="nav_login">লগইন</span>
     </a>
   </nav>
 
@@ -1345,7 +1368,8 @@
         nav_sandbox: "⚡ লাইভ স্যান্ডবক্স",
         nav_guide: "📖 গাইড",
         nav_mcp: "⌨ MCP প্লেগ্রাউন্ড",
-        nav_portal: "ক্লায়েন্ট পোর্টাল ↗",
+        nav_login: "লগইন",
+        nav_portal: "লগইন",
         hero_badge: "MCP for Bangladesh E-commerce",
         hero_heading: "এক কানেক্টরেই ৪ কুরিয়ার + Google Maps",
         hero_desc: "WooCommerce, Shopify, n8n বা যেকোনো সিস্টেমে সহজেই পার্সেল ডেলিভারি, ট্র্যাকিং, রেট ক্যালকুলেশন, ফ্রড রিস্ক চেক ও NDR ম্যানেজ করুন — একটিই MCP দিয়ে।",
@@ -1408,7 +1432,8 @@
         nav_sandbox: "⚡ Live Sandbox",
         nav_guide: "📖 Guide",
         nav_mcp: "⌨ MCP Playground",
-        nav_portal: "Client Portal ↗",
+        nav_login: "Login",
+        nav_portal: "Login",
         hero_badge: "MCP for Bangladesh E-commerce",
         hero_heading: "One Single Connector for 4 Couriers + Google Maps",
         hero_desc: "Seamless parcel delivery, unified consignment tracking, automated zone tariffs, carrier fraud detection & NDR management across WooCommerce, Shopify, n8n and AI agents.",
