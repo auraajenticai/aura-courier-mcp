@@ -518,7 +518,7 @@ app.get("/health", (req, res) => {
   const data = {
     ok: true,
     service: "aura-courier-mcp",
-    version: "2.5.3",
+    version: "2.5.4",
     tools_count: TOOLS.length,
     spatial_engine: "Google Maps Platform (gmp_git_agentskills_v1)",
     fraud_engine: "Steadfast Nationwide API + BD Prefix Validator",
@@ -572,7 +572,7 @@ app.get("/", (_req, res) => {
         .send(
           `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP</title>` +
             `<style>body{font-family:system-ui,sans-serif;background:#07080a;color:#f4f5f7;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#0f1115;padding:2px 8px;border-radius:6px;color:#00d4ff;font-size:13px}a{color:#00d4ff}p{line-height:1.6;color:#a4a8b3}</style></head>` +
-            `<body><div class="b"><h1>🚚 Aura Courier MCP v2.5.3</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
+            `<body><div class="b"><h1>🚚 Aura Courier MCP v2.5.4</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
             `<p>Connect your AI to <code>POST /mcp</code> with Streamable-HTTP.</p>` +
             `<p>Webhooks: <code>POST /webhooks/steadfast</code> · <code>POST /webhooks/pathao</code></p>` +
             `<p>By <a href="https://auraajenticai.cloud">Aura Ajentic AI</a> · <a href="https://courier.auraajenticai.cloud">docs &amp; setup</a></p></div></body></html>`

@@ -9,7 +9,7 @@ async function run() {
   const server = buildMcpServer(new CourierRegistry());
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Aura Courier MCP v2.5.3 running on STDIO");
+  console.error("Aura Courier MCP v2.5.4 running on STDIO");
 }
 
 run().catch((error) => {

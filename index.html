@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Aura Courier MCP v2.5.3 — Universal Bangladesh Logistics & Spatial Engine for AI Agents.">
+<meta name="description" content="Aura Courier MCP v2.5.4 — Universal Bangladesh Logistics & Spatial Engine for AI Agents.">
 <title>Aura Courier MCP</title>
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/courier-favicon-32.png">
 <link rel="icon" type="image/png" sizes="64x64" href="/assets/courier-favicon.png">
@@ -69,8 +69,8 @@
   .logo-badge{font-size:10.5px; font-weight:600; color:var(--cyan); padding:3px 8px;
     border:1px solid rgba(56,189,248,.28); border-radius:999px; background:rgba(56,189,248,.07)}
   .header-right{display:flex; align-items:center; gap:16px}
-  .nav-links{display:flex; align-items:center; gap:18px}
-  .nav-links a{font-size:13.5px; color:var(--muted); transition:color .18s; font-weight:500}
+  .nav-links{display:flex; align-items:center; gap:14px}
+  .nav-links a{font-size:13px; color:var(--muted); transition:color .18s; font-weight:600; white-space:nowrap}
   .nav-links a:hover{color:var(--text)}
   .lang-switch{display:flex; gap:4px; padding:3px; border:1px solid var(--line); border-radius:999px; background:var(--bg2)}
   .lang-btn{font-family:var(--font-sans); font-size:12px; font-weight:600; color:var(--muted);
@@ -223,17 +223,18 @@
     <div class="hbar">
       <a href="/" class="logo" aria-label="Aura Courier MCP">
         <img class="logo-img" src="/assets/courier-app-icon.png" alt="Aura Courier MCP logo" width="38" height="38" style="border-radius:9px; box-shadow:0 0 12px rgba(56,189,248,.35);" /> <b>Aura Courier MCP</b>
-        <span class="logo-badge mono" data-i18n="header_badge">এমসিপি বাংলাদেশ v2.5.3</span>
+        <span class="logo-badge mono" data-i18n="header_badge">এমসিপি বাংলাদেশ v2.5.4</span>
       </a>
       <div class="header-right">
         <nav class="nav-links" aria-label="Quick Links">
           <a href="#couriers" data-i18n="nav_couriers">কুরিয়ার</a>
           <a href="#tools" data-i18n="nav_tools">টুলস</a>
           <a href="#sandbox" data-i18n="nav_sandbox">লাইভ স্যান্ডবক্স</a>
-          <a href="/guide" style="color:#fbbf24;font-weight:700" data-i18n="nav_guide">📖 ব্যবহার গাইড ↗</a>
-          <a href="/mcp" class="mono" style="color:var(--cyan)" data-i18n="nav_mcp">/mcp প্লেগ্রাউন্ড ↗</a>
-          <a href="/health" class="mono" style="color:var(--green)" data-i18n="nav_health">/health স্ট্যাটাস ↗</a>
-          <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" data-i18n="nav_client">লগইন ↗</a>
+          <a href="/guide" style="color:#fbbf24;font-weight:700" data-i18n="nav_guide">📖 ব্যবহার গাইড</a>
+          <a href="/guide#pricing" style="color:#34d399;font-weight:700" data-i18n="nav_pricing">🎁 ১৫ দিন ফ্রি ট্রায়াল</a>
+          <a href="/mcp" class="mono" style="color:var(--cyan)" data-i18n="nav_mcp">/mcp প্লেগ্রাউন্ড</a>
+          <a href="/health" class="mono" style="color:var(--green)" data-i18n="nav_health">/health স্ট্যাটাস</a>
+          <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" data-i18n="nav_client">লগইন</a>
         </nav>
         <div class="lang-switch" role="group" aria-label="Language Selector">
           <button id="lang-bn" class="lang-btn active" onclick="setLang('bn')" aria-pressed="true">🇧🇩 বাংলা</button>
@@ -256,11 +257,11 @@
       <p class="tagline" data-i18n="hero_tagline">এক connector — বাংলাদেশের সব courier ও spatial intelligence। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক করুন, ট্র্যাক করুন এবং জিরো-রিস্ক COD নিশ্চিত করুন।</p>
 
       <div class="cta-row">
-        <a href="/guide" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#ea580c);color:#fff"><span data-i18n="cta_user_guide">📖 ব্যবহার গাইড ও সুবিধা (User Guide) ↗</span></a>
-        <a href="/mcp" class="btn btn-primary"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-4.6 8.6A2 2 0 0 0 7.2 20.5h9.6a2 2 0 0 0 1.8-2.9L14 9V3"/><path d="M7.5 15h9"/></svg><span data-i18n="cta_mcp_playground">MCP প্লেগ্রাউন্ড (Playground) ↗</span></a>
-        <a href="/health" class="btn btn-glama"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2.5 6 4-13 2.5 7H21"/></svg><span data-i18n="cta_health_dashboard">লাইভ সিস্টেম হেলথ (Telemetry) ↗</span></a>
+        <a href="/guide" class="btn btn-primary" style="background:linear-gradient(135deg,#f59e0b,#ea580c);color:#fff"><span data-i18n="cta_user_guide">📖 ব্যবহার গাইড ও ১৫ দিন ফ্রি ট্রায়াল</span></a>
+        <a href="/mcp" class="btn btn-primary"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-4.6 8.6A2 2 0 0 0 7.2 20.5h9.6a2 2 0 0 0 1.8-2.9L14 9V3"/><path d="M7.5 15h9"/></svg><span data-i18n="cta_mcp_playground">MCP প্লেগ্রাউন্ড (Playground)</span></a>
+        <a href="/health" class="btn btn-glama"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2.5 6 4-13 2.5 7H21"/></svg><span data-i18n="cta_health_dashboard">লাইভ সিস্টেম হেলথ (Telemetry)</span></a>
         <a href="#sandbox" class="btn btn-ghost"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.3c-.4.5-.03 1.2.6 1.2H10l-1.4 7c-.15.8.86 1.25 1.35.6L20 10.8c.4-.5.03-1.2-.6-1.2H14l1.4-7c.15-.8-.86-1.25-1.4-.6z"/></svg><span data-i18n="cta_sandbox">লাইভ স্যান্ডবক্স ট্রাই করুন</span></a>
-        <a href="https://auraajenticai.cloud" target="_blank" rel="noopener" class="btn btn-ghost"><span data-i18n="cta_aura_main">Aura মেইন সাইট ↗</span></a>
+        <a href="https://auraajenticai.cloud" target="_blank" rel="noopener" class="btn btn-ghost"><span data-i18n="cta_aura_main">Aura মেইন সাইট</span></a>
       </div>
 
       <div class="hero-meta">
@@ -488,7 +489,7 @@
   </main>
 
   <footer role="contentinfo">
-    <p data-i18n="footer_license">Aura Courier MCP v2.5.3 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b></p>
+    <p data-i18n="footer_license">Aura Courier MCP v2.5.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b></p>
     <p>
       <a href="https://auraajenticai.cloud" target="_blank" rel="noopener">auraajenticai.cloud</a> ·
       <a href="https://github.com/auraajenticai/aura-courier-mcp" target="_blank" rel="noopener" style="color:var(--cyan); font-weight:600;"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>github.com/auraajenticai</a> ·
@@ -504,18 +505,18 @@
 <script>
 const i18n = {
   bn: {
-    header_badge: "এমসিপি বাংলাদেশ v2.5.3",
+    header_badge: "এমসিপি বাংলাদেশ v2.5.4",
     nav_couriers: "কুরিয়ার",
     nav_tools: "টুলস",
     nav_sandbox: "লাইভ স্যান্ডবক্স",
     nav_guide: "📖 ব্যবহার গাইড ↗",
     nav_mcp: "/mcp প্লেগ্রাউন্ড ↗",
     nav_health: "/health স্ট্যাটাস ↗",
-    cta_user_guide: "📖 ব্যবহার গাইড ও সুবিধা (User Guide) ↗",
+    cta_user_guide: "📖 ব্যবহার গাইড ও ১৫ দিন ফ্রি ট্রায়াল",
     cta_mcp_playground: "MCP প্লেগ্রাউন্ড ↗",
     cta_health_dashboard: "লাইভ সিস্টেম হেলথ ↗",
     cta_sandbox: "লাইভ স্যান্ডবক্স ট্রাই করুন",
-    cta_aura_main: "Aura মেইন সাইট ↗",
+    cta_aura_main: "Aura মেইন সাইট",
     footer_guide: "📖 ব্যবহার গাইড ও সুবিধা",
     sandbox_eyebrow: "// ইন্টারেক্টিভ লাইভ স্যান্ডবক্স",
     sandbox_heading: "ব্রাউজারেই টেস্ট করুন কুরিয়ার এআই ও জোন ক্যালকুলেটর",
@@ -533,15 +534,15 @@ const i18n = {
     fraud_operator: "টেলকো অপারেটর ও বৈধতা",
     fraud_risk_score: "রিস্ক স্কোর",
 
-    nav_glama: "গ্লামা রেজিস্ট্রি ↗",
-    nav_github: "গিটহাব ↗",
-    nav_client: "লগইন ↗",
+    nav_glama: "গ্লামা রেজিস্ট্রি",
+    nav_github: "গিটহাব",
+    nav_client: "লগইন",
     badge_glama: "Glama.ai রেজিস্টিতে ভেরিফাইড",
     badge_couriers: "৪টি কুরিয়ার + গুগল ম্যাপস লাইভ",
     hero_tagline: "এক connector — বাংলাদেশের সব courier ও spatial intelligence। Claude, Antigravity, Cursor এবং n8n AI Agents থেকে ১-ক্লিকে parcel বুক করুন, ট্র্যাক করুন এবং জিরো-রিস্ক COD নিশ্চিত করুন।",
     cta_glama: "Glama.ai-তে দেখুন",
     cta_github: "★ GitHub-এ দেখুন",
-    cta_mcp: "MCP এন্ডপয়েন্ট কানেক্ট করুন ↗",
+    cta_mcp: "MCP এন্ডপয়েন্ট কানেক্ট করুন",
     meta_tools_count: "৯টি",
     meta_tools: "এন্টারপ্রাইজ টুলস",
     meta_couriers_count: "৪টি",
@@ -606,22 +607,23 @@ const i18n = {
     vision_eyebrow: "// আমাদের ভিশন",
     vision_heading: "এক ছাদের নিচে দেশের সব commerce API",
     vision_desc: "Aura বানাচ্ছে বাংলাদেশের agentic commerce স্তর — courier, payments, spatial intelligence এবং আরও অনেক connector — যাতে যেকোনো AI স্বয়ংক্রিয়ভাবে ও বিশ্বমানের নির্ভুলতায় দেশের যেকোনো ব্যবসার অপারেশন পরিচালনা করতে পারে। মানুষের স্বপ্ন · এআই-এর হাত।",
-    footer_license: "Aura Courier MCP v2.5.3 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b>",
+    footer_license: "Aura Courier MCP v2.5.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b>",
     footer_telemetry: "লাইভ টেলিমেট্রি"
   },
   en: {
-    header_badge: "MCP Bangladesh v2.5.3",
+    header_badge: "MCP Bangladesh v2.5.4",
     nav_couriers: "Couriers",
     nav_tools: "Tools",
     nav_sandbox: "Live Sandbox",
-    nav_guide: "📖 User Guide ↗",
-    nav_mcp: "/mcp Playground ↗",
-    nav_health: "/health Status ↗",
-    cta_user_guide: "📖 User Guide & Benefits ↗",
-    cta_mcp_playground: "MCP Playground ↗",
-    cta_health_dashboard: "Live Health Telemetry ↗",
+    nav_guide: "📖 User Guide",
+    nav_pricing: "🎁 15-Day Free Trial",
+    nav_mcp: "/mcp Playground",
+    nav_health: "/health Status",
+    cta_user_guide: "📖 User Guide & 15-Day Free Trial",
+    cta_mcp_playground: "MCP Playground",
+    cta_health_dashboard: "Live Health Telemetry",
     cta_sandbox: "Try Live Sandbox",
-    cta_aura_main: "Aura Main Site ↗",
+    cta_aura_main: "Aura Main Site",
     footer_guide: "📖 User Guide & Benefits",
     sandbox_eyebrow: "// INTERACTIVE LIVE SANDBOX",
     sandbox_heading: "Test Courier AI & Zone Calculator in Browser",
@@ -639,15 +641,15 @@ const i18n = {
     fraud_operator: "Telco Operator & Validity",
     fraud_risk_score: "Risk Score",
 
-    nav_glama: "Glama Registry ↗",
-    nav_github: "GitHub ↗",
-    nav_client: "Login ↗",
+    nav_glama: "Glama Registry",
+    nav_github: "GitHub",
+    nav_client: "Login",
     badge_glama: "Verified on Glama.ai Registry",
     badge_couriers: "4 Couriers + Google Maps Live",
     hero_tagline: "One unified connector for all Bangladesh courier logistics & Google Maps spatial intelligence. Book parcels, track shipments, and eliminate COD return risk in 1-click from Claude, Antigravity, Cursor, and n8n AI Agents.",
     cta_glama: "View on Glama.ai",
     cta_github: "★ View on GitHub",
-    cta_mcp: "Connect MCP Endpoint ↗",
+    cta_mcp: "Connect MCP Endpoint",
     meta_tools_count: "9",
     meta_tools: "enterprise tools",
     meta_couriers_count: "4",
@@ -712,7 +714,7 @@ const i18n = {
     vision_eyebrow: "// THE VISION",
     vision_heading: "Bangladesh's Commerce Infrastructure, Agentic-Ready",
     vision_desc: "Aura is building the foundational agentic commerce layer for Bangladesh — couriers, payment gateways, spatial intelligence, and e-commerce connectors — enabling any AI to autonomously operate country-wide commerce with world-class precision. Human dreams powered by AI hands.",
-    footer_license: "Aura Courier MCP v2.5.3 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b>",
+    footer_license: "Aura Courier MCP v2.5.4 · Developed by <b>Aura Agentic AI</b> · Released under <b>Apache License 2.0</b>",
     footer_telemetry: "Live Telemetry"
   }
 };

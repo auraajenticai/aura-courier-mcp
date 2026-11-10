@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.5.4] - 2026-11-10
+
+### Added
+- **Standalone Courier MCP vs. Full Aura Client Dashboard Architecture Guide (`/guide#architecture`)**: Added a comprehensive bilingual comparison and module breakdown explaining how merchants can use **Aura Courier MCP Standalone** inside WooCommerce/Shopify/Custom stores or upgrade to the full **Aura Client Dashboard Suite** (`client.auraajenticai.cloud`) with 6-Pillar WhatsApp/Messenger AI Bots, 3-Column Omnichannel Inbox (`#view-inbox`), and Logistics Profit Guard (`#view-risk`).
+- **4-Platform Interactive Simulator (`/guide#simulator`)**: Upgraded the live simulator with a 4th interactive tab (**🌐 Aura Client Dashboard**) and dynamic **Delivery Zone Switcher** (`Inside Dhaka`, `Sub-Dhaka`, `Outside Dhaka`).
+- **Bangladesh (`৳ BDT`) & Global (`$ USD`) Pricing Structure + 15-Day Free Trial (`/guide#pricing`)**: Bound transparent 4-tier pricing (**15-Day Free Trial `৳0`**, **Courier MCP Starter `৳499/mo`**, **Courier MCP Pro `৳999/mo`**, and **Aura Ecosystem Suite `৳2,499/mo`**) with interactive BDT/USD and Monthly/Yearly toggles.
+- **Clean Single-Line Navigation UI**: Removed cluttering diagonal arrows (`↗`) across the landing page and guide navigation bars.
+
 ## [2.5.3] - 2026-11-10
 
 ### Added
