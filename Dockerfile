@@ -6,8 +6,9 @@ WORKDIR /app
 COPY package*.json tsconfig.json ./
 RUN npm install --no-audit --no-fund
 
-# Source + web and simulator assets
+# Source + web, static assets and simulator
 COPY src ./src
+COPY assets ./assets
 COPY README.md index.html guide.html health.html privacy.html mcp_explorer.html simulator.html ./
 RUN npm run build
 

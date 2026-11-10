@@ -60,6 +60,7 @@ const HEALTH_HTML = path.join(APP_DIR, "health.html");
 const MCP_EXPLORER_HTML = path.join(APP_DIR, "mcp_explorer.html");
 const GUIDE_HTML = path.join(APP_DIR, "guide.html");
 const SIMULATOR_HTML = path.join(APP_DIR, "simulator.html");
+const ASSETS_DIR = path.join(APP_DIR, "assets");
 
 /**
  * F04 Helper: HTML entity escaping to prevent stored/reflected XSS.
@@ -166,6 +167,14 @@ app.use((req, res, next) => {
     return res.sendStatus(204);
   }
   next();
+});
+
+// Static assets (official logo, favicons, branding)
+app.use("/assets", express.static(ASSETS_DIR, { maxAge: "7d" }));
+app.get("/favicon.ico", (_req, res) => {
+  res.sendFile(path.join(ASSETS_DIR, "courier-logo.jpg"), (err) => {
+    if (err && !res.headersSent) res.status(204).end();
+  });
 });
 
 app.use(optionalAuthMiddleware);
