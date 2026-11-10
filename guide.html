@@ -3,1065 +3,2650 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Aura Courier MCP v2.6.0 — Developer & Merchant Documentation</title>
-  <meta name="description" content="Official Developer Documentation for Aura Courier MCP v2.6.0. Seamless AI agent integration for Claude Desktop, Cursor, and n8n with Steadfast, Pathao, RedX, and Paperfly." />
+  <title>Aura Courier MCP v2.6.0 — সম্পূর্ণ ব্যবহারবিধি, ইন-ড্যাশবোর্ড সিমুলেটর ও ১৫ দিন ফ্রি ট্রায়াল প্রাইসিং</title>
+  <meta name="description" content="Complete User Guide for Aura Courier MCP v2.6.0 (Standalone Plugin vs Aura Client Dashboard Suite), Interactive 4-Platform Store Simulator, and Bangladesh (BDT) & Global Pricing with a 15-Day Free Trial." />
   <link rel="icon" type="image/jpeg" href="/assets/courier-logo.jpg" />
+  <link rel="apple-touch-icon" href="/assets/courier-app-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0b0f19;
-      --bg-card: #0f172a;
-      --bg-card-hover: #172033;
-      --bg-code: #070b12;
-      --border: rgba(148, 163, 184, 0.12);
-      --border-accent: rgba(56, 189, 248, 0.28);
+      --bg: #050811;
+      --bg-card: #0c1222;
+      --bg-card-hover: #111a30;
+      --border: rgba(56, 189, 248, 0.16);
+      --border-strong: rgba(16, 185, 129, 0.38);
       --text: #f8fafc;
       --text-muted: #94a3b8;
-      --text-dim: #64748b;
       --emerald: #10b981;
-      --emerald-glow: rgba(16, 185, 129, 0.15);
       --cyan: #06b6d4;
       --blue: #3b82f6;
-      --indigo: #6366f1;
+      --purple: #8b5cf6;
       --amber: #f59e0b;
       --rose: #f43f5e;
-      --font-mono: 'JetBrains Mono', monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       font-family: 'Inter', 'Hind Siliguri', sans-serif;
       background: var(--bg);
+      background-image:
+        radial-gradient(circle at 12% 8%, rgba(16, 185, 129, 0.09), transparent 32%),
+        radial-gradient(circle at 88% 14%, rgba(6, 182, 212, 0.09), transparent 32%),
+        radial-gradient(circle at 50% 85%, rgba(139, 92, 246, 0.06), transparent 38%);
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.65;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
     }
-    a { color: var(--cyan); text-decoration: none; transition: 0.15s; }
+    a { color: var(--cyan); text-decoration: none; transition: 0.2s; }
     a:hover { color: var(--emerald); }
 
-    /* Topbar */
+    /* Top Navigation */
     .topbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(11, 15, 25, 0.92);
+      background: rgba(5, 8, 17, 0.9);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
-      height: 60px;
-      padding: 0 24px;
+      padding: 11px 20px;
+    }
+    .topbar-inner {
+      max-width: 1260px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
     }
-    .topbar-brand {
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 800;
+      font-size: 17.5px;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1.5px solid rgba(6, 182, 212, 0.55);
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.32);
+    }
+    .badge-ver {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .lang-switch {
+      display: inline-flex;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px;
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+    .lang-btn.active {
+      background: linear-gradient(135deg, var(--emerald), var(--cyan));
+      color: #04131a;
+      font-weight: 700;
+    }
+    .nav-btn {
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.85);
+      color: #e2e8f0;
+      white-space: nowrap;
+    }
+    .nav-btn:hover {
+      border-color: var(--cyan);
+      color: #fff;
+    }
+    .nav-btn.trial {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fbbf24;
+      font-weight: 700;
+    }
+    .nav-btn.primary {
+      background: linear-gradient(135deg, var(--emerald), var(--cyan));
+      color: #031117;
+      border: none;
+      font-weight: 800;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 38px 20px 80px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      max-width: 960px;
+      margin: 0 auto 42px;
+    }
+    .hero-logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .hero-logo-wrap img {
+      width: 82px;
+      height: 82px;
+      border-radius: 20px;
+      object-fit: cover;
+      border: 2px solid rgba(6, 182, 212, 0.55);
+      box-shadow: 0 0 32px rgba(6, 182, 212, 0.35), 0 0 60px rgba(16, 185, 129, 0.15);
+    }
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 15px;
+      border-radius: 999px;
+    }
+    .hero-pill.gold {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(234, 88, 12, 0.18));
+      border-color: rgba(245, 158, 11, 0.5);
+      color: #fde68a;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+    }
+    .hero h1 {
+      font-size: clamp(25px, 3.8vw, 40px);
+      font-weight: 800;
+      line-height: 1.24;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #ffffff 20%, #67e8f9 65%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 15.5px;
+      color: var(--text-muted);
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .hero-quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .q-btn {
+      padding: 10px 18px;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      color: #f1f5f9;
+      transition: 0.2s;
+    }
+    .q-btn:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+    .q-btn.highlight {
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #03131a;
+      border: none;
+      font-weight: 800;
+      box-shadow: 0 8px 22px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Section Headings */
+    .sec-title {
       display: flex;
       align-items: center;
       gap: 12px;
+      font-size: 21px;
+      font-weight: 800;
+      margin: 52px 0 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
     }
-    .topbar-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      border: 1px solid var(--border-accent);
-      object-fit: cover;
-    }
-    .topbar-title {
-      font-weight: 700;
-      font-size: 15px;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .badge-ver {
-      background: rgba(99, 102, 241, 0.15);
-      color: #818cf8;
-      border: 1px solid rgba(99, 102, 241, 0.35);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 12px;
-      font-family: var(--font-mono);
-    }
-    .badge-status {
+    .sec-num {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--emerald);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 12px;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+      border: 1px solid var(--border-strong);
+      color: #34d399;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
     }
-    .badge-status::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--emerald);
-      box-shadow: 0 0 8px var(--emerald);
+
+    /* Grid Layouts */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
     }
-    .topbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 14px;
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+      gap: 22px;
     }
-    .btn-top {
-      font-size: 12.5px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
+    @media (max-width: 768px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
+    .card {
       background: var(--bg-card);
-      color: var(--text-muted);
-      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-strong);
+      transform: translateY(-2px);
+    }
+    .card-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      background: rgba(6, 182, 212, 0.14);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+    .card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .card p, .card li {
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+    .card ul, .card ol {
+      padding-left: 18px;
+      margin-top: 8px;
+    }
+    .card li { margin-bottom: 8px; }
+
+    /* ==========================================================================
+       SECTION 2: TWO MODES OF USE (STANDALONE MCP VS AURA CLIENT DASHBOARD)
+       ========================================================================== */
+    .arch-card-standalone {
+      background: linear-gradient(180deg, rgba(12, 18, 34, 0.96), rgba(8, 13, 26, 0.98));
+      border: 1.5px solid rgba(6, 182, 212, 0.4);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    }
+    .arch-card-suite {
+      background: linear-gradient(180deg, rgba(16, 24, 42, 0.96), rgba(9, 15, 29, 0.98));
+      border: 1.5px solid rgba(16, 185, 129, 0.45);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 30px rgba(16, 185, 129, 0.08);
+    }
+    .arch-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: 0.15s;
-    }
-    .btn-top:hover {
-      border-color: var(--cyan);
-      color: #fff;
-    }
-    .btn-top.active-lang {
-      background: rgba(6, 182, 212, 0.12);
-      border-color: var(--cyan);
-      color: var(--cyan);
-    }
-    .btn-sim {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #34d399;
-    }
-    .btn-sim:hover {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(6, 182, 212, 0.3));
-      color: #fff;
-    }
-
-    /* Layout: 3 Columns */
-    .docs-container {
-      display: flex;
-      max-width: 1440px;
-      width: 100%;
-      margin: 0 auto;
-      flex: 1;
-    }
-    
-    /* Left Sidebar */
-    .docs-sidebar {
-      width: 250px;
-      position: sticky;
-      top: 60px;
-      height: calc(100vh - 60px);
-      overflow-y: auto;
-      border-right: 1px solid var(--border);
-      padding: 24px 16px;
-      flex-shrink: 0;
-    }
-    .nav-group-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--text-dim);
-      margin: 20px 0 8px 10px;
-    }
-    .nav-group-title:first-child { margin-top: 0; }
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--text-muted);
-      padding: 7px 10px;
-      border-radius: 6px;
-      font-weight: 500;
-      transition: 0.15s;
-    }
-    .nav-link:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.04);
-    }
-    .nav-link.active {
-      color: var(--emerald);
-      background: var(--emerald-glow);
-      font-weight: 600;
-    }
-    .nav-link .tool-pill {
-      font-size: 10px;
-      font-family: var(--font-mono);
-      background: rgba(255, 255, 255, 0.06);
-      padding: 1px 5px;
-      border-radius: 4px;
-      margin-left: auto;
-      color: var(--text-dim);
-    }
-
-    /* Main Content */
-    .docs-main {
-      flex: 1;
-      max-width: 800px;
-      padding: 36px 40px 60px 40px;
-      border-right: 1px solid var(--border);
-    }
-    .docs-header {
-      margin-bottom: 32px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    .docs-title {
-      font-size: 28px;
+      font-size: 11.5px;
       font-weight: 800;
-      color: #fff;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-    }
-    .docs-subtitle {
-      font-size: 15px;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-
-    /* Section Styling */
-    .doc-section {
-      margin-bottom: 48px;
-      scroll-margin-top: 80px;
-    }
-    .doc-h2 {
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
+      padding: 4px 12px;
+      border-radius: 999px;
       margin-bottom: 12px;
+    }
+    .arch-badge.cyan {
+      background: rgba(6, 182, 212, 0.16);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+    .arch-badge.emerald {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .feature-module-list {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
     }
-    .doc-h3 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #e2e8f0;
-      margin: 24px 0 10px 0;
+    .f-mod-item {
+      background: rgba(15, 23, 42, 0.78);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 12px;
+      padding: 12px 14px;
     }
-    .doc-p {
-      font-size: 14.5px;
-      color: #cbd5e1;
-      margin-bottom: 14px;
-      line-height: 1.65;
-    }
-    .callout {
-      background: rgba(16, 185, 129, 0.08);
-      border-left: 3px solid var(--emerald);
-      padding: 14px 18px;
-      border-radius: 0 8px 8px 0;
-      margin: 18px 0;
+    .f-mod-title {
       font-size: 13.5px;
-      color: #d1fae5;
-    }
-    .callout.alert {
-      background: rgba(244, 63, 94, 0.08);
-      border-left-color: var(--rose);
-      color: #ffe4e6;
-    }
-    .callout.info {
-      background: rgba(6, 182, 212, 0.08);
-      border-left-color: var(--cyan);
-      color: #cffafe;
-    }
-
-    /* Tables */
-    .param-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0 24px 0;
-      font-size: 13px;
-    }
-    .param-table th {
-      text-align: left;
-      padding: 9px 12px;
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text-muted);
-      font-weight: 600;
-      border-bottom: 1px solid var(--border);
-    }
-    .param-table td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      color: #cbd5e1;
-      vertical-align: top;
-    }
-    .param-table code {
-      font-family: var(--font-mono);
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-    .badge-req {
-      color: #f43f5e;
-      font-size: 11px;
       font-weight: 700;
-    }
-    .badge-opt {
-      color: #64748b;
-      font-size: 11px;
-    }
-
-    /* Code Blocks */
-    .code-block {
-      background: var(--bg-code);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin: 14px 0 20px 0;
-      overflow: hidden;
-      font-family: var(--font-mono);
-      font-size: 12.5px;
-    }
-    .code-header {
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid var(--border);
-      color: var(--text-dim);
-      font-size: 11.5px;
+      gap: 8px;
+      margin-bottom: 4px;
     }
-    .btn-copy {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      border-radius: 4px;
-      padding: 2px 8px;
-      font-size: 11px;
-      cursor: pointer;
-      transition: 0.15s;
+    .f-mod-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(56, 189, 248, 0.14);
+      color: #38bdf8;
     }
-    .btn-copy:hover {
-      color: #fff;
-      border-color: var(--cyan);
-    }
-    pre {
-      padding: 12px 14px;
-      overflow-x: auto;
-      color: #e2e8f0;
-      line-height: 1.55;
+    .f-mod-desc {
+      font-size: 12.5px;
+      color: #cbd5e1;
+      line-height: 1.5;
     }
 
-    /* Right Docked Snippets Sidebar */
-    .docs-dock {
-      width: 380px;
-      position: sticky;
-      top: 60px;
-      height: calc(100vh - 60px);
-      overflow-y: auto;
-      padding: 24px 20px;
-      flex-shrink: 0;
-      background: rgba(15, 23, 42, 0.35);
+    /* Comparison Table */
+    .comp-table-wrap {
+      margin-top: 22px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow-x: auto;
     }
-    .dock-title {
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      text-align: left;
+    }
+    .comp-table th, .comp-table td {
+      padding: 13px 18px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .comp-table th {
+      background: rgba(15, 23, 42, 0.9);
+      color: #fff;
+      font-weight: 800;
       font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #cbd5e1;
-      margin-bottom: 12px;
+    }
+    .comp-table tr:last-child td { border-bottom: none; }
+    .chk-yes { color: #34d399; font-weight: 700; }
+    .chk-opt { color: #94a3b8; font-size: 12px; }
+
+    /* ==========================================================================
+       SECTION 3: INTERACTIVE 4-PLATFORM SIMULATOR
+       ========================================================================== */
+    .sim-wrapper {
+      background: linear-gradient(180deg, rgba(12, 18, 34, 0.95), rgba(7, 11, 22, 0.98));
+      border: 1px solid rgba(6, 182, 212, 0.32);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 40px rgba(6, 182, 212, 0.08);
+      margin-bottom: 16px;
+    }
+    .sim-top-controls {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .sim-tabs {
+      display: flex;
+      flex-wrap: wrap;
       gap: 8px;
     }
-    .dock-tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 8px;
-    }
-    .dock-tab-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-dim);
-      font-size: 12px;
-      font-weight: 600;
+    .sim-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 15px;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
       cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: 0.15s;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: #0f172a;
+      color: #cbd5e1;
+      transition: 0.22s;
     }
-    .dock-tab-btn:hover { color: #fff; }
-    .dock-tab-btn.active {
-      color: var(--cyan);
-      background: rgba(6, 182, 212, 0.12);
+    .sim-tab:hover {
+      border-color: rgba(6, 182, 212, 0.45);
+      color: #fff;
     }
-    .dock-snippet {
+    .sim-tab.active-woo {
+      background: linear-gradient(135deg, #7e3af2, #6c2bd9);
+      color: #fff;
+      border-color: #a78bfa;
+      box-shadow: 0 8px 22px rgba(126, 58, 242, 0.35);
+    }
+    .sim-tab.active-shopify {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #fff;
+      border-color: #34d399;
+      box-shadow: 0 8px 22px rgba(16, 185, 129, 0.35);
+    }
+    .sim-tab.active-custom {
+      background: linear-gradient(135deg, #2563eb, #0284c7);
+      color: #fff;
+      border-color: #60a5fa;
+      box-shadow: 0 8px 22px rgba(37, 99, 235, 0.35);
+    }
+    .sim-tab.active-aura {
+      background: linear-gradient(135deg, #0d9488, #0284c7);
+      color: #fff;
+      border-color: #5eead4;
+      box-shadow: 0 8px 22px rgba(13, 148, 136, 0.4);
+    }
+    .sim-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    .sim-fraud-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 15px;
+      border-radius: 11px;
+      font-size: 12.5px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      background: rgba(245, 158, 11, 0.14);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.42);
+      transition: 0.2s;
+    }
+    .sim-fraud-toggle:hover {
+      background: rgba(245, 158, 11, 0.25);
+      transform: translateY(-1px);
+    }
+
+    /* Browser Frame */
+    .browser-window {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: #0b1120;
+    }
+    .browser-bar {
+      background: #070b14;
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .browser-dots {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .b-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .browser-url {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #94a3b8;
+      background: #111827;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 5px 14px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .browser-body {
+      display: grid;
+      grid-template-columns: 215px 1fr;
+      min-height: 550px;
+    }
+    @media (max-width: 980px) {
+      .browser-body { grid-template-columns: 1fr; }
+      .store-sidebar { display: none; }
+    }
+
+    /* Store Left Sidebar */
+    .store-sidebar {
+      background: #080d1a;
+      border-right: 1px solid rgba(148, 163, 184, 0.14);
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .store-brand-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      margin-bottom: 12px;
+    }
+    .store-brand-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: #fff;
+      background: #7e3af2;
+    }
+    .store-nav-item {
+      padding: 8px 11px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .store-nav-item.active {
+      background: rgba(6, 182, 212, 0.14);
+      color: #38bdf8;
+      font-weight: 700;
+      border: 1px solid rgba(6, 182, 212, 0.28);
+    }
+    .store-vault-pill {
+      padding: 11px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      font-size: 11px;
+      color: #a7f3d0;
+    }
+
+    /* Store Main Workspace */
+    .store-workspace {
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 7fr 5fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .store-workspace { grid-template-columns: 1fr; }
+    }
+
+    .order-col {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .order-head-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .order-id-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .order-status-pill {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .order-status-pill.shipped {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    /* Aura 6-Pillar AI Chat Extraction Banner (Visible when Aura Client Dashboard tab is active) */
+    .ai-chat-banner {
       display: none;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.16), rgba(6, 182, 212, 0.12));
+      border: 1px solid rgba(139, 92, 246, 0.45);
+      border-radius: 12px;
+      padding: 12px 15px;
+      font-size: 12.5px;
+      color: #e2e8f0;
     }
-    .dock-snippet.active {
+    .ai-chat-banner.show {
       display: block;
     }
 
-    /* Language Switch Visibility */
-    [data-lang="en"] { display: none; }
-    [data-lang="bn"] { display: block; }
-    body.lang-en [data-lang="en"] { display: block; }
-    body.lang-en [data-lang="bn"] { display: none; }
-    span[data-lang="en"], a[data-lang="en"], code[data-lang="en"], strong[data-lang="en"], em[data-lang="en"] {
+    /* Booked Consignment Banner */
+    .booked-banner {
       display: none;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(6, 182, 212, 0.12));
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      border-radius: 13px;
+      padding: 14px 16px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
     }
-    span[data-lang="bn"], a[data-lang="bn"], code[data-lang="bn"], strong[data-lang="bn"], em[data-lang="bn"] {
-      display: inline;
+    .booked-banner.show {
+      display: flex;
     }
-    body.lang-en span[data-lang="en"], body.lang-en a[data-lang="en"], body.lang-en code[data-lang="en"], body.lang-en strong[data-lang="en"], body.lang-en em[data-lang="en"] {
-      display: inline;
+    .print-label-btn {
+      background: #10b981;
+      color: #03131a;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s;
     }
-    body.lang-en span[data-lang="bn"], body.lang-en a[data-lang="bn"], body.lang-en code[data-lang="bn"], body.lang-en strong[data-lang="bn"], body.lang-en em[data-lang="bn"] {
+    .print-label-btn:hover {
+      background: #34d399;
+      transform: translateY(-1px);
+    }
+
+    /* Store Sub-cards */
+    .store-box {
+      background: #111827;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 13px;
+      padding: 16px;
+    }
+    .store-box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .cust-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 13px;
+    }
+    @media (max-width: 540px) {
+      .cust-grid { grid-template-columns: 1fr; }
+    }
+    .cust-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+    .cust-val {
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+    .cust-phone {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    }
+    .item-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .item-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 9px;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .stock-pill {
+      font-size: 10.5px;
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      padding: 1px 7px;
+      border-radius: 5px;
+      font-weight: 600;
+    }
+
+    /* Right Column: Aura Courier MCP Metabox Widget */
+    .aura-widget {
+      background: linear-gradient(180deg, #0d1629 0%, #080e1c 100%);
+      border: 1.5px solid rgba(6, 182, 212, 0.45);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 0 32px rgba(6, 182, 212, 0.14);
+      position: relative;
+    }
+    .aura-widget-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      margin-bottom: 14px;
+    }
+    .aura-widget-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .aura-widget-brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid rgba(6, 182, 212, 0.5);
+    }
+    .vault-live-pill {
+      font-size: 10.5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    /* Fraud Check Box inside Widget */
+    .fraud-card {
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      transition: 0.25s;
+    }
+    .fraud-card.safe {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .fraud-card.risk {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.45);
+    }
+    .fraud-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .fraud-title {
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .fraud-card.safe .fraud-title { color: #34d399; }
+    .fraud-card.risk .fraud-title { color: #fb7185; }
+    .fraud-score-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      color: #fff;
+    }
+    .fraud-card.safe .fraud-score-badge { background: #059669; }
+    .fraud-card.risk .fraud-score-badge { background: #e11d48; }
+    .fraud-desc {
+      font-size: 11.5px;
+      color: #cbd5e1;
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+    .fraud-MINI-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(148, 163, 184, 0.15);
+      text-align: center;
+      font-size: 10.5px;
+      color: #94a3b8;
+    }
+    .fraud-MINI-grid strong {
+      display: block;
+      font-size: 12px;
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* 4-Carrier Grid */
+    .carrier-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .carrier-opt {
+      background: #111827;
+      border: 1.5px solid rgba(148, 163, 184, 0.2);
+      border-radius: 10px;
+      padding: 9px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: 0.18s;
+      color: #e2e8f0;
+      font-family: inherit;
+      text-align: left;
+    }
+    .carrier-opt:hover {
+      border-color: rgba(6, 182, 212, 0.5);
+    }
+    .carrier-opt.selected {
+      background: rgba(6, 182, 212, 0.14);
+      border-color: #06b6d4;
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.22);
+    }
+    .carrier-name {
+      font-size: 12px;
+      font-weight: 700;
+      display: block;
+    }
+    .carrier-sla {
+      font-size: 10px;
+      color: #94a3b8;
+    }
+    .carrier-rate {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #34d399;
+    }
+
+    /* Weight & COD Row */
+    .widget-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .w-input-box {
+      background: #111827;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 9px;
+      padding: 6px 10px;
+    }
+    .w-input-box label {
+      display: block;
+      font-size: 10px;
+      color: #94a3b8;
+    }
+    .w-input-box input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .book-now-btn {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 11px;
+      border: none;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #03131a;
+      font-size: 13px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+      transition: 0.2s;
+    }
+    .book-now-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(6, 182, 212, 0.4);
+    }
+    .book-now-btn.booked {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+    }
+
+    /* ==========================================================================
+       SECTION 4: BANGLADESH (BDT) & GLOBAL PRICING + 15-DAY FREE TRIAL
+       ========================================================================== */
+    .trial-hero-banner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.16) 0%, rgba(6, 182, 212, 0.14) 55%, rgba(245, 158, 11, 0.14) 100%);
+      border: 1.5px solid rgba(16, 185, 129, 0.45);
+      border-radius: 18px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    }
+    .trial-badge-big {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #f59e0b;
+      color: #050811;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .pricing-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .p-toggle-group {
+      display: inline-flex;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .p-toggle-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s;
+    }
+    .p-toggle-btn.active {
+      background: linear-gradient(135deg, var(--emerald), var(--cyan));
+      color: #03131a;
+      font-weight: 800;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
+      gap: 18px;
+      align-items: stretch;
+    }
+    .price-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: 0.25s;
+    }
+    .price-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--cyan);
+    }
+    .price-card.popular {
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.11) 0%, rgba(12, 18, 34, 0.98) 100%);
+      border: 2px solid #10b981;
+      box-shadow: 0 20px 50px rgba(16, 185, 129, 0.16);
+    }
+    .price-card.suite {
+      background: linear-gradient(180deg, rgba(139, 92, 246, 0.12) 0%, rgba(12, 18, 34, 0.98) 100%);
+      border: 1.5px solid rgba(139, 92, 246, 0.55);
+    }
+    .pop-ribbon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #03131a;
+      font-size: 10.5px;
+      font-weight: 900;
+      padding: 3px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .p-tier-name {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .p-tier-sub {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      min-height: 36px;
+    }
+    .p-amount-box {
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    .p-amount {
+      font-size: 30px;
+      font-weight: 900;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .p-period {
+      font-size: 12.5px;
+      color: #94a3b8;
+    }
+    .p-trial-note {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.13);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .p-feat-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px;
+      font-size: 12.8px;
+      color: #cbd5e1;
+    }
+    .p-feat-list li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.45;
+    }
+    .p-feat-list li span.ic-ok {
+      color: #34d399;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+    .p-cta-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      background: rgba(6, 182, 212, 0.14);
+      color: #67e8f9;
+      transition: 0.2s;
+    }
+    .p-cta-btn:hover {
+      background: var(--cyan);
+      color: #03131a;
+    }
+    .price-card.popular .p-cta-btn {
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #03131a;
+      border: none;
+    }
+    .price-card.suite .p-cta-btn {
+      background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+      color: #fff;
+      border: none;
+    }
+
+    /* Step Pills & Code */
+    .step-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-right: 6px;
+    }
+    .code-box {
+      background: #050811;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #67e8f9;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .vault-banner {
+      margin-top: 28px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.08));
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 16px;
+      padding: 22px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    /* Language visibility helper */
+    body.lang-bn [data-lang="en"] { display: none !important; }
+    body.lang-en [data-lang="bn"] { display: none !important; }
+
+    .cta-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .btn-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      cursor: pointer;
+    }
+    .btn-sm:hover {
+      background: var(--emerald);
+      color: #03131a;
+    }
+
+    /* Thermal Label Print Modal */
+    .label-modal-backdrop {
       display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(3, 7, 18, 0.82);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .label-modal-backdrop.open {
+      display: flex;
+    }
+    .thermal-label-card {
+      background: #ffffff;
+      color: #0f172a;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+    }
+    .thermal-border {
+      border: 2px solid #0f172a;
+      padding: 14px;
+      border-radius: 8px;
+    }
+    .thermal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    .thermal-barcode {
+      font-family: 'JetBrains Mono', monospace;
+      text-align: center;
+      padding: 10px 0;
+      border-bottom: 1.5px dashed #334155;
+      margin-bottom: 10px;
+    }
+    .barcode-bars {
+      font-size: 26px;
+      letter-spacing: 3px;
+      font-weight: 900;
+      line-height: 1;
+      color: #000;
     }
 
     /* Footer */
-    .docs-footer {
+    .footer {
+      margin-top: 60px;
+      padding-top: 24px;
       border-top: 1px solid var(--border);
-      background: #070a13;
-      padding: 24px;
       text-align: center;
-      font-size: 12.5px;
-      color: var(--text-dim);
-    }
-
-    /* Responsive */
-    @media (max-width: 1200px) {
-      .docs-dock { display: none; }
-    }
-    @media (max-width: 800px) {
-      .docs-sidebar { display: none; }
-      .docs-main { padding: 24px 16px; border-right: none; }
+      font-size: 13px;
+      color: var(--text-muted);
     }
   </style>
 </head>
-<body>
+<body class="lang-both">
 
-  <!-- Topbar -->
+  <!-- TOP NAVIGATION (Zero Diagonal Arrows) -->
   <header class="topbar">
-    <div class="topbar-brand">
-      <img src="/assets/courier-logo.jpg" alt="Aura Courier MCP Logo" class="topbar-logo" onerror="this.onerror=null; this.src='/assets/courier-logo.png';" />
-      <span class="topbar-title">
-        Aura Courier MCP
+    <div class="topbar-inner">
+      <a href="/" class="brand">
+        <img src="/assets/courier-logo.jpg" alt="Aura Courier MCP Official Logo" />
+        <span>Aura Courier MCP</span>
         <span class="badge-ver">v2.6.0</span>
-      </span>
-      <span class="badge-status">
-        <span data-lang="bn">৪টি কুরিয়ার সচল</span>
-        <span data-lang="en">4 Couriers Active</span>
-      </span>
-    </div>
+      </a>
 
-    <div class="topbar-actions">
-      <a href="/simulator" class="btn-top btn-sim" target="_blank">
-        <span>🧪</span>
-        <span data-lang="bn">স্টোর সিমুলেটর</span>
-        <span data-lang="en">Store Simulator</span>
-      </a>
-      <a href="/health" class="btn-top" target="_blank">
-        <span data-lang="bn">সার্ভার হেলথ</span>
-        <span data-lang="en">Health API</span>
-      </a>
-      <a href="https://github.com/auraajenticai/aura-courier-mcp" class="btn-top" target="_blank">
-        <span>GitHub</span>
-      </a>
-      <button id="langToggle" class="btn-top" onclick="toggleLanguage()">
-        <span id="langLabel">English</span>
-      </button>
+      <div class="nav-actions">
+        <div class="lang-switch" role="group" aria-label="Language Switcher">
+          <button class="lang-btn active" onclick="setGuideLang('both')" id="btn-both">🇧🇩 বাংলা + 🇬🇧 EN</button>
+          <button class="lang-btn" onclick="setGuideLang('bn')" id="btn-bn">🇧🇩 শুধু বাংলা</button>
+          <button class="lang-btn" onclick="setGuideLang('en')" id="btn-en">🇬🇧 English Only</button>
+        </div>
+        <a href="#architecture" class="nav-btn">🧩 MCP vs Dashboard</a>
+        <a href="#simulator" class="nav-btn">🎛️ Live Simulator</a>
+        <a href="#pricing" class="nav-btn trial">🎁 ১৫ দিন ফ্রি ট্রায়াল ও প্রাইসিং</a>
+        <a href="/" class="nav-btn">🏠 Home</a>
+        <a href="https://client.auraajenticai.cloud/#view-courier" class="nav-btn primary">🚀 Login to Portal</a>
+      </div>
     </div>
   </header>
 
-  <!-- Docs Container -->
-  <div class="docs-container">
+  <main class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-logo-wrap">
+        <img src="/assets/courier-logo.jpg" alt="Aura Courier MCP" />
+      </div>
+      <div class="hero-pills">
+        <span class="hero-pill">🛡️ 100% Real-Time Fraud Shield • 4-Carrier 1-Click Dispatch</span>
+        <span class="hero-pill gold">🎁 প্রথম ১৫ দিন সম্পূর্ণ ফ্রি ট্রায়াল (15-Day 100% Free Trial)</span>
+      </div>
+      <h1 data-lang="bn">Aura Courier MCP — ব্যবহারবিধি, স্টোর সিমুলেটর ও ১৫ দিনের ফ্রি ট্রায়াল গাইড</h1>
+      <h1 data-lang="en">Aura Courier MCP — Complete User Guide, Store Simulator &amp; 15-Day Free Trial</h1>
+      <p data-lang="bn">
+        আপনি কি <b>শুধুমাত্র Aura Courier MCP</b> আপনার নিজস্ব ওয়েবসাইটে (WooCommerce, Shopify বা কাস্টম স্টোরে) ব্যবহার করতে চান, নাকি <b>Aura Client Dashboard</b>-এর পূর্ণাঙ্গ ৬-পিলার AI বট ও অমনিচ্যানেল ইনবক্সসহ ব্যবহার করতে চান? নিচে দুইটি পদ্ধতির সহজ ব্যাখ্যা, লাইভ সিমুলেটর এবং বাংলাদেশ অনুযায়ী সাশ্রয়ী প্রাইসিং দেওয়া হলো।
+      </p>
+      <p data-lang="en" style="margin-top:8px;">
+        Whether you want to use <b>Aura Courier MCP Standalone</b> inside your own WooCommerce, Shopify, or Custom store, or unlock the full <b>Aura Client Dashboard Suite</b> with 6-Pillar WhatsApp/Messenger AI Bots &amp; Omnichannel Inbox—explore the complete breakdown, live interactive mockup, and 15-day free trial pricing below.
+      </p>
+      <div class="hero-quick-links">
+        <a href="#architecture" class="q-btn">🧩 শুধুমাত্র MCP বনাম Client Dashboard পার্থক্য</a>
+        <a href="#simulator" class="q-btn">🎛️ লাইভ স্টোর ও ড্যাশবোর্ড সিমুলেটর</a>
+        <a href="#pricing" class="q-btn highlight">🎁 ১৫ দিন ফ্রি ট্রায়াল ও বিডি প্রাইসিং দেখুন</a>
+      </div>
+    </section>
 
-    <!-- Left Sticky Sidebar -->
-    <aside class="docs-sidebar">
-      <div class="nav-group-title" data-lang="bn">শুরু করুন</div>
-      <div class="nav-group-title" data-lang="en">GETTING STARTED</div>
-      <a href="#quickstart" class="nav-link active">⚡ <span data-lang="bn">৬০-সেকেন্ড কুইকস্টার্ট</span><span data-lang="en">60-Sec Quickstart</span></a>
-      <a href="#connectors" class="nav-link">🤖 <span data-lang="bn">এআই এজেন্ট কানেকশন</span><span data-lang="en">AI Agent Setup</span></a>
-      <a href="#auth" class="nav-link">🔐 <span data-lang="bn">অথেন্টিকেশন ও ভল্ট</span><span data-lang="en">Auth &amp; BYOK Vault</span></a>
+    <!-- SECTION 1: WHY USE AURA COURIER MCP (BENEFITS) -->
+    <div class="sec-title">
+      <span class="sec-num">01</span>
+      <span data-lang="bn">এটি ব্যবহার করলে আপনার লাভ কী? (প্রধান বিজনেস সুবিধাসমূহ)</span>
+      <span data-lang="en">Why Use Aura Courier MCP? (Core Business Benefits)</span>
+    </div>
 
-      <div class="nav-group-title" data-lang="bn">১২টি এমসিপি টুলস</div>
-      <div class="nav-group-title" data-lang="en">12 MCP TOOLS</div>
-      <a href="#tool-list" class="nav-link"><span>list_couriers</span><span class="tool-pill">GET</span></a>
-      <a href="#tool-create" class="nav-link"><span>create_parcel</span><span class="tool-pill">POST</span></a>
-      <a href="#tool-track" class="nav-link"><span>track_parcel</span><span class="tool-pill">GET</span></a>
-      <a href="#tool-balance" class="nav-link"><span>get_balance</span><span class="tool-pill">GET</span></a>
-      <a href="#tool-fraud" class="nav-link"><span>check_fraud_risk</span><span class="tool-pill">AI</span></a>
-      <a href="#tool-cancel" class="nav-link"><span>cancel_parcel</span><span class="tool-pill">POST</span></a>
-      <a href="#tool-rates" class="nav-link"><span>compare_courier_rates</span><span class="tool-pill">CALC</span></a>
-      <a href="#tool-zone" class="nav-link"><span>calculate_delivery_zone</span><span class="tool-pill">GEO</span></a>
-      <a href="#tool-geocode" class="nav-link"><span>validate_address</span><span class="tool-pill">MAPS</span></a>
-      <a href="#tool-ndr" class="nav-link"><span>resolve_ndr_issue</span><span class="tool-pill">NDR</span></a>
-      <a href="#tool-bulk" class="nav-link"><span>bulk_create_parcels</span><span class="tool-pill">BATCH</span></a>
-      <a href="#tool-webhooks" class="nav-link"><span>get_webhook_events</span><span class="tool-pill">STREAM</span></a>
-
-      <div class="nav-group-title" data-lang="bn">সিকিউরিটি ও নিয়মাবলী</div>
-      <div class="nav-group-title" data-lang="en">SECURITY &amp; POLICY</div>
-      <a href="#cancel-matrix" class="nav-link">❌ <span data-lang="bn">ক্যানসেলেশন ম্যাট্রিক্স</span><span data-lang="en">Cancel Matrix</span></a>
-      <a href="#webhooks" class="nav-link">🔔 <span data-lang="bn">নেটিভ ওয়েবহুকস</span><span data-lang="en">Carrier Webhooks</span></a>
-      <a href="#privacy" class="nav-link">🛡️ <span data-lang="bn">প্রাইভেসি ও পিআইআই</span><span data-lang="en">PII &amp; Audit Logs</span></a>
-    </aside>
-
-    <!-- Center Documentation Body -->
-    <main class="docs-main">
-      
-      <!-- Header -->
-      <div class="docs-header">
-        <h1 class="docs-title">
-          <span data-lang="bn">Aura Courier MCP ডেভেলপার গাইড</span>
-          <span data-lang="en">Aura Courier MCP Developer Guide</span>
-        </h1>
-        <p class="docs-subtitle">
-          <span data-lang="bn">বাংলাদেশের শীর্ষ ৪টি কুরিয়ার (Steadfast, Pathao, RedX, Paperfly)-এর জন্য একমাত্র ওপেন-স্ট্যান্ডার্ড Model Context Protocol (MCP) গেটওয়ে। Claude Desktop, Cursor, Antigravity এবং কাস্টম AI এজেন্টের সাথে ১-ক্লিকে ইন্টিগ্রেশন।</span>
-          <span data-lang="en">The enterprise unified Model Context Protocol (MCP) gateway for Bangladesh logistics (Steadfast, Pathao, RedX, Paperfly). Seamless native integrations for Claude Desktop, Cursor, and agentic workflows.</span>
+    <div class="grid-3">
+      <div class="card">
+        <span class="card-tag">100% Real-Time • Zero Mock Data</span>
+        <h3 data-lang="bn">১. ফেক অর্ডার ও পার্সেল রিটার্ন (RTO) ৩০%–৪০% কমান</h3>
+        <h3 data-lang="en">1. Cut Fake Orders &amp; RTO Losses by 30%–40%</h3>
+        <p data-lang="bn">
+          পার্সেল পাঠানোর আগেই কাস্টমারের ১১-ডিজিট মোবাইল নাম্বার দিয়ে <b>Steadfast Nationwide Logistics Database</b> থেকে কাস্টমারের অতীত ডেলিভারি রেকর্ড, সাকসেস রেট (%) এবং রিটার্ন সংখ্যা রিয়েল-টাইমে চেক করে নেয়। কোনো হার্ডকোডেড বা ফেক ডাটা নেই।
+        </p>
+        <p data-lang="en" style="margin-top:8px">
+          Before booking any parcel, Aura checks the customer's 11-digit BD mobile number against the live <b>Steadfast Nationwide Logistics Database</b> to return real delivery counts, cancellation history, and risk score—with zero mock or hardcoded data.
         </p>
       </div>
 
-      <!-- Quickstart -->
-      <section id="quickstart" class="doc-section">
-        <h2 class="doc-h2">
-          <span>⚡</span>
-          <span data-lang="bn">১. ৬০-সেকেন্ড রিমোট কুইকস্টার্ট</span>
-          <span data-lang="en">1. 60-Second Remote Quickstart</span>
-        </h2>
-        <p class="doc-p">
-          <span data-lang="bn">Aura Courier MCP সম্পূর্ণ ডুয়াল-ট্রান্সপোর্ট আর্কিটেকচার সমর্থন করে—অফিসিয়াল <b>Server-Sent Events (SSE)</b> এবং <b>Streamable HTTP</b>। কোনো লোকাল নোড প্রসেস বা ইনস্টলেশন ছাড়াই সরাসরি লাইভ সার্ভারের সাথে সংযুক্ত হতে পারেন:</span>
-          <span data-lang="en">Aura Courier MCP natively supports dual transports: <b>Server-Sent Events (SSE)</b> and <b>Streamable HTTP</b>. Connect directly to the production cloud endpoint without local Node.js binaries:</span>
+      <div class="card">
+        <span class="card-tag">In-Dashboard • Zero Portal Switching</span>
+        <h3 data-lang="bn">২. আপনার নিজের স্টোরের ভেতরেই ৪ কুরিয়ারে ১-ক্লিক বুকিং</h3>
+        <h3 data-lang="en">2. 1-Click 4-Carrier Booking Inside Your Own Store</h3>
+        <p data-lang="bn">
+          আলাদা করে Steadfast, Pathao, RedX বা Paperfly পোর্টালে লগইন করে কপি-পেস্ট করতে হবে না। আপনার <b>WooCommerce / Shopify / Custom Admin</b>-এর অর্ডার পেজেই অটো উইজেট চলে আসবে—সেখান থেকেই ১-ক্লিকে বুকিং ও ৪x৬ থার্মাল লেবেল প্রিন্ট করতে পারবেন।
         </p>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span>Production MCP Endpoints</span>
-            <button class="btn-copy" onclick="copySnippet('sse-url')">Copy URL</button>
-          </div>
-          <pre><code id="sse-url"># 1. Official SSE Transport (Claude Desktop / Cursor / Smithery)
-https://courier.auraajenticai.cloud/sse?token=YOUR_API_KEY
-
-# 2. Streamable HTTP Transport (LibreChat / Custom Gateways)
-https://courier.auraajenticai.cloud/mcp?token=YOUR_API_KEY</code></pre>
-        </div>
-
-        <div class="callout info">
-          <strong><span data-lang="bn">প্রোটোকল নোট:</span><span data-lang="en">Protocol Note:</span></strong>
-          <span data-lang="bn">আমাদের সার্ভার স্বয়ংক্রিয়ভাবে <code>Accept</code> হেডার নরমালাইজ করে। যেকোনো AI এজেন্ট (Cursor, Glama, LibreChat) <code>Accept: application/json</code> পাঠালেও সার্ভার কখনোই 406 Error দেবে না।</span>
-          <span data-lang="en">Our gateway automatically normalizes the <code>Accept</code> header. AI clients sending <code>Accept: application/json</code> will never receive HTTP 406 Not Acceptable.</span>
-        </div>
-      </section>
-
-      <!-- Connectors -->
-      <section id="connectors" class="doc-section">
-        <h2 class="doc-h2">
-          <span>🤖</span>
-          <span data-lang="bn">২. AI এজেন্ট কনফিগারেশন</span>
-          <span data-lang="en">2. AI Agent Configuration</span>
-        </h2>
-        
-        <h3 class="doc-h3">Anthropic Claude Desktop</h3>
-        <p class="doc-p">
-          <span data-lang="bn">আপনার <code>claude_desktop_config.json</code> ফাইলে নিচের কনফিগারেশনটি পেস্ট করুন:</span>
-          <span data-lang="en">Add the following snippet to your <code>claude_desktop_config.json</code>:</span>
-        </p>
-        <div class="code-block">
-          <div class="code-header">
-            <span>claude_desktop_config.json</span>
-            <button class="btn-copy" onclick="copySnippet('claude-cfg')">Copy Config</button>
-          </div>
-          <pre><code id="claude-cfg">{
-  "mcpServers": {
-    "aura-courier": {
-      "url": "https://courier.auraajenticai.cloud/sse?token=aura_live_mcp_master_key_2026"
-    }
-  }
-}</code></pre>
-        </div>
-
-        <h3 class="doc-h3">Cursor AI (Cursor Rules / Features)</h3>
-        <p class="doc-p">
-          <span data-lang="bn">Cursor Settings &gt; Features &gt; MCP &gt; Add New MCP Server নির্বাচন করুন:</span>
-          <span data-lang="en">Navigate to Cursor Settings &gt; Features &gt; MCP &gt; Add New MCP Server:</span>
-        </p>
-        <div class="code-block">
-          <div class="code-header">
-            <span>Cursor Server Config</span>
-            <button class="btn-copy" onclick="copySnippet('cursor-cfg')">Copy Config</button>
-          </div>
-          <pre><code id="cursor-cfg">Name: aura-courier
-Type: sse
-URL:  https://courier.auraajenticai.cloud/sse?token=aura_live_mcp_master_key_2026</code></pre>
-        </div>
-      </section>
-
-      <!-- Auth & Vault -->
-      <section id="auth" class="doc-section">
-        <h2 class="doc-h2">
-          <span>🔐</span>
-          <span data-lang="bn">৩. অথেন্টিকেশন ও ক্রিপ্টোগ্রাফিক ভল্ট</span>
-          <span data-lang="en">3. Authentication &amp; Vault Isolation</span>
-        </h2>
-        <p class="doc-p">
-          <span data-lang="bn">Aura Courier MCP সম্পূর্ণ <b>Zero-Knowledge Multi-Tenant Vault</b> নীতিতে পরিচালিত হয়। প্রতিটি মার্চেন্টের কুরিয়ার ক্রেডেনশিয়াল (Steadfast API Key, Pathao Client Secret, RedX Token) AES-256 এনক্রিপশনে তাদের নিজস্ব টেন্যান্টে সীমাবদ্ধ থাকে।</span>
-          <span data-lang="en">Aura Courier MCP operates under a strict <b>Zero-Knowledge Multi-Tenant Vault</b> policy. Each merchant's carrier credentials are isolated under AES-256 cryptographic vaults.</span>
-        </p>
-        <table class="param-table">
-          <thead>
-            <tr>
-              <th><span data-lang="bn">অথেন্টিকেশন মেথড</span><span data-lang="en">Auth Method</span></th>
-              <th><span data-lang="bn">ব্যবহারের ক্ষেত্র</span><span data-lang="en">Usage</span></th>
-              <th><span data-lang="bn">অনুমতি ও এক্সেস</span><span data-lang="en">Permissions</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>Authorization: Bearer &lt;KEY&gt;</code></td>
-              <td>HTTP Header</td>
-              <td>পূর্ণ Read ও Write পারমিশন। ১২টি টুলের অ্যাক্সেস।</td>
-            </tr>
-            <tr>
-              <td><code>?token=&lt;KEY&gt;</code></td>
-              <td>URL Query Parameter</td>
-              <td>রিমোট AI এজেন্ট (Cursor, Glama, Zapier) যেখানে কাস্টম হেডার দেওয়া যায় না।</td>
-            </tr>
-            <tr>
-              <td><code>x-steadfast-api-key</code></td>
-              <td>BYOK Request Headers</td>
-              <td>Bring Your Own Key মোড: সরাসরি গ্রাহকের কুরিয়ার অ্যাকাউন্ট ব্যবহার করে পার্সেল বুকিং।</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <!-- Tool: cancel_parcel -->
-      <section id="tool-cancel" class="doc-section">
-        <h2 class="doc-h2">
-          <span>❌</span>
-          <code>cancel_parcel</code>
-          <span class="tool-pill" style="font-size:12px;background:#e11d48;color:#fff;">LIVE CANCEL</span>
-        </h2>
-        <p class="doc-p">
-          <span data-lang="bn">সরাসরি আপস্ট্রিম কুরিয়ার সার্ভারে পার্সেল ক্যানসেল করার অথেনটিক ইঞ্জিন। পাঠাও, রেডএক্স এবং পেপারফ্লাইয়ের ক্ষেত্রে এমসিপি কল করলেই স্বয়ংক্রিয়ভাবে মূল কুরিয়ার সিস্টেমে পার্সেল ক্যানসেল হয়ে যায়। স্টিডফাস্টের ক্ষেত্রে স্ট্যাটাস যাচাই করে মার্চেন্ট ডিপ-লিংক প্রদান করে।</span>
-          <span data-lang="en">Authentic upstream courier parcel cancellation engine. Automatically triggers real REST cancellation for Pathao, RedX, and Paperfly, and provides 1-click status validation for Steadfast.</span>
-        </p>
-
-        <h3 class="doc-h3">Parameters</h3>
-        <table class="param-table">
-          <thead>
-            <tr>
-              <th>Field</th>
-              <th>Type</th>
-              <th>Required</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>courier</code></td>
-              <td><code>string</code></td>
-              <td><span class="badge-req">Required</span></td>
-              <td><code>steadfast</code> | <code>pathao</code> | <code>redx</code> | <code>paperfly</code></td>
-            </tr>
-            <tr>
-              <td><code>consignment_id</code></td>
-              <td><code>string</code></td>
-              <td><span class="badge-req">Required</span></td>
-              <td>Tracking code or consignment ID to cancel</td>
-            </tr>
-            <tr>
-              <td><code>reason</code></td>
-              <td><code>string</code></td>
-              <td><span class="badge-opt">Optional</span></td>
-              <td>Reason for cancellation (e.g. "Customer changed mind")</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span>cancel_parcel — Sample Request (MCP JSON-RPC)</span>
-            <button class="btn-copy" onclick="copySnippet('cancel-req')">Copy</button>
-          </div>
-          <pre><code id="cancel-req">{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/call",
-  "params": {
-    "name": "cancel_parcel",
-    "arguments": {
-      "courier": "pathao",
-      "consignment_id": "PT-2026-99481",
-      "reason": "Customer requested cancellation before dispatch"
-    }
-  }
-}</code></pre>
-        </div>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span>cancel_parcel — Live Success Response</span>
-          </div>
-          <pre><code>{
-  "success": true,
-  "ok": true,
-  "data": {
-    "success": true,
-    "courier": "pathao",
-    "consignment_id": "PT-2026-99481",
-    "message": "Parcel successfully cancelled in Pathao Courier.",
-    "status": "cancelled"
-  },
-  "meta": {
-    "request_id": "a9108b-2401-443b-bc81",
-    "source": "live_api"
-  }
-}</code></pre>
-        </div>
-      </section>
-
-      <!-- Cancellation Matrix -->
-      <section id="cancel-matrix" class="doc-section">
-        <h2 class="doc-h2">
-          <span>📋</span>
-          <span data-lang="bn">৪. আপস্ট্রিম কুরিয়ার ক্যানসেলেশন ম্যাট্রিক্স</span>
-          <span data-lang="en">4. Upstream Cancellation Matrix</span>
-        </h2>
-        <p class="doc-p">
-          <span data-lang="bn">বাংলাদেশের বিভিন্ন কুরিয়ারের অফিশিয়াল এপিআই পলিসির ওপর ভিত্তি করে আমাদের এমসিপি সার্ভার যেভাবে ক্যানসেলেশন এক্সিকিউট করে:</span>
-          <span data-lang="en">How Aura Courier MCP maps cancellation actions across all supported carriers based on authentic upstream API capabilities:</span>
-        </p>
-
-        <table class="param-table">
-          <thead>
-            <tr>
-              <th>Courier</th>
-              <th>API Endpoint</th>
-              <th>Method</th>
-              <th>Automation Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Pathao</strong></td>
-              <td><code>/aladdin/api/v1/orders/{id}/cancel</code></td>
-              <td><code>POST</code></td>
-              <td><span style="color:#34d399;font-weight:700;">১০০% রিয়েল-টাইম এপিআই ক্যানসেল</span></td>
-            </tr>
-            <tr>
-              <td><strong>RedX</strong></td>
-              <td><code>/parcels</code> (property_name: status)</td>
-              <td><code>PATCH</code></td>
-              <td><span style="color:#34d399;font-weight:700;">১০০% রিয়েল-টাইম এপিআই ক্যানসেল</span></td>
-            </tr>
-            <tr>
-              <td><strong>Paperfly</strong></td>
-              <td><code>/api/v1/cancel-order</code></td>
-              <td><code>POST</code></td>
-              <td><span style="color:#34d399;font-weight:700;">১০০% রিয়েল-টাইম এপিআই ক্যানসেল</span></td>
-            </tr>
-            <tr>
-              <td><strong>Steadfast</strong></td>
-              <td>Status verification + Portal Deep-Link</td>
-              <td><code>GET / PORTAL</code></td>
-              <td><span style="color:#38bdf8;font-weight:700;">স্ট্যাটাস যাচাই + ১-ক্লিক পোর্টাল ডিপ-লিংক</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <!-- Tool: check_fraud_risk -->
-      <section id="tool-fraud" class="doc-section">
-        <h2 class="doc-h2">
-          <span>🛡️</span>
-          <code>check_fraud_risk</code>
-          <span class="tool-pill" style="font-size:12px;background:#10b981;color:#fff;">ZERO-MOCK</span>
-        </h2>
-        <p class="doc-p">
-          <span data-lang="bn">গ্রাহকের ফোন নম্বর দিয়ে সমগ্র বাংলাদেশের কুরিয়ার ডাটাবেজ স্ক্যান করে আসল ডেলিভারি হিস্ট্রি, পার্সেল রিটার্ন রেট এবং ফ্রড স্কোর বের করার ইঞ্জিন। কোনো বানানো বা ডামি ডাটা রিটার্ন করা হয় না।</span>
-          <span data-lang="en">Authentic zero-mock fraud risk verification engine. Queries nationwide carrier databases to calculate historical delivery success rates and Return-to-Origin (RTO) risks.</span>
-        </p>
-        <div class="code-block">
-          <div class="code-header">
-            <span>check_fraud_risk — Sample Response</span>
-          </div>
-          <pre><code>{
-  "success": true,
-  "ok": true,
-  "data": {
-    "phone": "01712426871",
-    "risk_level": "LOW",
-    "delivery_success_rate": "95%",
-    "total_parcels": 21,
-    "total_delivered": 20,
-    "total_cancelled": 1,
-    "is_verified_buyer": true,
-    "recommendation": "SAFE_TO_DELIVER: Consistent customer with high delivery rate."
-  }
-}</code></pre>
-        </div>
-      </section>
-
-      <!-- Remaining Tools Summary -->
-      <section id="tool-create" class="doc-section">
-        <h2 class="doc-h2">
-          <span>📦</span>
-          <code>create_parcel</code>
-          <span class="tool-pill" style="font-size:12px;background:#6366f1;color:#fff;">DISPATCH</span>
-        </h2>
-        <p class="doc-p">
-          <span data-lang="bn">১-ক্লিকে যেকোনো কুরিয়ারে অটোমেটেড পার্সেল বুকিং। রয়েছে <code>dry_run: true</code> প্রিভিউ মোড এবং কোনো কুরিয়ার ফেইল করলে স্বয়ংক্রিয় অল্টারনেট কুরিয়ার ক্যাসকেড ফলব্যাক।</span>
-          <span data-lang="en">1-click automated booking across all carriers with full <code>dry_run: true</code> simulation support and automatic multi-carrier failover cascades.</span>
-        </p>
-      </section>
-
-      <!-- Webhooks -->
-      <section id="webhooks" class="doc-section">
-        <h2 class="doc-h2">
-          <span>🔔</span>
-          <span data-lang="bn">৫. নেটিভ কুরিয়ার ওয়েবহুকস ও সিকিউরিটি</span>
-          <span data-lang="en">5. Native Carrier Webhooks</span>
-        </h2>
-        <p class="doc-p">
-          <span data-lang="bn">পার্সেলের লাইভ ডেলিভারি স্ট্যাটাস পরিবর্তনের সাথে সাথে আমাদের সার্ভারে ইনস্ট্যান্ট কলব্যাক আসে:</span>
-          <span data-lang="en">Instant carrier event updates are received across dedicated secured webhook endpoints:</span>
-        </p>
-        <table class="param-table">
-          <thead>
-            <tr>
-              <th>Carrier</th>
-              <th>Webhook Endpoint</th>
-              <th>Authentication Signature</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Steadfast</td>
-              <td><code>/webhooks/steadfast</code></td>
-              <td><code>x-steadfast-signature</code> বা secret token</td>
-            </tr>
-            <tr>
-              <td>Pathao</td>
-              <td><code>/webhooks/pathao</code></td>
-              <td><code>x-pathao-signature</code> (HMAC-SHA256)</td>
-            </tr>
-            <tr>
-              <td>RedX</td>
-              <td><code>/webhooks/redx</code></td>
-              <td><code>x-redx-signature</code></td>
-            </tr>
-            <tr>
-              <td>Paperfly</td>
-              <td><code>/webhooks/paperfly</code></td>
-              <td><code>x-paperfly-signature</code></td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <!-- Privacy -->
-      <section id="privacy" class="doc-section">
-        <h2 class="doc-h2">
-          <span>🛡️</span>
-          <span data-lang="bn">৬. প্রাইভেসি, অডিট লগ ও PII মাস্কিং</span>
-          <span data-lang="en">6. Privacy, Audit Logs &amp; PII Masking</span>
-        </h2>
-        <p class="doc-p">
-          <span data-lang="bn">আন্তর্জাতিক ডেটা সুরক্ষা আইন অনুযায়ী পাবলিক ট্র্যাকিং পেজে গ্রাহকের ফোন নাম্বার সম্পূর্ণ মাস্কড (<code>017****1234</code>) থাকে এবং ঠিকানা জেলা পর্যায়ে সীমাবদ্ধ রাখা হয়। কোনো আনঅথেন্টিকেটেড রিকোয়েস্টে গ্রাহকের পূর্ণ নাম বা পূর্ণ ঠিকানা ডিসক্লোজ করা হয় না।</span>
-          <span data-lang="en">In compliance with global data privacy standards, public tracking responses automatically mask recipient phone numbers (<code>017****1234</code>) and redact street addresses to district level for unauthenticated callers.</span>
-        </p>
-      </section>
-
-    </main>
-
-    <!-- Right Sticky Quick-Copy Hub -->
-    <aside class="docs-dock">
-      <div class="dock-title">
-        <span>⚡ Quick Connect Hub</span>
-      </div>
-
-      <div class="dock-tabs">
-        <button class="dock-tab-btn active" onclick="switchDockTab('claude')">Claude</button>
-        <button class="dock-tab-btn" onclick="switchDockTab('cursor')">Cursor</button>
-        <button class="dock-tab-btn" onclick="switchDockTab('curl')">cURL</button>
-        <button class="dock-tab-btn" onclick="switchDockTab('node')">Node.js</button>
-      </div>
-
-      <!-- Claude Snippet -->
-      <div id="dock-claude" class="dock-snippet active">
-        <div class="code-block">
-          <div class="code-header">
-            <span>claude_desktop_config.json</span>
-            <button class="btn-copy" onclick="copySnippet('dock-claude-code')">Copy</button>
-          </div>
-          <pre><code id="dock-claude-code">{
-  "mcpServers": {
-    "aura-courier": {
-      "url": "https://courier.auraajenticai.cloud/sse?token=aura_live_mcp_master_key_2026"
-    }
-  }
-}</code></pre>
-        </div>
-        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">
-          Paste inside your Claude Desktop JSON file, restart Claude, and all 12 courier tools appear automatically.
+        <p data-lang="en" style="margin-top:8px">
+          No need to log into multiple courier portals. Book <b>Steadfast, Pathao, RedX, and Paperfly</b> with 1 click and print 4x6 thermal labels directly inside your existing WooCommerce, Shopify, or Custom Order detail screen.
         </p>
       </div>
 
-      <!-- Cursor Snippet -->
-      <div id="dock-cursor" class="dock-snippet">
-        <div class="code-block">
-          <div class="code-header">
-            <span>Cursor Settings &gt; MCP</span>
-            <button class="btn-copy" onclick="copySnippet('dock-cursor-code')">Copy</button>
-          </div>
-          <pre><code id="dock-cursor-code"># Add as SSE Server:
-https://courier.auraajenticai.cloud/sse?token=aura_live_mcp_master_key_2026</code></pre>
-        </div>
-        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">
-          Cursor connects via Server-Sent Events with zero header negotiation issues.
+      <div class="card">
+        <span class="card-tag">AES-256 Zero-Knowledge Vault</span>
+        <h3 data-lang="bn">৩. শতভাগ গোপনীয়তা ও মাল্টি-টেন্যান্ট ভল্ট সুরক্ষা</h3>
+        <h3 data-lang="en">3. 100% Private AES-256 Zero-Knowledge Vault</h3>
+        <p data-lang="bn">
+          আপনার কুরিয়ার ও স্টোর API Key গুলো সরাসরি আমাদের <b>AES-256 এনক্রিপ্টেড ভল্টে</b> সুরক্ষিত থাকে। আপনার কুরিয়ার অ্যাকাউন্টের পাসওয়ার্ড বা কী আমরা বা অন্য কোনো টেন্যান্ট কখনোই দেখতে পায় না।
+        </p>
+        <p data-lang="en" style="margin-top:8px">
+          Your courier and store API credentials are encrypted inside our <b>AES-256 Zero-Knowledge Vault</b>. Neither Aura administrators nor any other merchant can ever view or access your private keys.
         </p>
       </div>
+    </div>
 
-      <!-- cURL Snippet -->
-      <div id="dock-curl" class="dock-snippet">
-        <div class="code-block">
-          <div class="code-header">
-            <span>cURL Initialize Handshake</span>
-            <button class="btn-copy" onclick="copySnippet('dock-curl-code')">Copy</button>
+    <!-- SECTION 2: STANDALONE AURA COURIER MCP VS AURA CLIENT DASHBOARD -->
+    <div id="architecture" class="sec-title">
+      <span class="sec-num">02</span>
+      <span data-lang="bn">সহজ ভাষায় ২টি আলাদা অপশন: শুধুমাত্র Aura Courier MCP বনাম Aura Client Dashboard</span>
+      <span data-lang="en">Two Clear Ways to Use: Standalone Aura Courier MCP vs. Full Aura Client Dashboard</span>
+    </div>
+
+    <div class="grid-2">
+      <!-- Option 1: Standalone Aura Courier MCP -->
+      <div class="arch-card-standalone">
+        <span class="arch-badge cyan">📦 অপশন ১: শুধুমাত্র Aura Courier MCP (Standalone Mode)</span>
+        <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;" data-lang="bn">
+          শুধুমাত্র কুরিয়ার ও ফ্রড শিল্ড হিসেবে আপনার নিজের ওয়েবসাইটে ব্যবহার করুন
+        </h3>
+        <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;" data-lang="en">
+          Use ONLY Aura Courier MCP Inside Your Own Store or AI Agent
+        </h3>
+        <p style="font-size:13.5px;color:#cbd5e1;" data-lang="bn">
+          আপনার যদি ইতিমধ্যে <b>WooCommerce, Shopify অথবা কাস্টম ওয়েবসাইট (Next.js / Laravel / Supabase)</b> থাকে এবং আপনার কোনো চ্যাটবট বা আলাদা ড্যাশবোর্ডের প্রয়োজন না থাকে—তবে আপনি <b>শুধুমাত্র Aura Courier MCP</b> ব্যবহার করতে পারবেন:
+        </p>
+        <p style="font-size:13.5px;color:#cbd5e1;margin-top:6px;" data-lang="en">
+          If you already run a <b>WooCommerce, Shopify, or Custom/Supabase store</b> and ONLY need live customer fraud verification and 1-click courier booking inside your own admin panel (without chatbots or an external CRM):
+        </p>
+
+        <div class="feature-module-list">
+          <div class="f-mod-item">
+            <div class="f-mod-title">
+              <span>🔌 ১. ইন-ড্যাশবোর্ড স্টোর উইজেট (In-Store Metabox)</span>
+              <span class="f-mod-tag">Woo • Shopify • Custom</span>
+            </div>
+            <div class="f-mod-desc" data-lang="bn">
+              আপনার নিজের ওয়েবসাইটের অর্ডার পেজের ভেতরেই ডানপাশে Aura Courier বক্স বসে যাবে। ওয়েবসাইটের বাইরে কোথাও যেতে হবে না।
+            </div>
+            <div class="f-mod-desc" data-lang="en">
+              Embeds directly inside your WooCommerce, Shopify, or Custom Order detail page—zero portal switching.
+            </div>
           </div>
-          <pre><code id="dock-curl-code">curl -X POST "https://courier.auraajenticai.cloud/mcp?token=aura_live_mcp_master_key_2026" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "initialize",
-    "params": {
-      "protocolVersion": "2024-11-05",
-      "capabilities": {},
-      "clientInfo": { "name": "my-client", "version": "1.0" }
-    }
-  }'</code></pre>
+
+          <div class="f-mod-item">
+            <div class="f-mod-title">
+              <span>🛡️ ২. ১০০% রিয়েল-টাইম ফ্রড চেক (<code>check_fraud_risk</code>)</span>
+              <span class="f-mod-tag">Steadfast Live DB</span>
+            </div>
+            <div class="f-mod-desc" data-lang="bn">
+              কাস্টমারের ফোন নাম্বার দিয়ে মোট কয়টি পার্সেল ডেলিভারি নিয়েছে আর কয়টি রিটার্ন করেছে (<code>94% Safe</code> বা <code>High Risk</code>) তা অর্ডার পেজেই দেখাবে।
+            </div>
+            <div class="f-mod-desc" data-lang="en">
+              Displays live customer delivery success rate, return count, and BD telco prefix validation before you ship.
+            </div>
+          </div>
+
+          <div class="f-mod-item">
+            <div class="f-mod-title">
+              <span>🚚 ৩. ৪ কুরিয়ারে ১-ক্লিক বুকিং ও থার্মাল লেবেল (<code>create_parcel</code>)</span>
+              <span class="f-mod-tag">4 Couriers + 4x6 Print</span>
+            </div>
+            <div class="f-mod-desc" data-lang="bn">
+              Steadfast, Pathao, RedX ও Paperfly—যেকোনোটিতে ১-ক্লিকে বুকিং, লাইভ ট্র্যাকিং (<code>track_parcel</code>) এবং ৪x৬ বারকোড লেবেল প্রিন্ট।
+            </div>
+            <div class="f-mod-desc" data-lang="en">
+              1-click booking to Steadfast, Pathao, RedX &amp; Paperfly with instant consignment ID and 4x6 thermal barcode label printing.
+            </div>
+          </div>
+
+          <div class="f-mod-item">
+            <div class="f-mod-title">
+              <span>🗺️ ৪. Google Maps জোন ক্যালকুলেটর ও MCP AI এজেন্ট</span>
+              <span class="f-mod-tag">9 Live MCP Tools</span>
+            </div>
+            <div class="f-mod-desc" data-lang="bn">
+              ঠিকানা থেকে অটো ডেলিভারি জোন/চার্জ নির্ণয়, কুরিয়ার রেট তুলনা, NDR সমাধান এবং Claude, Cursor, Antigravity ও n8n-এ ব্যবহারের সুবিধা।
+            </div>
+            <div class="f-mod-desc" data-lang="en">
+              Includes Google Maps geocoding, zone fee calculation, carrier rate comparison, NDR resolution, and full MCP protocol support.
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Node.js Snippet -->
-      <div id="dock-node" class="dock-snippet">
-        <div class="code-block">
-          <div class="code-header">
-            <span>Node.js Fetch Call</span>
-            <button class="btn-copy" onclick="copySnippet('dock-node-code')">Copy</button>
+      <!-- Option 2: Full Aura Client Dashboard -->
+      <div class="arch-card-suite">
+        <span class="arch-badge emerald">🌐 অপশন ২: Aura Client Dashboard (All-in-One Ecosystem Suite)</span>
+        <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;" data-lang="bn">
+          Aura Client Dashboard-এ কী কী আছে এবং কী কী দিয়ে ব্যবহার করা যায়?
+        </h3>
+        <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;" data-lang="en">
+          What's Inside Aura Client Dashboard (<code>client.auraajenticai.cloud</code>)?
+        </h3>
+        <p style="font-size:13.5px;color:#cbd5e1;" data-lang="bn">
+          যারা ওয়েবসাইটের পাশাপাশি <b>Facebook Page, Instagram, WhatsApp ও TikTok</b> থেকে মেসেজ/কমেন্টের মাধ্যমে বিক্রি করেন এবং কাস্টমার চ্যাট থেকে শুরু করে কুরিয়ার লেজার পর্যন্ত <b>সবকিছু অটোমেটিক</b> করতে চান, তাদের জন্য রয়েছে <b>Aura Client Dashboard</b>:
+        </p>
+        <p style="font-size:13.5px;color:#cbd5e1;margin-top:6px;" data-lang="en">
+          For brands selling across <b>Facebook, Instagram, WhatsApp &amp; Web</b> who want autonomous AI sales closing, unified inbox management, and end-to-end courier profit protection in one portal:
+        </p>
+
+        <div class="feature-module-list">
+          <div class="f-mod-item">
+            <div class="f-mod-title">
+              <span>🤖 ১. ৬-পিলার AI Sales Bot (WhatsApp, Messenger, IG &amp; Comments)</span>
+              <span class="f-mod-tag">24/7 Auto-Closing</span>
+            </div>
+            <div class="f-mod-desc" data-lang="bn">
+              কাস্টমার মেসেজ বা কমেন্ট করলে AI নিজেই পণ্যের ছবি ও বিবরণ দেয়, কনসালটেশন ও আপসেল করে, এবং চ্যাট থেকেই কাস্টমারের <b>নাম + ১১-ডিজিট ফোন + ঠিকানা</b> নিয়ে অটো অর্ডার তৈরি করে!
+            </div>
+            <div class="f-mod-desc" data-lang="en">
+              24/7 consultative sales AI on WhatsApp, Messenger &amp; Instagram that sends native product cards, upsells gently, and auto-extracts Name + Phone + Address into ready orders.
+            </div>
           </div>
-          <pre><code id="dock-node-code">const res = await fetch("https://courier.auraajenticai.cloud/mcp", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer aura_live_mcp_master_key_2026"
-  },
-  body: JSON.stringify({
-    jsonrpc: "2.0",
-    id: 1,
-    method: "tools/call",
-    params: {
-      name: "check_fraud_risk",
-      arguments: { phone: "01712426871" }
-    }
-  })
-});
-const data = await res.json();
-console.log(data);</code></pre>
+
+          <div class="f-mod-item">
+            <div class="f-mod-title">
+              <span>💬 ২. 3-Column Enterprise Omnichannel Inbox (<code>#view-inbox</code>)</span>
+              <span class="f-mod-tag">FB • IG • WA • TG • TikTok</span>
+            </div>
+            <div class="f-mod-desc" data-lang="bn">
+              সব চ্যানেলের ইনবক্স ও কমেন্ট একই স্ক্রিনে! সাথে থাকে <b>✨ AI Generated Reply Copilot</b> এবং ডানপাশে <b>360° Customer Intelligence Drawer</b> (সার্কুলার ফ্রড রিস্ক মিটার ও বাংলায় AI সারাংশ)।
+            </div>
+            <div class="f-mod-desc" data-lang="en">
+              Unified 3-column inbox for FB, IG, WhatsApp, TikTok, Telegram &amp; Comments with docked AI Reply Copilot and 360° Customer Risk Gauge.
+            </div>
+          </div>
+
+          <div class="f-mod-item">
+            <div class="f-mod-title">
+              <span>🛡️ ৩. Logistics Profit Guard &amp; 1-Click Risk Scan (<code>#view-risk</code>)</span>
+              <span class="f-mod-tag">✨ চ্যাট অর্ডার + Bulk Scan</span>
+            </div>
+            <div class="f-mod-desc" data-lang="bn">
+              চ্যাট থেকে অটো-এক্সট্রাক্ট হওয়া অর্ডার (<code>✨ চ্যাট অর্ডার</code>) ও ওয়েবসাইট অর্ডারগুলোকে ১-ক্লিকে <code>🔍 Scan Risk</code> দিয়ে লাইভ কুরিয়ার ডাটাবেসে চেক করা ও বাল্ক পার্সেল ডিসপ্যাচ।
+            </div>
+            <div class="f-mod-desc" data-lang="en">
+              Auto-collects unbooked chat orders (<code>✨ চ্যাট অর্ডার</code>) for 1-click fraud risk scanning and bulk parcel dispatch.
+            </div>
+          </div>
+
+          <div class="f-mod-item">
+            <div class="f-mod-title">
+              <span>📊 ৪. Unified Courier Hub (<code>#view-courier</code>), Financial Ledger ও Marketing Suite</span>
+              <span class="f-mod-tag">COD Ledger + Meta/GA4</span>
+            </div>
+            <div class="f-mod-desc" data-lang="bn">
+              ৪ কুরিয়ারের সব পার্সেল ট্র্যাকিং, COD ব্যালেন্স ও পেআউট লেজার (CSV এক্সপোর্টসহ), অটোমেটিক CRM লিড পাইপলাইন, এবং Meta Ads / Google Analytics 4 (<code>GA4</code>) / YouTube কানেক্টর।
+            </div>
+            <div class="f-mod-desc" data-lang="en">
+              Full multi-carrier financial ledger with CSV export, automated CRM pipeline, and live Meta Ads, GA4 &amp; YouTube Studio analytics.
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div style="margin-top:24px;padding:16px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
-        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:6px;">Need Interactive Testing?</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Try our interactive 4-Platform E-commerce Store Simulator:</div>
-        <a href="/simulator" target="_blank" class="btn-top btn-sim" style="width:100%;justify-content:center;">
-          Launch Store Simulator →
+    <!-- Quick Comparison Matrix -->
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>ফিচার / সুবিধা (Feature Comparison)</th>
+            <th>📦 শুধুমাত্র Aura Courier MCP (Standalone)</th>
+            <th>🌐 Aura Client Dashboard (Full Ecosystem Suite)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>১০০% রিয়েল-টাইম কাস্টমার ফ্রড চেক (Steadfast Nationwide DB)</b></td>
+            <td class="chk-yes">✓ হ্যাঁ (Yes — In-Store &amp; API)</td>
+            <td class="chk-yes">✓ হ্যাঁ (Yes — Inbox 360° Gauge + <code>#view-risk</code>)</td>
+          </tr>
+          <tr>
+            <td><b>৪ কুরিয়ারে ১-ক্লিক পার্সেল বুকিং ও ৪x৬ থার্মাল লেবেল প্রিন্ট</b></td>
+            <td class="chk-yes">✓ হ্যাঁ (Steadfast, Pathao, RedX, Paperfly)</td>
+            <td class="chk-yes">✓ হ্যাঁ (১-ক্লিক ও বাল্ক ডিসপ্যাচ + CSV লেজার)</td>
+          </tr>
+          <tr>
+            <td><b>WooCommerce, Shopify ও Custom Website ইন-ড্যাশবোর্ড উইজেট</b></td>
+            <td class="chk-yes">✓ হ্যাঁ (সরাসরি আপনার ওয়েবসাইটের ভেতরে)</td>
+            <td class="chk-yes">✓ হ্যাঁ (ওয়েবসাইট + ক্লায়েন্ট ড্যাশবোর্ড উভয়েই)</td>
+          </tr>
+          <tr>
+            <td><b>৬-পিলার WhatsApp, Messenger ও Instagram AI Sales Bot</b></td>
+            <td class="chk-opt">— (শুধুমাত্র কুরিয়ার প্লাগইন)</td>
+            <td class="chk-yes">✓ হ্যাঁ (২৪/৭ অটো কনসালটেশন ও চ্যাট থেকে অটো অর্ডার)</td>
+          </tr>
+          <tr>
+            <td><b>3-Column Omnichannel Inbox (<code>#view-inbox</code>) ও AI Reply Copilot</b></td>
+            <td class="chk-opt">— (শুধুমাত্র কুরিয়ার প্লাগইন)</td>
+            <td class="chk-yes">✓ হ্যাঁ (FB, IG, WA, TikTok, TG, Comments এক স্ক্রিনে)</td>
+          </tr>
+          <tr>
+            <td><b>Logistics Profit Guard (<code>#view-risk</code>) ও চ্যাট অর্ডার এক্সট্রাকশন</b></td>
+            <td class="chk-opt">— (শুধুমাত্র ওয়েবসাইট অর্ডার)</td>
+            <td class="chk-yes">✓ হ্যাঁ (<code>✨ চ্যাট অর্ডার</code> অটো-কালেকশন ও ১-ক্লিক স্ক্যান)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 3: INTERACTIVE 4-PLATFORM STORE & DASHBOARD SIMULATOR -->
+    <div id="simulator" class="sec-title">
+      <span class="sec-num">03</span>
+      <span data-lang="bn">লাইভ ইন-ড্যাশবোর্ড প্রিভিউ: ওয়েবসাইট ও ক্লায়েন্ট ড্যাশবোর্ডে যেভাবে কাজ করবে (ক্লিক করে টেস্ট করুন)</span>
+      <span data-lang="en">Interactive Live Simulator: Test Inside WooCommerce, Shopify, Custom Store &amp; Aura Dashboard</span>
+    </div>
+
+    <div class="sim-wrapper">
+      <div class="sim-top-controls">
+        <div class="sim-tabs" role="tablist">
+          <button type="button" id="tab-woo" class="sim-tab active-woo" onclick="switchSimPlatform('woo')">
+            <span class="sim-dot" style="background:#c4b5fd"></span>
+            <span>🟣 WooCommerce (WP Admin)</span>
+          </button>
+          <button type="button" id="tab-shopify" class="sim-tab" onclick="switchSimPlatform('shopify')">
+            <span class="sim-dot" style="background:#34d399"></span>
+            <span>🟢 Shopify Admin</span>
+          </button>
+          <button type="button" id="tab-custom" class="sim-tab" onclick="switchSimPlatform('custom')">
+            <span class="sim-dot" style="background:#38bdf8"></span>
+            <span>🔵 Custom Website (Supabase)</span>
+          </button>
+          <button type="button" id="tab-aura" class="sim-tab" onclick="switchSimPlatform('aura')">
+            <span class="sim-dot" style="background:#5eead4"></span>
+            <span>🌐 Aura Client Dashboard (6-Pillar AI)</span>
+          </button>
+        </div>
+
+        <button type="button" class="sim-fraud-toggle" onclick="toggleSimFraud()">
+          <span>🔄</span>
+          <span data-lang="bn">ডেমো সুইচ: Safe বনাম Fraud কাস্টমার চেক করুন</span>
+          <span data-lang="en">Toggle Demo: Safe vs. High-Risk Fraud Customer</span>
+        </button>
+      </div>
+
+      <!-- Simulated Browser Frame -->
+      <div class="browser-window">
+        <div class="browser-bar">
+          <div class="browser-dots">
+            <span class="b-dot" style="background:#f43f5e"></span>
+            <span class="b-dot" style="background:#f59e0b"></span>
+            <span class="b-dot" style="background:#10b981"></span>
+            <span id="sim-platform-badge" style="margin-left:8px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;background:rgba(139,92,246,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.4);">
+              WordPress • WooCommerce Order Edit
+            </span>
+          </div>
+          <div class="browser-url">
+            <span style="color:#10b981">🔒</span>
+            <span id="sim-url-text">https://your-store.com/wp-admin/post.php?post=5842&amp;action=edit</span>
+          </div>
+        </div>
+
+        <div class="browser-body">
+          <!-- Store Admin Left Sidebar -->
+          <aside class="store-sidebar">
+            <div>
+              <div class="store-brand-box">
+                <div id="sim-store-icon" class="store-brand-icon">W</div>
+                <div>
+                  <div id="sim-store-title" style="font-size:13px;font-weight:800;color:#fff;">WP Admin</div>
+                  <div id="sim-store-sub" style="font-size:10.5px;color:#64748b;">Merchant Store Panel</div>
+                </div>
+              </div>
+              <div class="store-nav-item" id="sim-nav-1">
+                <span>📊 Dashboard</span>
+              </div>
+              <div class="store-nav-item active" id="sim-nav-2">
+                <span id="sim-nav-2-txt">📦 Orders</span>
+                <span style="background:#06b6d4;color:#03131a;font-size:10px;padding:1px 6px;border-radius:99px;font-weight:800;">#5842</span>
+              </div>
+              <div class="store-nav-item" id="sim-nav-3">
+                <span id="sim-nav-3-txt">🏷️ Products &amp; Stock</span>
+              </div>
+              <div class="store-nav-item" id="sim-nav-4">
+                <span id="sim-nav-4-txt">👥 Customers</span>
+              </div>
+            </div>
+
+            <div class="store-vault-pill">
+              <div style="font-weight:800;color:#34d399;margin-bottom:3px;">● Aura Bridge Active</div>
+              <div data-lang="bn">আপনার স্টোর ও কুরিয়ার কী AES-256 ভল্টে সুরক্ষিত।</div>
+              <div data-lang="en">Store &amp; Courier keys encrypted in AES-256 Vault.</div>
+            </div>
+          </aside>
+
+          <!-- Main Store Order View + Auto-Injected Aura Widget -->
+          <div class="store-workspace">
+            <!-- Left 7 Cols: Native Order Details -->
+            <div class="order-col">
+              <div class="order-head-bar">
+                <div>
+                  <div class="order-id-title">
+                    Order #5842
+                    <span id="sim-order-sub" style="font-size:12px;font-weight:500;color:#94a3b8;margin-left:6px;">via WooCommerce Checkout</span>
+                  </div>
+                  <div style="font-size:12px;color:#64748b;" data-lang="bn">আজ দুপুর ২:৪৫ • ক্যাশ অন ডেলিভারি (COD)</div>
+                  <div style="font-size:12px;color:#64748b;" data-lang="en">Today at 2:45 PM • Cash on Delivery (COD)</div>
+                </div>
+                <span id="sim-order-status" class="order-status-pill">⏳ Processing (COD)</span>
+              </div>
+
+              <!-- 6-Pillar AI Chat Extraction Banner (Shown when Aura Client Dashboard tab is selected) -->
+              <div id="sim-ai-chat-banner" class="ai-chat-banner">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
+                  <strong style="color:#c4b5fd;">✨ চ্যাট অর্ডার (Auto-Extracted by 6-Pillar WhatsApp/Messenger AI Bot)</strong>
+                  <span style="font-size:10.5px;background:rgba(16,185,129,0.2);color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;">Omnichannel #view-inbox</span>
+                </div>
+                <div style="font-size:12px;color:#cbd5e1;">
+                  কাস্টমার WhatsApp/Messenger চ্যাটে অর্ডার কনফার্ম করেছেন। AI বট স্বয়ংক্রিয়ভাবে নাম, ফোন নাম্বার ও ঠিকানা পার্স করে <code>#view-risk</code> ও <code>#view-courier</code>-এ ১-ক্লিক ডিসপ্যাচের জন্য প্রস্তুত রেখেছে।
+                </div>
+              </div>
+
+              <!-- Dynamic Booked Consignment & Thermal Print Banner -->
+              <div id="sim-booked-banner" class="booked-banner">
+                <div>
+                  <div style="font-size:11px;font-weight:800;color:#34d399;text-transform:uppercase;">
+                    ✓ Parcel Dispatched via Aura Courier MCP
+                  </div>
+                  <div style="margin-top:3px;font-size:13px;color:#fff;">
+                    Consignment ID: <strong id="sim-booked-cid" style="font-family:'JetBrains Mono',monospace;color:#67e8f9;">SF-8923412</strong>
+                    <span id="sim-booked-carrier" style="margin-left:6px;font-size:11px;background:#065f46;color:#a7f3d0;padding:2px 7px;border-radius:5px;font-weight:700;">Steadfast</span>
+                  </div>
+                </div>
+                <button type="button" class="print-label-btn" onclick="openThermalModal()">
+                  🖨️ <span data-lang="bn">থার্মাল লেবেল প্রিন্ট</span><span data-lang="en">Print Thermal Label</span>
+                </button>
+              </div>
+
+              <!-- Customer Shipping Info -->
+              <div class="store-box">
+                <div class="store-box-title">
+                  <span data-lang="bn">কাস্টমার ও ডেলিভারি ঠিকানা (অটো-লোডেড)</span>
+                  <span data-lang="en">Customer &amp; Shipping Details (Auto-Loaded)</span>
+                  <select id="sim-zone-select" onchange="updateSimZone()" style="background:#0f172a;color:#38bdf8;border:1px solid rgba(56,189,248,0.35);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;">
+                    <option value="dhaka">📍 Zone: Inside Dhaka (ঢাকা সিটি)</option>
+                    <option value="sub">📍 Zone: Sub-Dhaka (সাভার/কেরানীগঞ্জ/গাজীপুর)</option>
+                    <option value="outside">📍 Zone: Outside Dhaka (৬৪ জেলা)</option>
+                  </select>
+                </div>
+                <div class="cust-grid">
+                  <div>
+                    <div class="cust-label" data-lang="bn">ক্রেতার নাম</div>
+                    <div class="cust-label" data-lang="en">Customer Name</div>
+                    <div class="cust-val">তানভীর আহমেদ (Tanvir Ahmed)</div>
+                  </div>
+                  <div>
+                    <div class="cust-label" data-lang="bn">মোবাইল নাম্বার (অটো ফ্রড স্ক্যানড)</div>
+                    <div class="cust-label" data-lang="en">Mobile Number (Auto Fraud-Scanned)</div>
+                    <div class="cust-phone" id="sim-cust-phone">01712-345678</div>
+                  </div>
+                  <div style="grid-column: 1 / -1;">
+                    <div class="cust-label" data-lang="bn">ডেলিভারি ঠিকানা (Google Maps Spatial Verified)</div>
+                    <div class="cust-label" data-lang="en">Shipping Address (Google Maps Spatial Verified)</div>
+                    <div class="cust-val" id="sim-cust-addr">বাসা ১২, রোড ৫, ধানমন্ডি, ঢাকা ১২০৫ (House 12, Road 5, Dhanmondi, Dhaka)</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product & Inventory Info -->
+              <div class="store-box">
+                <div class="store-box-title">
+                  <span data-lang="bn">অর্ডারকৃত প্রোডাক্ট ও ইনভেন্টরি স্টক</span>
+                  <span data-lang="en">Ordered Items, Weight &amp; Inventory Stock</span>
+                </div>
+                <div class="item-row">
+                  <div class="item-meta">
+                    <div class="item-thumb">🎧</div>
+                    <div>
+                      <div style="font-size:13.5px;font-weight:700;color:#fff;">Pro Wireless ANC Headphones (Black)</div>
+                      <div style="display:flex;align-items:center;gap:8px;margin-top:3px;font-size:11.5px;color:#94a3b8;">
+                        <span>SKU: <code style="color:#cbd5e1">ANC-PRO-01</code></span>
+                        <span>• Weight: <strong style="color:#fff">0.5 kg</strong></span>
+                        <span class="stock-pill">✓ 14 in stock</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:11.5px;color:#94a3b8;">1 × ৳ 1,350</div>
+                    <div style="font-size:14px;font-weight:800;color:#fff;">৳ 1,350</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;font-size:13.5px;">
+                  <span id="sim-fee-label" style="color:#94a3b8;">ডেলিভারি চার্জ (৳60) সহ মোট ক্যাশ অন ডেলিভারি (COD):</span>
+                  <strong id="sim-total-cod" style="font-size:17px;color:#34d399;font-family:'JetBrains Mono',monospace;">৳ 1,410</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right 5 Cols: Auto-Injected Aura Courier MCP Metabox Widget -->
+            <div class="aura-widget">
+              <div class="aura-widget-head">
+                <div class="aura-widget-brand">
+                  <img src="/assets/courier-logo.jpg" alt="Aura Courier MCP" />
+                  <div>
+                    <div style="font-size:14px;font-weight:800;color:#fff;line-height:1.2;">Aura Courier MCP</div>
+                    <div id="sim-widget-subtitle" style="font-size:10.5px;color:#67e8f9;font-weight:600;">In-Dashboard Endpoint • v2.6.0</div>
+                  </div>
+                </div>
+                <span class="vault-live-pill">● Vault Connected</span>
+              </div>
+
+              <!-- 100% Real-Time Fraud Check Card -->
+              <div id="sim-fraud-card" class="fraud-card safe">
+                <div class="fraud-head">
+                  <span id="sim-fraud-title" class="fraud-title">🛡️ ১০০% অথেনটিক ফ্রড চেক: নিরাপদ ক্রেতা (Safe Buyer)</span>
+                  <span id="sim-fraud-badge" class="fraud-score-badge">94% Safe</span>
+                </div>
+                <div id="sim-fraud-desc" class="fraud-desc">
+                  মোট ১৮টি অর্ডারের মধ্যে <strong>১৭টি সফল ডেলিভারি (Delivered)</strong> এবং মাত্র ১টি রিটার্ন। নির্ভয়ে কুরিয়ারে পাঠাতে পারেন।
+                </div>
+                <div class="fraud-MINI-grid">
+                  <div>Steadfast<strong id="sim-sf-stat">12/13</strong></div>
+                  <div>Pathao<strong id="sim-pt-stat">5/5</strong></div>
+                  <div>RedX<strong id="sim-rx-stat">0/0</strong></div>
+                </div>
+              </div>
+
+              <!-- 4-Carrier Selector -->
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:11.5px;">
+                <span style="font-weight:700;color:#cbd5e1;" data-lang="bn">কুরিয়ার সিলেক্ট করুন (১-ক্লিক সুইচ):</span>
+                <span style="font-weight:700;color:#cbd5e1;" data-lang="en">Select Courier (1-Click Switch):</span>
+                <span style="font-size:10.5px;color:#34d399;font-family:'JetBrains Mono',monospace;">⚡ Best SLA</span>
+              </div>
+
+              <div class="carrier-grid">
+                <button type="button" id="sim-car-steadfast" class="carrier-opt selected" onclick="selectSimCarrier('steadfast', 'Steadfast')">
+                  <div>
+                    <span class="carrier-name">Steadfast</span>
+                    <span class="carrier-sla">24h • Next Day</span>
+                  </div>
+                  <span id="rate-sf" class="carrier-rate">৳70</span>
+                </button>
+
+                <button type="button" id="sim-car-pathao" class="carrier-opt" onclick="selectSimCarrier('pathao', 'Pathao')">
+                  <div>
+                    <span class="carrier-name">Pathao</span>
+                    <span class="carrier-sla">Fastest Express</span>
+                  </div>
+                  <span id="rate-pt" class="carrier-rate">৳60</span>
+                </button>
+
+                <button type="button" id="sim-car-redx" class="carrier-opt" onclick="selectSimCarrier('redx', 'RedX')">
+                  <div>
+                    <span class="carrier-name">RedX</span>
+                    <span class="carrier-sla">2,849+ Hubs</span>
+                  </div>
+                  <span id="rate-rx" class="carrier-rate">৳80</span>
+                </button>
+
+                <button type="button" id="sim-car-paperfly" class="carrier-opt" onclick="selectSimCarrier('paperfly', 'Paperfly')">
+                  <div>
+                    <span class="carrier-name">Paperfly</span>
+                    <span class="carrier-sla">64 Districts</span>
+                  </div>
+                  <span id="rate-pf" class="carrier-rate">৳70</span>
+                </button>
+              </div>
+
+              <!-- Editable Weight & COD -->
+              <div class="widget-inputs">
+                <div class="w-input-box">
+                  <label>Parcel Weight (kg)</label>
+                  <input type="text" value="0.5 kg" readonly />
+                </div>
+                <div class="w-input-box">
+                  <label>Collectible COD (BDT)</label>
+                  <input id="sim-input-cod" type="text" value="৳ 1410" style="color:#34d399" readonly />
+                </div>
+              </div>
+
+              <!-- 1-Click Dispatch Button -->
+              <button type="button" id="sim-book-btn" class="book-now-btn" onclick="bookSimParcel()">
+                🚀 ১-ক্লিকে Steadfast-এ পার্সেল বুক করুন (1-Click Book)
+              </button>
+
+              <div style="margin-top:10px;text-align:center;font-size:10.5px;color:#94a3b8;">
+                🔒 <span data-lang="bn">আপনার কুরিয়ার API Key আমাদের AES-256 Zero-Knowledge Vault-এ সুরক্ষিত।</span>
+                <span data-lang="en">Your Courier API Keys are isolated inside our AES-256 Zero-Knowledge Vault.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: DUAL SUBSCRIPTION ARCHITECTURE (STANDALONE MCP ONLY vs. MAIN OMNICHANNEL AI + PER-MESSAGE) -->
+    <div id="pricing" class="sec-title">
+      <span class="sec-num">04</span>
+      <span data-lang="bn">সাবস্ক্রিপশন ও প্রাইসিং স্ট্রাকচার: (A) শুধুমাত্র Courier MCP বনাম (B) মেইন WhatsApp/Messenger AI ও মেসেজ-প্রতি প্ল্যান</span>
+      <span data-lang="en">Dual Subscription Architecture: (A) Standalone Courier MCP Only vs. (B) Main WhatsApp/Messenger AI &amp; Per-Message Plans</span>
+    </div>
+
+    <!-- Google Cloud for Startups + 15-Day Free Trial Banner -->
+    <div class="trial-hero-banner">
+      <div style="max-width:780px;">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <span class="trial-badge-big" style="margin-bottom:0;">🎁 15-Day 100% Free Trial • প্রথম ১৫ দিন সম্পূর্ণ ফ্রি</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.45);color:#7dd3fc;font-size:12px;font-weight:800;padding:5px 13px;border-radius:999px;">
+            ☁️ Google Cloud Partner Advantage Verified • Powered by Vertex AI &amp; Google Maps
+          </span>
+        </div>
+        <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;" data-lang="bn">
+          দুই ধরনের আলাদা সাবস্ক্রিপশন সিস্টেম — আপনার বিজনেসের প্রয়োজন অনুযায়ী যেকোনোটি বেছে নিন (প্রথম ১৫ দিন ফ্রি!)
+        </h3>
+        <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;" data-lang="en">
+          Two Distinct Subscription Tracks — Choose Standalone Courier MCP Only or Full Omnichannel AI Platform (First 15 Days Free!)
+        </h3>
+        <p style="font-size:13.5px;color:#e2e8f0;" data-lang="bn">
+          <b>ট্র্যাক A (Aura Courier MCP Only):</b> শুধুমাত্র আপনার ওয়েবসাইট (WooCommerce, Shopify, Custom) বা AI এজেন্টে ৪টি কুরিয়ার বুকিং, লাইভ ট্র্যাকিং, ব্যালেন্স ও রিয়েল-টাইম ফ্রড চেক ব্যবহারের জন্য।<br/>
+          <b>ট্র্যাক B (Aura Main Omnichannel AI + Per-Message Subscription):</b> আমাদের মেইন সাবস্ক্রিপশন—যেখানে ৬-পিলার <b>WhatsApp, Messenger ও Instagram AI Bot</b>, মেসেজ-প্রতি স্বচ্ছ বিলিং এবং সম্পূর্ণ <code>client.auraajenticai.cloud</code> ড্যাশবোর্ড অন্তর্ভুক্ত।
+        </p>
+        <p style="font-size:13px;color:#cbd5e1;margin-top:6px;" data-lang="en">
+          <b>Track A (Aura Courier MCP Only):</b> Connect only our logistics &amp; fraud shield API to your store or AI agent starting at <b>$9/mo (৳499/mo)</b>.<br/>
+          <b>Track B (Aura Main Omnichannel AI Subscription):</b> Full 6-Pillar WhatsApp, Messenger &amp; Instagram AI Sales Engine + Per-Message/Conversation quota + Client Dashboard starting at <b>$19/mo (৳1,999/mo)</b>.
+        </p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+        <a href="https://client.auraajenticai.cloud/#view-courier" class="q-btn highlight" style="display:inline-block;padding:13px 22px;font-size:14px;text-align:center;">
+          🚀 ১৫ দিনের ফ্রি ট্রায়াল শুরু করুন (Start 15-Day Free Trial)
         </a>
+        <span style="font-size:11px;color:#a7f3d0;font-weight:600;">✓ Zero Credit Card Required • Cancel Anytime</span>
       </div>
-    </aside>
+    </div>
 
+    <!-- Track Filter + Currency & Billing Period Controls -->
+    <div class="pricing-controls" style="justify-content:space-between;">
+      <div class="p-toggle-group" role="group" aria-label="Subscription Track Switcher">
+        <button type="button" id="trk-all" class="p-toggle-btn active" onclick="setPriceTrack('all')">📋 সব প্ল্যান একসাথে (All Plans)</button>
+        <button type="button" id="trk-mcp" class="p-toggle-btn" onclick="setPriceTrack('mcp')">📦 Track A: Courier MCP Only</button>
+        <button type="button" id="trk-main" class="p-toggle-btn" onclick="setPriceTrack('main')">🤖 Track B: Main WhatsApp/Messenger AI</button>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <div class="p-toggle-group" role="group" aria-label="Currency Switcher">
+          <button type="button" id="cur-bdt" class="p-toggle-btn active" onclick="setPriceCurrency('bdt')">🇧🇩 BDT (৳ টাকা)</button>
+          <button type="button" id="cur-usd" class="p-toggle-btn" onclick="setPriceCurrency('usd')">🌍 USD ($ Global Cloud)</button>
+        </div>
+
+        <div class="p-toggle-group" role="group" aria-label="Billing Cycle Switcher">
+          <button type="button" id="bill-monthly" class="p-toggle-btn active" onclick="setPriceCycle('monthly')">মাসিক (Monthly)</button>
+          <button type="button" id="bill-yearly" class="p-toggle-btn" onclick="setPriceCycle('yearly')">বার্ষিক (Yearly -20% 🔥)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TRACK A: AURA COURIER MCP ONLY CONNECTED (STANDALONE LOGISTICS PLANS) -->
+    <!-- ===================================================================== -->
+    <div id="track-mcp-section" style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding:12px 16px;border-radius:12px;background:rgba(6,182,212,0.09);border:1px solid rgba(6,182,212,0.3);">
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#67e8f9;" data-lang="bn">
+            📦 Track A: শুধুমাত্র Aura Courier MCP সাবস্ক্রিপশন (Standalone Logistics &amp; Fraud Shield Only)
+          </div>
+          <div style="font-size:15px;font-weight:800;color:#67e8f9;" data-lang="en">
+            📦 Track A: Aura Courier MCP Only Connected (Standalone Logistics &amp; Fraud Shield API)
+          </div>
+          <div style="font-size:12px;color:#cbd5e1;" data-lang="bn">
+            যারা চ্যাটবট ছাড়া শুধুমাত্র নিজেদের WooCommerce, Shopify, Custom Website বা AI Agent-এ কুরিয়ার অটোমেশন, রিয়েল ব্যালেন্স, লাইভ ট্র্যাকিং ও ফ্রড শিল্ড কানেক্ট করতে চান।
+          </div>
+          <div style="font-size:12px;color:#cbd5e1;" data-lang="en">
+            For merchants connecting ONLY the `/mcp` logistics endpoint &amp; in-store widget to WooCommerce, Shopify, custom websites, or AI agents.
+          </div>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:rgba(16,185,129,0.18);color:#34d399;border:1px solid rgba(16,185,129,0.35);">
+          POST https://courier.auraajenticai.cloud/mcp
+        </span>
+      </div>
+
+      <div class="pricing-grid" style="grid-template-columns:repeat(3,1fr);">
+        <!-- Track A1: 15-Day Free Trial (MCP Only) -->
+        <div class="price-card">
+          <div>
+            <div class="p-tier-name">🎁 MCP 15-Day Free Trial</div>
+            <div class="p-tier-sub" data-lang="bn">নতুন মার্চেন্টদের ১৫ দিন সম্পূর্ণ ফ্রিতে টেস্ট করার জন্য</div>
+            <div class="p-tier-sub" data-lang="en">15-day risk-free trial for standalone Courier MCP</div>
+            <div class="p-amount-box">
+              <span class="p-amount" id="p-val-trial">৳ ০</span>
+              <span class="p-period" id="p-per-trial">/ প্রথম ১৫ দিন (First 15 Days)</span>
+              <div><span class="p-trial-note">✓ কোনো কার্ড বা অগ্রিম পেমেন্ট লাগবে না</span></div>
+            </div>
+            <ul class="p-feat-list">
+              <li><span class="ic-ok">✓</span> <span><b>১৫০টি লাইভ অর্ডার বুকিং</b> (Steadfast, Pathao, RedX, Paperfly)</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>৫০০টি রিয়েল-টাইম কাস্টমার ফ্রড চেক</b> (Pathao v2 + Steadfast DB)</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>সব কুরিয়ারের রিয়েল ব্যালেন্স ও লাইভ ট্র্যাকিং</b> (<code>get_balance</code>, <code>track_parcel</code>)</span></li>
+              <li><span class="ic-ok">✓</span> <span>১টি স্টোর উইজেট (WooCommerce / Shopify / Custom) + ৪x৬ থার্মাল লেবেল</span></li>
+              <li><span class="ic-ok">✓</span> <span>Google Maps ডেলিভারি জোন ও চার্জ ক্যালকুলেটর</span></li>
+              <li><span class="ic-ok">✓</span> <span>AES-256 Zero-Knowledge API Key Vault</span></li>
+            </ul>
+          </div>
+          <a href="https://client.auraajenticai.cloud/#view-courier" class="p-cta-btn">🎁 ১৫ দিন ফ্রি ট্রায়াল চালু করুন</a>
+        </div>
+
+        <!-- Track A2: Courier MCP Starter -->
+        <div class="price-card">
+          <div>
+            <div class="p-tier-name">📦 Courier MCP Starter</div>
+            <div class="p-tier-sub" data-lang="bn">শুধুমাত্র কুরিয়ার ও ফ্রড শিল্ড — ছোট ও মাঝারি ওয়েবসাইটের জন্য</div>
+            <div class="p-tier-sub" data-lang="en">Standalone Courier &amp; Fraud Shield for single web stores</div>
+            <div class="p-amount-box">
+              <span class="p-amount" id="p-val-starter">৳ ৪৯৯</span>
+              <span class="p-period" id="p-per-starter">/ মাস (Per Month)</span>
+              <div><span class="p-trial-note">🎁 প্রথম ১৫ দিন ফ্রি ট্রায়ালসহ • অতিরিক্ত অর্ডার মাত্র ৳০.৫০/টি</span></div>
+            </div>
+            <ul class="p-feat-list">
+              <li><span class="ic-ok">✓</span> <span>প্রতি মাসে <b>১,০০০টি অর্ডার বুকিং</b> (৪টি কুরিয়ারে ১-ক্লিক ডিসপ্যাচ)</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>আনলিমিটেড (Unlimited)</b> রিয়েল-টাইম কাস্টমার ফ্রড চেক</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>১টি ওয়েবসাইট ইন-ড্যাশবোর্ড উইজেট</b> (WooCommerce / Shopify / Custom)</span></li>
+              <li><span class="ic-ok">✓</span> <span>Steadfast, Pathao, RedX ও Paperfly <b>রিয়েল ব্যালেন্স ও লাইভ ট্র্যাকিং</b></span></li>
+              <li><span class="ic-ok">✓</span> <span>৪x৬ থার্মাল বারকোড লেবেল ও ওয়েবহুক স্ট্যাটাস সিঙ্ক</span></li>
+              <li><span class="ic-ok">✓</span> <span>AES-256 Zero-Knowledge Vault সুরক্ষা</span></li>
+            </ul>
+          </div>
+          <a href="https://client.auraajenticai.cloud/#view-courier" class="p-cta-btn">📦 MCP Starter শুরু করুন</a>
+        </div>
+
+        <!-- Track A3: Courier MCP Pro (Most Popular Standalone) -->
+        <div class="price-card popular">
+          <span class="pop-ribbon">🔥 Best for E-Commerce Stores</span>
+          <div>
+            <div class="p-tier-name">🚀 Courier MCP Pro (Unlimited)</div>
+            <div class="p-tier-sub" data-lang="bn">আনলিমিটেড কুরিয়ার বুকিং, মাল্টি-স্টোর ও Google Maps স্পেশিয়াল ইঞ্জিন</div>
+            <div class="p-tier-sub" data-lang="en">Unlimited Courier MCP, Multi-Store Bridge &amp; Google Maps Routing</div>
+            <div class="p-amount-box">
+              <span class="p-amount" id="p-val-pro">৳ ৯৯৯</span>
+              <span class="p-period" id="p-per-pro">/ মাস (Per Month)</span>
+              <div><span class="p-trial-note">🎁 প্রথম ১৫ দিন ফ্রি ট্রায়ালসহ • ১০০% আনলিমিটেড বুকিং</span></div>
+            </div>
+            <ul class="p-feat-list">
+              <li><span class="ic-ok">✓</span> <span><b>আনলিমিটেড (Unlimited)</b> অর্ডার বুকিং ও ৪-কুরিয়ার অটো-ক্যাসকেডিং</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>আনলিমিটেড (Unlimited)</b> রিয়েল-টাইম কাস্টমার ফ্রড চেক (Pathao v2 + Steadfast)</span></li>
+              <li><span class="ic-ok">✓</span> <span>সর্বোচ্চ <b>৩টি স্টোর কানেকশন</b> (WooCommerce + Shopify + Custom ERP)</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>Google Maps Platform</b> রুফটপ জিওকোডিং ও ৪-কুরিয়ার লাইভ রেট তুলনা</span></li>
+              <li><span class="ic-ok">✓</span> <span>অটোমেটেড <b>NDR ডিসপিউট ও WhatsApp মেসেজ জেনারেটর</b> + ফুল MCP AI Agent</span></li>
+              <li><span class="ic-ok">✓</span> <span>প্রায়োরিটি WhatsApp ও ইঞ্জিনিয়ারিং সাপোর্ট</span></li>
+            </ul>
+          </div>
+          <a href="https://client.auraajenticai.cloud/#view-courier" class="p-cta-btn">🚀 MCP Pro ফ্রি ট্রায়াল শুরু করুন</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TRACK B: MAIN AURA OMNICHANNEL AI SUBSCRIPTION (WHATSAPP + MESSENGER) -->
+    <!-- ===================================================================== -->
+    <div id="track-main-section" style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding:12px 16px;border-radius:12px;background:rgba(139,92,246,0.11);border:1px solid rgba(139,92,246,0.38);">
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#c4b5fd;" data-lang="bn">
+            🤖 Track B: আমাদের মেইন সাবস্ক্রিপশন — ৬-পিলার WhatsApp, Messenger ও Instagram AI Bot + মেসেজ-প্রতি বিলিং + ফুল ড্যাশবোর্ড
+          </div>
+          <div style="font-size:15px;font-weight:800;color:#c4b5fd;" data-lang="en">
+            🤖 Track B: Main Aura Platform Subscription — 6-Pillar WhatsApp/Messenger AI + Per-Message Quota + Full Client Dashboard
+          </div>
+          <div style="font-size:12px;color:#cbd5e1;" data-lang="bn">
+            Google Cloud Startup স্ট্যান্ডার্ড অনুযায়ী তৈরি আমাদের মেইন প্ল্যাটফর্ম প্ল্যান—যেখানে ২৪/৭ অটোমেটিক সেলস ক্লোজিং, চ্যাট থেকে অটো-অর্ডার (<code>✨ চ্যাট অর্ডার</code>), <code>#view-inbox</code>, <code>#view-risk</code> এবং <code>Aura Courier MCP</code> সবকিছু একসাথে বিল্ট-ইন!
+          </div>
+          <div style="font-size:12px;color:#cbd5e1;" data-lang="en">
+            Aligned with our official Google Cloud Startup SaaS tiers on <code>auraajenticai.cloud</code> — combining 24/7 conversational AI closing, per-message metering, Omnichannel Inbox, and Courier MCP.
+          </div>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:rgba(139,92,246,0.22);color:#ddd6fe;border:1px solid rgba(139,92,246,0.45);">
+          ☁️ Google Cloud Vertex AI + Courier MCP Included
+        </span>
+      </div>
+
+      <div class="pricing-grid" style="grid-template-columns:repeat(3,1fr);">
+        <!-- Track B1: Aura Starter ($19 / ৳1,999) -->
+        <div class="price-card">
+          <div>
+            <div class="p-tier-name">⚡ Aura AI Starter</div>
+            <div class="p-tier-sub" data-lang="bn">১টি AI সেলস এজেন্ট (WhatsApp বা Messenger) + ১,০০০ কনভার্সেশন/মাস</div>
+            <div class="p-tier-sub" data-lang="en">1 Autonomous AI Agent (WhatsApp or Messenger) + 1,000 Conversations/mo</div>
+            <div class="p-amount-box">
+              <span class="p-amount" id="p-val-main-starter">৳ ১,৯৯৯</span>
+              <span class="p-period" id="p-per-main-starter">/ মাস (Per Month)</span>
+              <div><span class="p-trial-note">🎁 প্রথম ১৫ দিন ফ্রি • অতিরিক্ত মেসেজ: ৳১.০০ ($0.01)/মেসেজ</span></div>
+            </div>
+            <ul class="p-feat-list">
+              <li><span class="ic-ok">✓</span> <span><b>১টি ৬-পিলার AI Sales Agent</b> (WhatsApp অথবা Facebook Messenger)</span></li>
+              <li><span class="ic-ok">✓</span> <span>প্রতি মাসে <b>১,০০০ অটোনোমাস কনভার্সেশন</b> অন্তর্ভুক্ত (২৪ ঘণ্টা উইন্ডোতে ফ্রি রিপ্লাই)</span></li>
+              <li><span class="ic-ok">✓</span> <span>চ্যাট থেকে অটো নাম, ফোন ও ঠিকানা পার্সিং (<code>✨ চ্যাট অর্ডার</code>)</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>Aura Courier MCP অন্তর্ভুক্ত</b> (Steadfast ও Pathao ১-ক্লিক ডিসপ্যাচ ও ফ্রড চেক)</span></li>
+              <li><span class="ic-ok">✓</span> <span>Omnichannel Live Inbox (<code>#view-inbox</code>) ও প্রোডাক্ট ক্যাটালগ সিঙ্ক</span></li>
+              <li><span class="ic-ok">✓</span> <span>Google Cloud Gemini AI ইঞ্জিন ও স্ট্যান্ডার্ড সাপোর্ট</span></li>
+            </ul>
+          </div>
+          <a href="https://client.auraajenticai.cloud" class="p-cta-btn">⚡ Aura Starter ১৫ দিন ফ্রি ট্রায়াল</a>
+        </div>
+
+        <!-- Track B2: Aura Growth ($49 / ৳4,999 - Most Popular Full Suite) -->
+        <div class="price-card suite">
+          <span class="pop-ribbon" style="background:linear-gradient(135deg,#8b5cf6,#06b6d4);color:#fff;">👑 Most Popular Full Suite</span>
+          <div>
+            <div class="p-tier-name">🌐 Aura AI Growth (Full 6-Pillar)</div>
+            <div class="p-tier-sub" data-lang="bn">WhatsApp + Messenger + IG + FB Comments + আনলিমিটেড চ্যাট + ফুল Courier MCP Pro</div>
+            <div class="p-tier-sub" data-lang="en">Omnichannel 6-Pillar AI (WA + FB + IG) + Unlimited Chat + Courier MCP Pro</div>
+            <div class="p-amount-box">
+              <span class="p-amount" id="p-val-suite">৳ ৪,৯৯৯</span>
+              <span class="p-period" id="p-per-suite">/ মাস (Per Month)</span>
+              <div><span class="p-trial-note">🎁 প্রথম ১৫ দিন ফ্রি • ২৪ ঘণ্টা উইন্ডোতে আনলিমিটেড ফ্রি AI মেসেজ!</span></div>
+            </div>
+            <ul class="p-feat-list">
+              <li><span class="ic-ok">✓</span> <span><b>ফুল ৬-পিলার Omnichannel AI Bot</b> (WhatsApp + Messenger + Instagram + FB Comments)</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>আনলিমিটেড (Unlimited)</b> ২৪-ঘণ্টা অ্যাক্টিভ কাস্টমার কনভার্সেশন ও অটো-ক্লোজিং</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>Courier MCP Pro সম্পূর্ণ ফ্রি অন্তর্ভুক্ত</b> (৪টি কুরিয়ার + Google Maps + আনলিমিটেড ফ্রড শিল্ড)</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>3-Column Omnichannel Inbox (<code>#view-inbox</code>)</b> + AI Copilot + 360° রিস্ক মিটার</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>Logistics Profit Guard (<code>#view-risk</code>)</b> ও ১-ক্লিক বাল্ক অর্ডার ডিসপ্যাচ</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>Pillar 6: ২৮-দিনের অটোমেটিক রিফিল ও রিটেনশন মেশিন</b> (Day 7, 21, 28 Follow-up)</span></li>
+            </ul>
+          </div>
+          <a href="https://client.auraajenticai.cloud" class="p-cta-btn">👑 Aura Growth ১৫ দিন ফ্রি ট্রায়াল</a>
+        </div>
+
+        <!-- Track B3: Aura Enterprise Cloud ($149 / ৳14,999) -->
+        <div class="price-card">
+          <div>
+            <div class="p-tier-name">🏢 Aura Enterprise Cloud</div>
+            <div class="p-tier-sub" data-lang="bn">ডেডিকেটেড আইসোলেটেড ক্লাউড, কাস্টম ফাইন-টিউনড LLM ও মাল্টি-ব্র্যান্ড ERP</div>
+            <div class="p-tier-sub" data-lang="en">Dedicated Isolated Google Cloud, Fine-Tuned Gemini LLMs &amp; Custom ERP</div>
+            <div class="p-amount-box">
+              <span class="p-amount" id="p-val-enterprise">৳ ১৪,৯৯৯</span>
+              <span class="p-period" id="p-per-enterprise">/ মাস (Custom Cloud)</span>
+              <div><span class="p-trial-note">☁️ Google Cloud Partner Dedicated Architecture • 99.9% SLA</span></div>
+            </div>
+            <ul class="p-feat-list">
+              <li><span class="ic-ok">✓</span> <span><b>ডেডিকেটেড আইসোলেটেড VPS / ক্লাউড কন্টেইনার</b> ও কাস্টম ডোমেইন হোয়াইট-লেবেল</span></li>
+              <li><span class="ic-ok">✓</span> <span><b>কাস্টম ফাইন-টিউনড Vertex AI / Gemini Model</b> ও মাল্টি-ব্র্যান্ড/মাল্টি-পেজ সাপোর্ট</span></li>
+              <li><span class="ic-ok">✓</span> <span>আনলিমিটেড স্টোর, আনলিমিটেড কুরিয়ার বুকিং ও ডেডিকেটেড Meta WABA ইন্টিগ্রেশন</span></li>
+              <li><span class="ic-ok">✓</span> <span>কাস্টম ERP, SAP, ব্যবসার হিসাব ও ওয়্যারহাউস ওয়েবহুক অটোমেশন</span></li>
+              <li><span class="ic-ok">✓</span> <span>ডেডিকেটেড সলিউশন আর্কিটেক্ট ও ২৪/৭ ভিআইপি ইঞ্জিনিয়ারিং সাপোর্ট</span></li>
+            </ul>
+          </div>
+          <a href="https://auraajenticai.cloud/#contact" class="p-cta-btn">🏢 এন্টারপ্রাইজ কনসালটেশন বুক করুন</a>
+        </div>
+      </div>
+
+      <!-- PER-MESSAGE & META OFFICIAL CONVERSATION BILLING TABLE -->
+      <div class="compare-wrap" style="margin-top:18px;margin-bottom:0;">
+        <div style="padding:12px 16px;background:rgba(15,23,42,0.95);border-bottom:1px solid rgba(148,163,184,0.2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:13.5px;font-weight:800;color:#f8fafc;">
+            💬 <span data-lang="bn">মেসেজ-প্রতি চার্জ ও Meta Official WABA কনভার্সেশন রেট কার্ড (Per-Message &amp; Broadcast Billing)</span>
+            <span data-lang="en">Transparent Per-Message &amp; Meta Official WABA Conversation Rate Card</span>
+          </div>
+          <span style="font-size:11px;color:#34d399;font-family:'JetBrains Mono',monospace;">✓ Zero Hidden Markup • Official Meta WABA Pass-Through</span>
+        </div>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>মেসেজ / কনভার্সেশন টাইপ (Message Category)</th>
+              <th>কখন প্রযোজ্য? (When Triggered?)</th>
+              <th>Aura Starter প্ল্যানে চার্জ</th>
+              <th>Aura Growth / Enterprise প্ল্যানে চার্জ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>১. ২৪-ঘণ্টা অ্যাক্টিভ কাস্টমার উইন্ডো রিপ্লাই</b><br/><span style="font-size:11px;color:#94a3b8;">(24h Service Window AI Auto-Replies &amp; Closing)</span></td>
+              <td>কাস্টমার নিজে WhatsApp, Messenger বা Instagram-এ মেসেজ দেওয়ার ২৪ ঘণ্টার মধ্যে AI বটের সকল কথোপকথন ও অর্ডার কনফার্মেশন</td>
+              <td class="chk-yes">১,০০০ কনভার্সেশন ফ্রি<br/><span style="font-size:11px;color:#cbd5e1;">(অতিরিক্ত: <b>৳১.০০ / $0.01</b> প্রতি মেসেজ)</span></td>
+              <td class="chk-yes"><b>৳ ০.০০ / $0.00 (১০০% ফ্রি ও আনলিমিটেড!)</b></td>
+            </tr>
+            <tr>
+              <td><b>২. Meta Utility Broadcast Template</b><br/><span style="font-size:11px;color:#94a3b8;">(Order Update, Tracking &amp; 28-Day Refill Reminder)</span></td>
+              <td>২৪ ঘণ্টার উইন্ডো শেষ হওয়ার পর কাস্টমারকে অটোমেটিক কুরিয়ার ট্র্যাকিং বা ২৮-দিনের রিফিল রিমাইন্ডার পাঠালে</td>
+              <td><b>৳ ২.৫০ / মেসেজ</b> (~$0.020 USD)</td>
+              <td><b>৳ ২.৫০ / মেসেজ</b> (~$0.020 USD)</td>
+            </tr>
+            <tr>
+              <td><b>৩. Meta Marketing Broadcast Template</b><br/><span style="font-size:11px;color:#94a3b8;">(Promotional Offer, Discount &amp; Festival Blast)</span></td>
+              <td>পুরাতন বা নতুন কাস্টমারদের কাছে বাল্ক প্রমোশনাল অফার বা ডিসকাউন্ট ক্যাম্পেইন ব্রডকাস্ট করলে</td>
+              <td><b>৳ ১০.৫০ / মেসেজ</b> (~$0.085 USD)</td>
+              <td><b>৳ ১০.৫০ / মেসেজ</b> (~$0.085 USD)</td>
+            </tr>
+            <tr>
+              <td><b>৪. কুরিয়ার পার্সেল বুকিং ও রিয়েল-টাইম ফ্রড স্ক্যান</b><br/><span style="font-size:11px;color:#94a3b8;">(Courier Booking &amp; Nationwide Fraud Shield)</span></td>
+              <td>প্রতিটি অর্ডার বুকিং এবং কাস্টমারের মোবাইল নাম্বার ফ্রড চেক</td>
+              <td class="chk-yes"><b>৳ ০.০০ (ফ্রি ও আনলিমিটেড)</b></td>
+              <td class="chk-yes"><b>৳ ০.০০ (ফ্রি ও আনলিমিটেড)</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECTION 5: STEP-BY-STEP HOW TO CONNECT -->
+    <div class="sec-title">
+      <span class="sec-num">05</span>
+      <span data-lang="bn">কীভাবে কানেক্ট ও ব্যবহার শুরু করবেন? (স্টেপ-বাই-স্টেপ গাইড)</span>
+      <span data-lang="en">How to Connect &amp; Start Your 15-Day Free Trial (Step-by-Step Setup)</span>
+    </div>
+
+    <div class="grid-2">
+      <!-- Mode A: WooCommerce & Shopify -->
+      <div class="card">
+        <span class="card-tag">WooCommerce • Shopify • Custom Website</span>
+        <h3 data-lang="bn">পদ্ধতি A: আপনার নিজের ওয়েবসাইটের ড্যাশবোর্ডে (Zero-Code ১-ক্লিক সেটআপ)</h3>
+        <h3 data-lang="en">Mode A: Inside Your Own WooCommerce / Shopify / Custom Admin</h3>
+        <ol data-lang="bn">
+          <li><span class="step-badge">ধাপ ১</span> প্রথমে <a href="https://client.auraajenticai.cloud/#view-courier"><b>Aura Client Portal (#view-courier)</b></a>-এ গিয়ে আপনার Steadfast, Pathao, RedX বা Paperfly-এর API Key গুলো একবার সেভ করুন (এগুলো সরাসরি <b>AES-256 Zero-Knowledge Vault</b>-এ এনক্রিপ্ট হয়ে থাকবে)।</li>
+          <li><span class="step-badge">ধাপ ২</span> <b>WooCommerce স্টোরের জন্য:</b> ১-ক্লিকে আমাদের হালকা ব্রিজ প্লাগইনটি (<code>aura-courier-woocommerce-bridge.php</code>) ডাউনলোড করে WordPress-এ আপলোড করুন।</li>
+          <li><span class="step-badge">ধাপ ৩</span> <b>Shopify বা কাস্টম স্টোরের জন্য:</b> ১-লাইনের <code>&lt;script src="https://courier.auraajenticai.cloud/sdk/aura-courier-widget.js"&gt;&lt;/script&gt;</code> আপনার অ্যাডমিন পেজে যুক্ত করুন অথবা Webhook কানেক্ট করুন।</li>
+          <li><span class="step-badge">ধাপ ৪</span> এবার আপনার স্টোরের যেকোনো অর্ডারে ঢুকলেই ডানপাশে <b>Aura Courier MCP বক্স</b> দেখতে পাবেন—যেখানে কাস্টমারের রিয়েল-টাইম ফ্রড রিপোর্ট ও ১-ক্লিক কুরিয়ার বুকিং বাটন থাকবে!</li>
+        </ol>
+        <ol data-lang="en" style="margin-top:10px">
+          <li><span class="step-badge">Step 1</span> Open <a href="https://client.auraajenticai.cloud/#view-courier"><b>Aura Client Portal (#view-courier)</b></a> and save your Steadfast, Pathao, RedX, or Paperfly API keys once into the <b>AES-256 Zero-Knowledge Vault</b>.</li>
+          <li><span class="step-badge">Step 2</span> <b>For WooCommerce:</b> Install the lightweight 1-file bridge plugin or connect your WooCommerce REST API keys.</li>
+          <li><span class="step-badge">Step 3</span> <b>For Shopify / Custom / Supabase:</b> Connect via OAuth/Webhook or drop the 1-line Universal Admin SDK script into your order detail page.</li>
+          <li><span class="step-badge">Step 4</span> Open any order in your store admin to see the live <b>Customer Fraud Risk Score</b> and dispatch to any of the 4 couriers with 1 click!</li>
+        </ol>
+        <div class="cta-row">
+          <a href="https://client.auraajenticai.cloud/#view-courier" class="btn-sm">⚡ Open Store &amp; Courier Vault Setup</a>
+        </div>
+      </div>
+
+      <!-- Mode B: Direct REST API & MCP AI Agents -->
+      <div class="card">
+        <span class="card-tag">Direct REST API &amp; MCP AI Agents (v2.6.0)</span>
+        <h3 data-lang="bn">পদ্ধতি B: কাস্টম ওয়েবসাইট API অথবা Claude / Cursor / Antigravity / n8n এজেন্ট</h3>
+        <h3 data-lang="en">Mode B: Custom Backend API or Claude / Cursor / Antigravity / n8n Agents</h3>
+        <p data-lang="bn">
+          আপনার নিজস্ব ওয়েবসাইট বা AI এজেন্ট থেকে সরাসরি <code>POST /mcp</code> এন্ডপয়েন্টে কল করে ৯টি লাইভ কুরিয়ার টুল বাংলা ও ইংরেজি (<code>lang: "bn"</code> / <code>"en"</code> / <code>"both"</code>) দুই ভাষাতেই ব্যবহার করতে পারেন:
+        </p>
+        <p data-lang="en" style="margin-top:6px">
+          Connect any custom backend or MCP client via Streamable HTTP (<code>POST /mcp</code>) or <code>npx aura-courier-mcp</code> to access all 9 live Bangladesh logistics tools:
+        </p>
+        <div class="code-box">{
+  "mcpServers": {
+    "aura-courier": {
+      "url": "https://courier.auraajenticai.cloud/mcp",
+      "headers": {
+        "x-steadfast-api-key": "YOUR_STEADFAST_API_KEY",
+        "x-steadfast-secret-key": "YOUR_STEADFAST_SECRET_KEY"
+      }
+    }
+  }
+}</div>
+        <div class="cta-row">
+          <a href="/explorer" class="btn-sm">🧪 Open Interactive MCP Tool Explorer</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- VAULT GUARANTEE BANNER -->
+    <div class="vault-banner">
+      <div style="max-width:820px">
+        <h3 style="color:#34d399;font-size:17px;margin-bottom:6px" data-lang="bn">🔒 আন্তর্জাতিক মানের AES-256 Zero-Knowledge Vault ও গোপনীয়তার গ্যারান্টি</h3>
+        <h3 style="color:#34d399;font-size:17px;margin-bottom:6px" data-lang="en">🔒 International-Standard AES-256 Zero-Knowledge Vault Guarantee</h3>
+        <p style="font-size:13.5px;color:#cbd5e1" data-lang="bn">
+          যেকোনো মার্চেন্ট বা ক্লায়েন্ট তাদের কুরিয়ার বা স্টোর API কানেক্ট করার সাথে সাথে তা সরাসরি আমাদের <b>AES-256 এনক্রিপ্টেড ভল্টে</b> চলে যায় এবং ইন-মেমোরি আইসোলেশনে কাজ করে। কোনো ক্লায়েন্টের কুরিয়ার MCP-এর API Key আমরা বা আমাদের কোনো অ্যাডমিন কখনোই দেখতে পাই না।
+        </p>
+        <p style="font-size:13.5px;color:#cbd5e1;margin-top:6px" data-lang="en">
+          When any merchant connects their courier or store API keys, they are immediately encrypted into our <b>AES-256 Cryptographic Vault</b> or processed transiently in isolated memory. Neither Aura administrators nor engineers can ever view or access any client's courier API keys.
+        </p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <a href="/privacy" class="nav-btn primary">📜 Read Full Privacy &amp; Vault Policy</a>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>
+        <b>Aura Courier MCP v2.6.0</b> • Powered by <a href="https://auraajenticai.cloud">Aura Ajentic AI</a>
+        | <a href="/">Home</a>
+        | <a href="/guide">User Guide (গাইড)</a>
+        | <a href="/guide#pricing">15-Day Free Trial &amp; Pricing</a>
+        | <a href="/explorer">MCP Explorer</a>
+        | <a href="/health">Live Health</a>
+        | <a href="/privacy">Privacy &amp; Zero-Knowledge Vault Policy</a>
+      </p>
+    </footer>
+  </main>
+
+  <!-- THERMAL SHIPPING LABEL MODAL -->
+  <div id="thermal-modal" class="label-modal-backdrop" onclick="if(event.target===this) closeThermalModal()">
+    <div class="thermal-label-card">
+      <div class="thermal-border">
+        <div class="thermal-head">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <img src="/assets/courier-logo.jpg" alt="Aura" style="width:32px;height:32px;border-radius:6px;" />
+            <div>
+              <div style="font-weight:900;font-size:14px;">AURA LOGISTICS HUB</div>
+              <div style="font-size:10px;color:#475569;">4x6 Thermal Dispatch Label</div>
+            </div>
+          </div>
+          <div id="lbl-carrier-badge" style="background:#0f172a;color:#fff;font-weight:800;font-size:12px;padding:4px 9px;border-radius:5px;">
+            STEADFAST
+          </div>
+        </div>
+
+        <div class="thermal-barcode">
+          <div class="barcode-bars">||| |||| || ||| |||| |||</div>
+          <div id="lbl-cid" style="font-weight:800;font-size:14px;margin-top:4px;">SF-8923412</div>
+        </div>
+
+        <div style="font-size:12px;line-height:1.5;margin-bottom:10px;border-bottom:1.5px dashed #334155;padding-bottom:10px;">
+          <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;">Deliver To (প্রাপক):</div>
+          <div style="font-weight:800;font-size:14px;">তানভীর আহমেদ (Tanvir Ahmed)</div>
+          <div style="font-weight:700;font-family:'JetBrains Mono',monospace;">📞 01712-345678</div>
+          <div id="lbl-addr">বাসা ১২, রোড ৫, ধানমন্ডি, ঢাকা ১২০৫</div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;margin-bottom:10px;">
+          <div>
+            <div style="font-size:10px;color:#64748b;">Order / Weight</div>
+            <div style="font-weight:700;">#5842 • 0.5 kg</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;color:#64748b;">COD Collectible</div>
+            <div id="lbl-cod" style="font-weight:900;font-size:16px;">৳ 1,410</div>
+          </div>
+        </div>
+
+        <div style="background:#f1f5f9;padding:6px 10px;border-radius:6px;font-size:10.5px;text-align:center;font-weight:600;color:#334155;">
+          🛡️ Verified by Aura Courier MCP Real-Time Fraud Shield
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button type="button" onclick="window.print()" style="flex:1;padding:10px;border:none;border-radius:8px;background:#0f172a;color:#fff;font-weight:800;cursor:pointer;">
+          🖨️ Print Now
+        </button>
+        <button type="button" onclick="closeThermalModal()" style="padding:10px 16px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;font-weight:700;cursor:pointer;">
+          Close
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="docs-footer">
-    Aura Courier MCP v2.6.0 • Built with Antigravity • Google Cloud Partner Advantage Verified • Apache-2.0 License
-  </footer>
-
   <script>
-    // Copy Snippet Helper
-    function copySnippet(elementId) {
-      const el = document.getElementById(elementId);
-      if (!el) return;
-      const text = el.innerText || el.textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Copied to clipboard!");
-      }).catch(() => {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        alert("Copied to clipboard!");
+    function setGuideLang(mode) {
+      document.body.className = 'lang-' + mode;
+      ['both', 'bn', 'en'].forEach(function(m) {
+        var b = document.getElementById('btn-' + m);
+        if (b) b.classList.toggle('active', m === mode);
       });
+      try { localStorage.setItem('aura_guide_lang', mode); } catch (e) {}
     }
+    (function() {
+      var q = new URLSearchParams(window.location.search).get('lang');
+      var saved = '';
+      try { saved = localStorage.getItem('aura_guide_lang') || ''; } catch (e) {}
+      if (q === 'bn' || q === 'en' || q === 'both') setGuideLang(q);
+      else if (saved === 'bn' || saved === 'en' || saved === 'both') setGuideLang(saved);
+    })();
 
-    // Dock Tab Switcher
-    function switchDockTab(tabId) {
-      document.querySelectorAll(".dock-tab-btn").forEach(btn => btn.classList.remove("active"));
-      document.querySelectorAll(".dock-snippet").forEach(snip => snip.classList.remove("active"));
-      
-      const targetBtn = Array.from(document.querySelectorAll(".dock-tab-btn")).find(b => b.textContent.toLowerCase().includes(tabId));
-      if (targetBtn) targetBtn.classList.add("active");
+    // Interactive Store & Client Dashboard Simulator Logic
+    var simCarrier = { id: 'steadfast', name: 'Steadfast' };
+    var simIsHighRisk = false;
 
-      const targetSnip = document.getElementById("dock-" + tabId);
-      if (targetSnip) targetSnip.classList.add("active");
-    }
+    function switchSimPlatform(p) {
+      var tWoo = document.getElementById('tab-woo');
+      var tShop = document.getElementById('tab-shopify');
+      var tCust = document.getElementById('tab-custom');
+      var tAura = document.getElementById('tab-aura');
+      tWoo.className = 'sim-tab';
+      tShop.className = 'sim-tab';
+      tCust.className = 'sim-tab';
+      tAura.className = 'sim-tab';
 
-    // Language Toggle
-    function toggleLanguage() {
-      const body = document.body;
-      const isEnglish = body.classList.toggle("lang-en");
-      const label = document.getElementById("langLabel");
-      if (label) {
-        label.innerText = isEnglish ? "বাংলা" : "English";
+      var badge = document.getElementById('sim-platform-badge');
+      var url = document.getElementById('sim-url-text');
+      var icon = document.getElementById('sim-store-icon');
+      var title = document.getElementById('sim-store-title');
+      var storeSub = document.getElementById('sim-store-sub');
+      var sub = document.getElementById('sim-order-sub');
+      var aiBanner = document.getElementById('sim-ai-chat-banner');
+      var nav2Txt = document.getElementById('sim-nav-2-txt');
+      var nav3Txt = document.getElementById('sim-nav-3-txt');
+      var nav4Txt = document.getElementById('sim-nav-4-txt');
+      var wSub = document.getElementById('sim-widget-subtitle');
+
+      if (p === 'woo') {
+        tWoo.className = 'sim-tab active-woo';
+        badge.textContent = 'WordPress • WooCommerce Order Edit (Standalone MCP)';
+        badge.style.background = 'rgba(139,92,246,0.2)';
+        badge.style.color = '#c4b5fd';
+        badge.style.borderColor = 'rgba(139,92,246,0.4)';
+        url.textContent = 'https://your-store.com/wp-admin/post.php?post=5842&action=edit';
+        icon.textContent = 'W';
+        icon.style.background = '#7e3af2';
+        title.textContent = 'WP Admin';
+        storeSub.textContent = 'WooCommerce Panel';
+        sub.textContent = 'via WooCommerce Checkout';
+        aiBanner.className = 'ai-chat-banner';
+        nav2Txt.textContent = '📦 Orders';
+        nav3Txt.textContent = '🏷️ Products & Stock';
+        nav4Txt.textContent = '👥 Customers';
+        wSub.textContent = 'In-Dashboard Endpoint • v2.6.0';
+      } else if (p === 'shopify') {
+        tShop.className = 'sim-tab active-shopify';
+        badge.textContent = 'Shopify Admin • Order #5842 (Standalone MCP)';
+        badge.style.background = 'rgba(16,185,129,0.2)';
+        badge.style.color = '#6ee7b7';
+        badge.style.borderColor = 'rgba(16,185,129,0.4)';
+        url.textContent = 'https://admin.shopify.com/store/your-brand/orders/5842';
+        icon.textContent = 'S';
+        icon.style.background = '#059669';
+        title.textContent = 'Shopify Admin';
+        storeSub.textContent = 'Shopify Storefront';
+        sub.textContent = 'via Shopify Online Store';
+        aiBanner.className = 'ai-chat-banner';
+        nav2Txt.textContent = '📦 Orders';
+        nav3Txt.textContent = '🏷️ Inventory';
+        nav4Txt.textContent = '👥 Customers';
+        wSub.textContent = 'Shopify App Block • v2.6.0';
+      } else if (p === 'custom') {
+        tCust.className = 'sim-tab active-custom';
+        badge.textContent = 'Custom Website • Supabase Admin (Standalone MCP)';
+        badge.style.background = 'rgba(37,99,235,0.2)';
+        badge.style.color = '#93c5fd';
+        badge.style.borderColor = 'rgba(37,99,235,0.4)';
+        url.textContent = 'https://admin.your-website.com/orders/ord_5842_supabase';
+        icon.textContent = '⚡';
+        icon.style.background = '#2563eb';
+        title.textContent = 'Custom Admin';
+        storeSub.textContent = 'Next.js + Supabase DB';
+        sub.textContent = 'via Custom Web Checkout';
+        aiBanner.className = 'ai-chat-banner';
+        nav2Txt.textContent = '📦 Orders';
+        nav3Txt.textContent = '🏷️ Catalog DB';
+        nav4Txt.textContent = '👥 Users';
+        wSub.textContent = 'Universal Admin SDK • v2.6.0';
+      } else {
+        tAura.className = 'sim-tab active-aura';
+        badge.textContent = 'Aura Client Dashboard • 6-Pillar AI + Omnichannel + #view-courier';
+        badge.style.background = 'rgba(13,148,136,0.25)';
+        badge.style.color = '#5eead4';
+        badge.style.borderColor = 'rgba(20,184,166,0.5)';
+        url.textContent = 'https://client.auraajenticai.cloud/#view-courier';
+        icon.textContent = 'A';
+        icon.style.background = '#0d9488';
+        title.textContent = 'Aura Client Hub';
+        storeSub.textContent = '6-Pillar AI & Logistics';
+        sub.textContent = '✨ চ্যাট অর্ডার (WhatsApp / Messenger AI)';
+        aiBanner.className = 'ai-chat-banner show';
+        nav2Txt.textContent = '🚚 #view-courier';
+        nav3Txt.textContent = '🛡️ #view-risk (Scan)';
+        nav4Txt.textContent = '💬 #view-inbox (360°)';
+        wSub.textContent = 'Native Portal Engine • v2.6.0';
       }
-      localStorage.setItem("aura_lang", isEnglish ? "en" : "bn");
     }
 
-    // Restore Language
-    if (localStorage.getItem("aura_lang") === "en") {
-      document.body.classList.add("lang-en");
-      const label = document.getElementById("langLabel");
-      if (label) label.innerText = "বাংলা";
+    function updateSimZone() {
+      var z = document.getElementById('sim-zone-select').value;
+      var addrEl = document.getElementById('sim-cust-addr');
+      var feeLbl = document.getElementById('sim-fee-label');
+      var totCod = document.getElementById('sim-total-cod');
+      var inpCod = document.getElementById('sim-input-cod');
+      var lblAddr = document.getElementById('lbl-addr');
+      var lblCod = document.getElementById('lbl-cod');
+
+      if (z === 'dhaka') {
+        document.getElementById('rate-sf').textContent = '৳70';
+        document.getElementById('rate-pt').textContent = '৳60';
+        document.getElementById('rate-rx').textContent = '৳80';
+        document.getElementById('rate-pf').textContent = '৳70';
+        addrEl.textContent = 'বাসা ১২, রোড ৫, ধানমন্ডি, ঢাকা ১২০৫ (House 12, Road 5, Dhanmondi, Dhaka)';
+        feeLbl.textContent = 'ডেলিভারি চার্জ (৳60) সহ মোট ক্যাশ অন ডেলিভারি (COD):';
+        totCod.textContent = '৳ 1,410';
+        inpCod.value = '৳ 1410';
+        lblAddr.textContent = 'বাসা ১২, রোড ৫, ধানমন্ডি, ঢাকা ১২০৫';
+        lblCod.textContent = '৳ 1,410';
+      } else if (z === 'sub') {
+        document.getElementById('rate-sf').textContent = '৳100';
+        document.getElementById('rate-pt').textContent = '৳90';
+        document.getElementById('rate-rx').textContent = '৳100';
+        document.getElementById('rate-pf').textContent = '৳95';
+        addrEl.textContent = 'আটি বাজার, কেরানীগঞ্জ, ঢাকা (Ati Bazar, Keraniganj, Sub-Dhaka)';
+        feeLbl.textContent = 'ডেলিভারি চার্জ (৳100) সহ মোট ক্যাশ অন ডেলিভারি (COD):';
+        totCod.textContent = '৳ 1,450';
+        inpCod.value = '৳ 1450';
+        lblAddr.textContent = 'আটি বাজার, কেরানীগঞ্জ, ঢাকা';
+        lblCod.textContent = '৳ 1,450';
+      } else {
+        document.getElementById('rate-sf').textContent = '৳130';
+        document.getElementById('rate-pt').textContent = '৳130';
+        document.getElementById('rate-rx').textContent = '৳140';
+        document.getElementById('rate-pf').textContent = '৳125';
+        addrEl.textContent = 'আগ্রাবাদ সি/এ, চট্টগ্রাম (Agrabad C/A, Chattogram — Outside Dhaka)';
+        feeLbl.textContent = 'ডেলিভারি চার্জ (৳130) সহ মোট ক্যাশ অন ডেলিভারি (COD):';
+        totCod.textContent = '৳ 1,480';
+        inpCod.value = '৳ 1480';
+        lblAddr.textContent = 'আগ্রাবাদ সি/এ, চট্টগ্রাম';
+        lblCod.textContent = '৳ 1,480';
+      }
     }
 
-    // Highlight active nav item on scroll
-    window.addEventListener("scroll", () => {
-      const sections = document.querySelectorAll(".doc-section");
-      const scrollPos = window.scrollY + 100;
-      sections.forEach(sec => {
-        if (scrollPos >= sec.offsetTop && scrollPos < sec.offsetTop + sec.offsetHeight) {
-          const id = sec.getAttribute("id");
-          document.querySelectorAll(".docs-sidebar .nav-link").forEach(link => {
-            if (link.getAttribute("href") === "#" + id) {
-              link.classList.add("active");
-            } else {
-              link.classList.remove("active");
-            }
-          });
-        }
+    function selectSimCarrier(id, name) {
+      simCarrier = { id: id, name: name };
+      ['steadfast', 'pathao', 'redx', 'paperfly'].forEach(function(cid) {
+        var el = document.getElementById('sim-car-' + cid);
+        if (el) el.classList.toggle('selected', cid === id);
       });
-    });
+      var btn = document.getElementById('sim-book-btn');
+      btn.className = 'book-now-btn';
+      btn.textContent = '🚀 ১-ক্লিকে ' + name + '-এ পার্সেল বুক করুন (1-Click Book in ' + name + ')';
+    }
+
+    function toggleSimFraud() {
+      simIsHighRisk = !simIsHighRisk;
+      var card = document.getElementById('sim-fraud-card');
+      var title = document.getElementById('sim-fraud-title');
+      var badge = document.getElementById('sim-fraud-badge');
+      var desc = document.getElementById('sim-fraud-desc');
+      var sf = document.getElementById('sim-sf-stat');
+      var pt = document.getElementById('sim-pt-stat');
+      var rx = document.getElementById('sim-rx-stat');
+
+      if (simIsHighRisk) {
+        card.className = 'fraud-card risk';
+        title.textContent = '🚨 হাই রিস্ক ফ্রড অ্যালার্ট! (High-Risk Return History)';
+        badge.textContent = '38% Success';
+        desc.innerHTML = 'সতর্কতা! ১৩টি অর্ডারের মধ্যে <strong>৮টি পার্সেলই রিটার্ন করেছে (62% Cancel Rate)</strong>। ডেলিভারি চার্জ অগ্রিম ছাড়া পাঠাবেন না!';
+        sf.textContent = '3/8';
+        pt.textContent = '2/5';
+        rx.textContent = '0/0';
+      } else {
+        card.className = 'fraud-card safe';
+        title.textContent = '🛡️ ১০০% অথেনটিক ফ্রড চেক: নিরাপদ ক্রেতা (Safe Buyer)';
+        badge.textContent = '94% Safe';
+        desc.innerHTML = 'মোট ১৮টি অর্ডারের মধ্যে <strong>১৭টি সফল ডেলিভারি (Delivered)</strong> এবং মাত্র ১টি রিটার্ন। নির্ভয়ে কুরিয়ারে পাঠাতে পারেন।';
+        sf.textContent = '12/13';
+        pt.textContent = '5/5';
+        rx.textContent = '0/0';
+      }
+    }
+
+    function bookSimParcel() {
+      var prefix = simCarrier.id === 'steadfast' ? 'SF-' : (simCarrier.id === 'pathao' ? 'PT-' : (simCarrier.id === 'redx' ? 'RX-' : 'PF-'));
+      var code = prefix + Math.floor(1000000 + Math.random() * 9000000);
+
+      document.getElementById('sim-booked-cid').textContent = code;
+      document.getElementById('sim-booked-carrier').textContent = simCarrier.name;
+      document.getElementById('sim-booked-banner').className = 'booked-banner show';
+
+      var st = document.getElementById('sim-order-status');
+      st.className = 'order-status-pill shipped';
+      st.textContent = '✅ Shipped (' + code + ')';
+
+      var btn = document.getElementById('sim-book-btn');
+      btn.className = 'book-now-btn booked';
+      btn.textContent = '✓ ' + simCarrier.name + '-এ বুকিং সম্পন্ন! Tracking: ' + code;
+
+      document.getElementById('lbl-cid').textContent = code;
+      document.getElementById('lbl-carrier-badge').textContent = simCarrier.name.toUpperCase();
+    }
+
+    function openThermalModal() {
+      document.getElementById('thermal-modal').className = 'label-modal-backdrop open';
+    }
+    function closeThermalModal() {
+      document.getElementById('thermal-modal').className = 'label-modal-backdrop';
+    }
+
+    // Pricing Track, Currency & Cycle Switcher Logic
+    var priceCur = 'bdt';
+    var priceCycle = 'monthly';
+    var priceTrack = 'all';
+
+    var priceMatrix = {
+      bdt: {
+        monthly: {
+          trial: '৳ ০',
+          starter: '৳ ৪৯৯',
+          pro: '৳ ৯৯৯',
+          mainStarter: '৳ ১,৯৯৯',
+          suite: '৳ ৪,৯৯৯',
+          enterprise: '৳ ১৪,৯৯৯',
+          per: '/ মাস (Per Month)'
+        },
+        yearly: {
+          trial: '৳ ০',
+          starter: '৳ ৩৯৯',
+          pro: '৳ ৭৯৯',
+          mainStarter: '৳ ১,৫৯৯',
+          suite: '৳ ৩,৯৯৯',
+          enterprise: '৳ ১১,৯৯৯',
+          per: '/ মাস (বার্ষিক ২০% ছাড়ে)'
+        }
+      },
+      usd: {
+        monthly: {
+          trial: '$0',
+          starter: '$9',
+          pro: '$19',
+          mainStarter: '$19',
+          suite: '$49',
+          enterprise: '$149',
+          per: '/ month (USD)'
+        },
+        yearly: {
+          trial: '$0',
+          starter: '$7',
+          pro: '$15',
+          mainStarter: '$15',
+          suite: '$39',
+          enterprise: '$119',
+          per: '/ month (Billed Yearly -20%)'
+        }
+      }
+    };
+
+    function renderPricing() {
+      var data = priceMatrix[priceCur][priceCycle];
+      document.getElementById('p-val-trial').textContent = data.trial;
+      document.getElementById('p-val-starter').textContent = data.starter;
+      document.getElementById('p-val-pro').textContent = data.pro;
+      document.getElementById('p-val-main-starter').textContent = data.mainStarter;
+      document.getElementById('p-val-suite').textContent = data.suite;
+      document.getElementById('p-val-enterprise').textContent = data.enterprise;
+      document.getElementById('p-per-starter').textContent = data.per;
+      document.getElementById('p-per-pro').textContent = data.per;
+      document.getElementById('p-per-main-starter').textContent = data.per;
+      document.getElementById('p-per-suite').textContent = data.per;
+      document.getElementById('p-per-enterprise').textContent = data.per;
+    }
+
+    function setPriceTrack(trk) {
+      priceTrack = trk;
+      document.getElementById('trk-all').classList.toggle('active', trk === 'all');
+      document.getElementById('trk-mcp').classList.toggle('active', trk === 'mcp');
+      document.getElementById('trk-main').classList.toggle('active', trk === 'main');
+
+      var mcpSec = document.getElementById('track-mcp-section');
+      var mainSec = document.getElementById('track-main-section');
+      if (mcpSec) mcpSec.style.display = (trk === 'all' || trk === 'mcp') ? 'block' : 'none';
+      if (mainSec) mainSec.style.display = (trk === 'all' || trk === 'main') ? 'block' : 'none';
+    }
+
+    function setPriceCurrency(c) {
+      priceCur = c;
+      document.getElementById('cur-bdt').classList.toggle('active', c === 'bdt');
+      document.getElementById('cur-usd').classList.toggle('active', c === 'usd');
+      renderPricing();
+    }
+
+    function setPriceCycle(cy) {
+      priceCycle = cy;
+      document.getElementById('bill-monthly').classList.toggle('active', cy === 'monthly');
+      document.getElementById('bill-yearly').classList.toggle('active', cy === 'yearly');
+      renderPricing();
+    }
   </script>
 </body>
 </html>
