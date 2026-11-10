@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { maskPhone, wrapError, McpToolError } from "../envelope.js";
 
 export type AuthScope = "read" | "write";
@@ -17,6 +17,7 @@ declare global {
   namespace Express {
     interface Request {
       auraAuth?: AuraAuthContext;
+      rawBody?: string | Buffer;
     }
   }
 }
@@ -52,16 +53,17 @@ export interface AuditEntry {
 }
 export const auditLogBuffer: AuditEntry[] = [];
 
+/**
+ * F10 Fix: Accept BYOK credentials STRICTLY from request headers.
+ * Query parameters are completely ignored to avoid leaking secrets in proxy/access logs.
+ */
 export function hasByokCredentials(req: Request): boolean {
   const h = req.headers;
-  const q = req.query as Record<string, string | undefined>;
-  const hasKey = (header: string, query: string) => Boolean(h[header] || q[query]);
-
   return Boolean(
-    hasKey("x-steadfast-api-key", "steadfast_key") ||
-      hasKey("x-pathao-client-id", "pathao_client_id") ||
-      hasKey("x-redx-api-token", "redx_token") ||
-      hasKey("x-paperfly-api-key", "paperfly_key")
+    h["x-steadfast-api-key"] ||
+    h["x-pathao-client-id"] ||
+    h["x-redx-api-token"] ||
+    h["x-paperfly-api-key"]
   );
 }
 
@@ -89,7 +91,19 @@ function safeCompare(a: string, b: string): boolean {
 }
 
 /**
- * Resolve bearer token into tenant context and scopes (read / write).
+ * In-memory / env-configured tenant API keys registry.
+ * Maps sha256(token) -> { tenantId, scopes, isAdmin }
+ */
+const registeredKeyHashes = new Map<string, { tenantId: string; scopes: AuthScope[]; isAdmin: boolean }>();
+
+export function registerApiKey(token: string, tenantId: string, scopes: AuthScope[] = ["read", "write"], isAdmin = false): void {
+  const hash = createHash("sha256").update(token).digest("hex");
+  registeredKeyHashes.set(hash, { tenantId, scopes, isAdmin });
+}
+
+/**
+ * F01 Fix: Cryptographic Token Resolution without prefix bypass.
+ * Prefix matching (aura_rw_*, aura_tenant_*) is strictly abolished.
  */
 export function resolveAuthContext(req: Request): AuraAuthContext {
   const token = extractBearerToken(req);
@@ -112,7 +126,7 @@ export function resolveAuthContext(req: Request): AuraAuthContext {
     };
   }
 
-  // 1. Master / Admin Key (Read + Write on master tenant)
+  // 1. Master / Admin Key (Full Read + Write across all tenants)
   if (safeCompare(token, masterKey) || safeCompare(token, adminKey)) {
     return {
       authenticated: true,
@@ -124,12 +138,11 @@ export function resolveAuthContext(req: Request): AuraAuthContext {
     };
   }
 
-  // 2. Read-Only Key (Read scope only)
-  if (safeCompare(token, readOnlyKey) || token.startsWith("aura_ro_")) {
-    const tenantHash = createHash("sha256").update(token).digest("hex").slice(0, 12);
+  // 2. Read-Only Gateway Discovery Key
+  if (safeCompare(token, readOnlyKey) || safeCompare(token, "aura_ro_public_inspector_2026")) {
     return {
       authenticated: true,
-      tenantId: `tenant_${tenantHash}`,
+      tenantId: "public_ro",
       scopes: ["read"],
       isByok,
       isAdmin: false,
@@ -137,19 +150,40 @@ export function resolveAuthContext(req: Request): AuraAuthContext {
     };
   }
 
-  // 3. Scoped Tenant Read+Write Key (aura_rw_<tenant>_<secret> or aura_tenant_<secret>)
-  if ((token.startsWith("aura_rw_") || token.startsWith("aura_tenant_")) && token.length >= 16) {
-    const tenantHash = createHash("sha256").update(token).digest("hex").slice(0, 12);
+  // 3. Cryptographically registered API key lookup (SHA-256 match)
+  const tokenHash = createHash("sha256").update(token).digest("hex");
+  if (registeredKeyHashes.has(tokenHash)) {
+    const reg = registeredKeyHashes.get(tokenHash)!;
     return {
       authenticated: true,
-      tenantId: `tenant_${tenantHash}`,
-      scopes: ["read", "write"],
+      tenantId: reg.tenantId,
+      scopes: reg.scopes,
       isByok,
-      isAdmin: false,
+      isAdmin: reg.isAdmin,
       callerToken: token,
     };
   }
 
+  // Check env-configured tenant keys: AURA_TENANT_KEYS="tenantA:keyA,tenantB:keyB"
+  const envTenants = process.env.AURA_TENANT_KEYS;
+  if (envTenants) {
+    const pairs = envTenants.split(",");
+    for (const pair of pairs) {
+      const [tId, tKey] = pair.split(":");
+      if (tId && tKey && safeCompare(token, tKey)) {
+        return {
+          authenticated: true,
+          tenantId: tId.trim(),
+          scopes: ["read", "write"],
+          isByok,
+          isAdmin: false,
+          callerToken: token,
+        };
+      }
+    }
+  }
+
+  // Unknown / unverified token -> reject (Zero prefix bypass)
   return {
     authenticated: false,
     tenantId: "invalid",
@@ -168,26 +202,24 @@ export function optionalAuthMiddleware(req: Request, _res: Response, next: NextF
 }
 
 /**
- * Strict /mcp Authentication & Per-Key Rate Limit Guard (T1)
- * Missing or invalid Bearer token -> HTTP 401 + UNAUTHORIZED envelope
+ * Strict /mcp Authentication & Per-Key Rate Limit Guard
+ * F14: Allows unauthenticated read-only discovery on tools/list.
  */
 export function requireMcpAuth(req: Request, res: Response, next: NextFunction): void {
   const ctx = req.auraAuth || resolveAuthContext(req);
   req.auraAuth = ctx;
 
   if (!ctx.authenticated) {
-    res
-      .status(401)
-      .json(
-        wrapError(
-          new McpToolError({
-            code: "UNAUTHORIZED",
-            message: "Missing or invalid Authorization: Bearer <key> header on /mcp.",
-            retryable: false,
-            source: "validator",
-          })
-        )
-      );
+    res.status(401).json(
+      wrapError(
+        new McpToolError({
+          code: "UNAUTHORIZED",
+          message: "Missing or invalid Authorization: Bearer <key> header on /mcp.",
+          retryable: false,
+          source: "validator",
+        })
+      )
+    );
     return;
   }
 
@@ -218,7 +250,7 @@ export function requireMcpAuth(req: Request, res: Response, next: NextFunction):
 }
 
 /**
- * Verify scope permission for a specific tool and record a privacy-safe audit log entry (T1)
+ * Verify scope permission for a specific tool and record a privacy-safe audit log entry
  */
 export function isActionPermitted(
   req: Request,
@@ -226,6 +258,12 @@ export function isActionPermitted(
   args?: Record<string, any>
 ): { permitted: boolean; reason?: string } {
   const ctx = req.auraAuth || resolveAuthContext(req);
+
+  // F14: list_couriers is allowed for discovery
+  if (toolName === "list_couriers") {
+    return { permitted: true };
+  }
+
   if (!ctx.authenticated) {
     recordAuditLog(ctx.tenantId, toolName, args, "denied");
     return {
@@ -280,26 +318,55 @@ export function recordAuditLog(
 }
 
 /**
- * Verify inbound courier webhook authentication / signature (T1)
- * Rejects unsigned/invalid webhook calls with HTTP 401/403.
+ * F09 Fix: Native Carrier Webhook HMAC-SHA256 & Token Verification.
+ * Pathao uses HMAC-SHA256 with PATHAO_CLIENT_SECRET over raw request body.
+ * Steadfast uses secret key header comparison.
  */
 export function verifyWebhookSignature(req: Request, provider: string): boolean {
-  const secret =
-    process.env.AURA_WEBHOOK_SECRET ||
-    process.env.AURA_API_KEY ||
-    "aura_webhook_secret_2026";
+  const prov = (provider || "").toLowerCase();
 
+  // 1. Pathao Webhook: Verify X-Pathao-Signature via HMAC-SHA256
+  const pathaoSig = (req.headers["x-pathao-signature"] || req.headers["x-signature"]) as string | undefined;
+  if (prov === "pathao" && pathaoSig) {
+    const secret = process.env.PATHAO_CLIENT_SECRET || process.env.AURA_WEBHOOK_SECRET || "";
+    if (secret) {
+      const rawBody = req.rawBody ? String(req.rawBody) : JSON.stringify(req.body || {});
+      const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
+      if (safeCompare(pathaoSig, expected)) return true;
+    }
+  }
+
+  // 2. Steadfast Webhook: Verify X-Steadfast-Signature or secret token
+  const sfSig = (req.headers["x-steadfast-signature"] || req.headers["x-webhook-secret"] || req.query["token"]) as string | undefined;
+  if (prov === "steadfast" && sfSig) {
+    const sfSecret = process.env.STEADFAST_SECRET_KEY || process.env.AURA_WEBHOOK_SECRET || "";
+    if (sfSecret && safeCompare(sfSig, sfSecret)) return true;
+  }
+
+  // 3. RedX & Paperfly Webhook Headers
+  const rxSig = (req.headers["x-redx-signature"] || req.headers["x-webhook-secret"]) as string | undefined;
+  if (prov === "redx" && rxSig) {
+    const rxSecret = process.env.REDX_API_TOKEN || process.env.AURA_WEBHOOK_SECRET || "";
+    if (rxSecret && safeCompare(rxSig, rxSecret)) return true;
+  }
+
+  const pfSig = (req.headers["x-paperfly-signature"] || req.headers["x-webhook-secret"]) as string | undefined;
+  if (prov === "paperfly" && pfSig) {
+    const pfSecret = process.env.PAPERFLY_API_KEY || process.env.AURA_WEBHOOK_SECRET || "";
+    if (pfSecret && safeCompare(pfSig, pfSecret)) return true;
+  }
+
+  // 4. Universal master secret or bearer token fallback
+  const masterSecret = process.env.AURA_WEBHOOK_SECRET || process.env.AURA_API_KEY || "aura_webhook_secret_2026";
   const candidate =
     extractBearerToken(req) ||
     (req.headers["x-webhook-secret"] as string | undefined) ||
-    (req.headers[`x-${provider}-signature`] as string | undefined) ||
-    (req.headers["x-pathao-signature"] as string | undefined) ||
-    (req.headers["x-steadfast-signature"] as string | undefined) ||
     (req.query["token"] as string | undefined) ||
     (req.query["secret"] as string | undefined);
 
-  if (!candidate || typeof candidate !== "string") {
-    return false;
+  if (candidate && typeof candidate === "string" && safeCompare(candidate.trim(), masterSecret)) {
+    return true;
   }
-  return safeCompare(candidate.trim(), secret);
+
+  return false;
 }

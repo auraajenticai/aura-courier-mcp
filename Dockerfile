@@ -8,7 +8,7 @@ RUN npm install --no-audit --no-fund
 
 # Source + the marketing landing page (served at /)
 COPY src ./src
-COPY README.md index.html ./
+COPY README.md index.html guide.html health.html privacy.html mcp_explorer.html ./
 RUN npm run build
 
 ENV NODE_ENV=production

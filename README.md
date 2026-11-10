@@ -117,9 +117,9 @@ Aura Courier MCP seamlessly interfaces with all tier-1 Bangladesh courier APIs u
 
 ---
 
-## 4. The 9 Enterprise Model Context Protocol (MCP) Tools
+## 4. The 12 Enterprise Model Context Protocol (MCP) Tools
 
-Aura Courier MCP exports 9 tools conforming to the MCP Specification (`2024-11-05`):
+Aura Courier MCP exports 12 tools conforming to the MCP Specification (`2024-11-05`):
 
 ### 1. `list_couriers`
 * **Purpose**: Inspect carrier operational health and active credentials.
@@ -229,7 +229,7 @@ curl -s https://courier.auraajenticai.cloud/health | jq
   "ok": true,
   "service": "aura-courier-mcp",
   "version": "2.6.0",
-  "tools_count": 9,
+  "tools_count": 12,
   "spatial_engine": "Google Maps Platform (gmp_git_agentskills_v1)",
   "fraud_engine": "Steadfast Nationwide API + BD Prefix Validator",
   "webhooks": {

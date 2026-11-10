@@ -502,3 +502,132 @@ test("12. Idempotent create_parcel replay, cancel_parcel UNSUPPORTED_BY_PROVIDER
   const serializedAudit = JSON.stringify(auditLogBuffer);
   assert.ok(!serializedAudit.includes("01700000000"));
 });
+
+
+import { createHmac } from "node:crypto";
+
+test("13. F01: Prefix Auth Bypass Prevention — aura_rw_forged_token returns 401", async () => {
+  const res = await fetch(`${baseUrl}/mcp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer aura_rw_forged_token_12345678",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "tools/call",
+      params: { name: "list_couriers", arguments: {} },
+    }),
+  });
+  assert.equal(res.status, 401);
+  const body = await res.json();
+  assert.equal(body.ok, false);
+  assert.equal(body.error.code, "UNAUTHORIZED");
+});
+
+test("14. F06 & F05: Multi-Tenant Isolation for Webhooks and MCP Sessions", async () => {
+  // Record webhook event under tenant_alpha
+  const whPost = await fetch(`${baseUrl}/webhooks/steadfast?tenant=tenant_alpha`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webhook-secret": process.env.AURA_WEBHOOK_SECRET,
+    },
+    body: JSON.stringify({
+      consignment_id: "SF_ALPHA_999",
+      status: "in_transit",
+    }),
+  });
+  assert.equal(whPost.status, 200);
+
+  // Query as tenant_beta -> MUST return 0 events (Zero cross-tenant leak)
+  // Register tenant_beta key in auth module
+  const { registerApiKey } = await import("../dist/middleware/auth.js");
+  registerApiKey("token_beta_key", "tenant_beta", ["read", "write"]);
+  registerApiKey("token_alpha_key", "tenant_alpha", ["read", "write"]);
+
+  const resBeta = await callMcpTool("get_webhook_events", { consignment_id: "SF_ALPHA_999" }, "token_beta_key");
+  assert.equal(resBeta.envelope.ok, true);
+  assert.equal(resBeta.envelope.count, 0);
+
+  // Query as tenant_alpha -> MUST return 1 event
+  const resAlpha = await callMcpTool("get_webhook_events", { consignment_id: "SF_ALPHA_999" }, "token_alpha_key");
+  assert.equal(resAlpha.envelope.ok, true);
+  assert.equal(resAlpha.envelope.count, 1);
+  assert.equal(resAlpha.envelope.events[0].consignment_id, "SF_ALPHA_999");
+});
+
+test("15. F03 & F04: Public Tracking PII Masking & XSS Escaping", async () => {
+  // Unauthenticated JSON request
+  const unauthRes = await fetch(`${baseUrl}/track/SF_VALID_1001?format=json`);
+  assert.equal(unauthRes.status, 200);
+  const unauthData = await unauthRes.json();
+  assert.equal(unauthData.ok, true);
+  // Phone must be masked
+  if (unauthData.recipient_phone) {
+    assert.ok(unauthData.recipient_phone.includes("****"));
+  }
+
+  // HTML XSS escaping check (URL-encoded consignment code)
+  const xssCode = encodeURIComponent("<script>alert(1)</script>");
+  const xssRes = await fetch(`${baseUrl}/track/${xssCode}`, { headers: { Accept: "text/html" } });
+  const html = await xssRes.text();
+  assert.ok(!html.includes("<script>alert(1)</script>"));
+  assert.ok(html.includes("&lt;script&gt;alert(1)&lt;/script&gt;"));
+});
+
+test("16. F08: Timeout Circuit Breaker prevents failover cascade", async () => {
+  clearIdempotencyStore();
+  // Simulate carrier timeout on steadfast
+  const origTrack = SteadfastAdapter.prototype.createParcel;
+  SteadfastAdapter.prototype.createParcel = async function() {
+    const err = new Error("Connection timed out after 10000ms");
+    err.code = "ETIMEDOUT";
+    throw err;
+  };
+
+  try {
+    const res = await callMcpTool("create_parcel", {
+      courier: "steadfast",
+      invoice: "INV-TIMEOUT-TEST",
+      recipient_name: "Timeout Customer",
+      recipient_phone: "01700000000",
+      recipient_address: "House 1, Road 2, Banani, Dhaka",
+      cod_amount: 500,
+    });
+    assert.equal(res.envelope.ok, false);
+    assert.equal(res.envelope.error.code, "COURIER_UPSTREAM_ERROR");
+    assert.ok(res.envelope.status === "UNKNOWN_PENDING_RECONCILIATION" || res.envelope.error.message.includes("timed out"));
+  } finally {
+    SteadfastAdapter.prototype.createParcel = origTrack;
+  }
+});
+
+test("17. F09: Pathao Webhook HMAC-SHA256 signature verification", async () => {
+  const secret = process.env.PATHAO_CLIENT_SECRET;
+  const payload = JSON.stringify({ consignment_id: "DS_HMAC_123", status: "delivered" });
+  const validHmac = createHmac("sha256", secret).update(payload).digest("hex");
+
+  // Valid HMAC
+  const okRes = await fetch(`${baseUrl}/webhooks/pathao`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-pathao-signature": validHmac,
+    },
+    body: payload,
+  });
+  assert.equal(okRes.status, 200);
+
+  // Invalid HMAC
+  const badRes = await fetch(`${baseUrl}/webhooks/pathao`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-pathao-signature": "bad_invalid_hmac_signature",
+    },
+    body: payload,
+  });
+  assert.equal(badRes.status, 401);
+});

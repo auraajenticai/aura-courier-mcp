@@ -40,17 +40,43 @@ export function clearIdempotencyStore(): void {
  * Process-wide Verified Webhook Event Ring Buffer (Task T1 & T8).
  */
 const MAX_WEBHOOK_EVENTS = 1000;
-const webhookEventsStore: WebhookEventRecord[] = [];
+const webhookEventsByTenant = new Map<string, WebhookEventRecord[]>();
 
-export function recordWebhookEvent(event: WebhookEventRecord): void {
-  webhookEventsStore.push(event);
-  if (webhookEventsStore.length > MAX_WEBHOOK_EVENTS) {
-    webhookEventsStore.shift();
+export function recordWebhookEvent(event: WebhookEventRecord, tenantId: string = "default"): void {
+  const tKey = tenantId || "default";
+  if (!webhookEventsByTenant.has(tKey)) {
+    webhookEventsByTenant.set(tKey, []);
+  }
+  const store = webhookEventsByTenant.get(tKey)!;
+  store.push(event);
+  if (store.length > MAX_WEBHOOK_EVENTS) {
+    store.shift();
   }
 }
 
-export function clearWebhookEvents(): void {
-  webhookEventsStore.length = 0;
+export function clearWebhookEvents(tenantId?: string): void {
+  if (tenantId) {
+    webhookEventsByTenant.delete(tenantId);
+  } else {
+    webhookEventsByTenant.clear();
+  }
+}
+
+function isNetworkTimeout(err: any): boolean {
+  if (!err) return false;
+  const msg = String(err.message || "").toLowerCase();
+  const code = String(err.code || "").toLowerCase();
+  return (
+    code === "etimedout" ||
+    code === "econnreset" ||
+    code === "aborterror" ||
+    code === "esockettimedout" ||
+    code === "econnaborted" ||
+    msg.includes("timeout") ||
+    msg.includes("aborted") ||
+    msg.includes("network error") ||
+    msg.includes("socket hang up")
+  );
 }
 
 export class CourierRegistry {
@@ -271,6 +297,20 @@ export class CourierRegistry {
         });
       } catch (err: any) {
         lastErr = err;
+        if (isNetworkTimeout(err)) {
+          throw new McpToolError({
+            code: "COURIER_UPSTREAM_ERROR",
+            message: "Carrier " + courierName + " timed out during parcel creation. The parcel may have been booked upstream. Halting cascade to prevent duplicate parcel creation. State is UNKNOWN_PENDING_RECONCILIATION.",
+            courier: courierName,
+            retryable: true,
+            extraFields: {
+              status: "UNKNOWN_PENDING_RECONCILIATION",
+              timeout_uncertain: true,
+              courier_attempted: courierName,
+              invoice,
+            },
+          });
+        }
       }
     }
 
@@ -622,8 +662,16 @@ export class CourierRegistry {
   /**
    * Task T8 — get_webhook_events(consignment_id?, since?)
    */
-  getWebhookEvents(consignmentId?: string, since?: string) {
-    let filtered = [...webhookEventsStore];
+  getWebhookEvents(consignmentId?: string, since?: string, tenantId: string = "default") {
+    let events: WebhookEventRecord[] = [];
+    if (tenantId === "master") {
+      for (const tEvents of webhookEventsByTenant.values()) {
+        events.push(...tEvents);
+      }
+    } else {
+      events = [...(webhookEventsByTenant.get(tenantId || "default") || [])];
+    }
+    let filtered = events;
     if (consignmentId) {
       const target = String(consignmentId).trim().toLowerCase();
       filtered = filtered.filter((e) => String(e.consignment_id).toLowerCase() === target);
