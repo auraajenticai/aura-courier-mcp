@@ -10,5 +10,9 @@ export declare class RedxAdapter implements CourierAdapter {
     private resolveDeliveryArea;
     createParcel(req: ParcelCreateRequest): Promise<ParcelResponse>;
     trackParcel(trackingCode: string): Promise<TrackingResponse>;
+    /**
+     * 100% Live RedX Merchant Account & Pickup Store Verification + Settlement Status
+     * Queries GET /pickup/stores on RedX OpenAPI v1.0.0-beta
+     */
     getBalance(): Promise<BalanceResponse>;
 }

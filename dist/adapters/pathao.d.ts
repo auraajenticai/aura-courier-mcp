@@ -32,6 +32,15 @@ export declare class PathaoAdapter implements CourierAdapter {
     }>;
     createParcel(req: ParcelCreateRequest): Promise<ParcelResponse>;
     trackParcel(trackingCode: string): Promise<TrackingResponse>;
+    /**
+     * 100% Live Pathao Merchant Balance & Order Settlement Telemetry
+     * Queries GET /aladdin/api/v1/orders/all and GET /aladdin/api/v1/stores
+     */
     getBalance(): Promise<BalanceResponse>;
+    /**
+     * 100% Real Live Pathao Nationwide Customer Delivery Success API
+     * Endpoint: POST /aladdin/api/v1/user/success
+     */
+    fraudCheck(phone: string): Promise<any>;
     getLocations(cityName?: string): Promise<LocationResolutionResponse>;
 }

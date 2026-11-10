@@ -166,6 +166,108 @@ app.post("/mcp", mcpLimiter, async (req: Request, res: Response) => {
       if (transport.sessionId) sessions.delete(transport.sessionId);
     };
     await server.connect(transport);
+  } else if (req.body && (req.body.method === "tools/list" || req.body.method === "tools/call")) {
+    // Stateless JSON-RPC 2.0 Direct Execution Mode (for WooCommerce, Shopify, Custom Store Webhooks & cURL)
+    const rpcId = req.body.id ?? 1;
+    const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
+    if (req.body.method === "tools/list") {
+      res.status(200).json({ jsonrpc: "2.0", id: rpcId, result: { tools: TOOLS } });
+      return;
+    }
+    const toolName = String(req.body.params?.name || "");
+    const args = req.body.params?.arguments || {};
+    const auth = isActionPermitted(req, toolName);
+    if (!auth.permitted) {
+      res.status(200).json({
+        jsonrpc: "2.0",
+        id: rpcId,
+        result: {
+          isError: true,
+          content: [{ type: "text", text: JSON.stringify({ error: "Unauthorized", message: auth.reason }, null, 2) }],
+        },
+      });
+      return;
+    }
+    try {
+      let out: any;
+      switch (toolName) {
+        case "list_couriers":
+          out = registry.listCouriers();
+          break;
+        case "create_parcel":
+          out = await registry.createParcel({
+            courier: args?.courier as any,
+            invoice: String(args?.invoice),
+            recipient_name: String(args?.recipient_name),
+            recipient_phone: String(args?.recipient_phone),
+            recipient_address: String(args?.recipient_address),
+            cod_amount: Number(args?.cod_amount || 0),
+            note: args?.note ? String(args?.note) : undefined,
+            item_weight: args?.item_weight ? Number(args?.item_weight) : 0.5,
+          });
+          break;
+        case "track_parcel":
+          out = await registry.trackParcel(String(args?.tracking_code), args?.courier as any);
+          break;
+        case "get_balance":
+          out = await registry.getBalance((args?.courier as any) || "all");
+          break;
+        case "check_fraud_risk":
+          out = await registry.checkFraudRisk(String(args?.phone));
+          break;
+        case "validate_and_geocode_address":
+          out = await registry.validateAddress({
+            address: String(args?.address),
+            thana: args?.thana ? String(args?.thana) : undefined,
+            district: args?.district ? String(args?.district) : undefined,
+          });
+          break;
+        case "calculate_delivery_zone_and_fee":
+          out = await registry.calculateZoneAndRate({
+            recipient_address: String(args?.recipient_address),
+            origin_address: args?.origin_address ? String(args?.origin_address) : undefined,
+            weight_kg: args?.weight_kg ? Number(args?.weight_kg) : 0.5,
+          });
+          break;
+        case "compare_courier_rates":
+          out = await registry.compareRates({
+            recipient_address: String(args?.recipient_address),
+            weight_kg: args?.weight_kg ? Number(args?.weight_kg) : 0.5,
+            cod_amount: args?.cod_amount ? Number(args?.cod_amount) : 0,
+            priority: args?.priority as any,
+          });
+          break;
+        case "resolve_ndr_issue":
+          out = await registry.resolveNdr({
+            consignment_id: String(args?.consignment_id),
+            courier: args?.courier as any,
+            issue_type: args?.issue_type as any,
+            customer_phone: args?.customer_phone ? String(args?.customer_phone) : undefined,
+            customer_name: args?.customer_name ? String(args?.customer_name) : undefined,
+            reschedule_date: args?.reschedule_date ? String(args?.reschedule_date) : undefined,
+            corrected_address: args?.corrected_address ? String(args?.corrected_address) : undefined,
+          });
+          break;
+        default:
+          throw new Error(`Unknown tool: ${toolName}`);
+      }
+      res.status(200).json({
+        jsonrpc: "2.0",
+        id: rpcId,
+        result: { content: [{ type: "text", text: JSON.stringify(out, null, 2) }] },
+      });
+      return;
+    } catch (err: any) {
+      res.status(200).json({
+        jsonrpc: "2.0",
+        id: rpcId,
+        result: {
+          isError: true,
+          content: [{ type: "text", text: `Aura Courier MCP Error: ${err?.message || String(err)}` }],
+        },
+      });
+      return;
+    }
   } else {
     res.status(400).json({
       jsonrpc: "2.0",
@@ -518,10 +620,10 @@ app.get("/health", (req, res) => {
   const data = {
     ok: true,
     service: "aura-courier-mcp",
-    version: "2.5.4",
+    version: "2.5.5",
     tools_count: TOOLS.length,
     spatial_engine: "Google Maps Platform (gmp_git_agentskills_v1)",
-    fraud_engine: "Steadfast Nationwide API + BD Prefix Validator",
+    fraud_engine: "Pathao Nationwide v2 + Steadfast Nationwide API + BD Prefix Validator",
     webhooks: {
       steadfast: "/webhooks/steadfast",
       pathao: "/webhooks/pathao",
@@ -572,7 +674,7 @@ app.get("/", (_req, res) => {
         .send(
           `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP</title>` +
             `<style>body{font-family:system-ui,sans-serif;background:#07080a;color:#f4f5f7;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#0f1115;padding:2px 8px;border-radius:6px;color:#00d4ff;font-size:13px}a{color:#00d4ff}p{line-height:1.6;color:#a4a8b3}</style></head>` +
-            `<body><div class="b"><h1>🚚 Aura Courier MCP v2.5.4</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
+            `<body><div class="b"><h1>🚚 Aura Courier MCP v2.5.5</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
             `<p>Connect your AI to <code>POST /mcp</code> with Streamable-HTTP.</p>` +
             `<p>Webhooks: <code>POST /webhooks/steadfast</code> · <code>POST /webhooks/pathao</code></p>` +
             `<p>By <a href="https://auraajenticai.cloud">Aura Ajentic AI</a> · <a href="https://courier.auraajenticai.cloud">docs &amp; setup</a></p></div></body></html>`

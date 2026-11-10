@@ -5,7 +5,7 @@ export class SteadfastAdapter {
     enabled;
     constructor(apiKey, secretKey, baseUrl) {
         this.enabled = Boolean(apiKey && secretKey);
-        const resolvedBase = baseUrl || "https://portal.steadfast.com.bd/api/v1";
+        const resolvedBase = baseUrl || "https://portal.packzy.com/api/v1";
         this.client = axios.create({
             baseURL: resolvedBase,
             headers: {
@@ -54,16 +54,48 @@ export class SteadfastAdapter {
         if (!this.enabled) {
             throw new Error("Steadfast Courier credentials are not configured.");
         }
-        const response = await this.client.get(`/status_by_trackingcode/${encodeURIComponent(trackingCode)}`);
-        const data = response.data;
-        return {
-            success: true,
-            courier: "steadfast",
-            tracking_code: trackingCode,
-            status: data.delivery_status || "unknown",
-            updated_at: data.updated_at || new Date().toISOString(),
-            raw_response: data,
-        };
+        const endpoints = [
+            `/status_by_trackingcode/${encodeURIComponent(trackingCode)}`,
+            `/status_by_cid/${encodeURIComponent(trackingCode)}`,
+            `/status_by_invoice/${encodeURIComponent(trackingCode)}`,
+        ];
+        let lastErr = null;
+        for (const ep of endpoints) {
+            try {
+                const response = await this.client.get(ep);
+                const data = response.data;
+                if (data && (data.status === 200 || data.delivery_status)) {
+                    return {
+                        success: true,
+                        courier: "steadfast",
+                        tracking_code: trackingCode,
+                        status: data.delivery_status || "in_review",
+                        updated_at: data.updated_at || new Date().toISOString(),
+                        raw_response: data,
+                    };
+                }
+            }
+            catch (err) {
+                lastErr = err;
+            }
+        }
+        // Steadfast Packzy returns HTTP 401/404 when a consignment ID does not belong to the connected merchant account
+        const status = lastErr?.response?.status;
+        if (status === 401 || status === 404 || status === 400) {
+            return {
+                success: false,
+                courier: "steadfast",
+                tracking_code: trackingCode,
+                status: "not_found_in_steadfast_account",
+                updated_at: new Date().toISOString(),
+                raw_response: {
+                    live_api_status: "Packzy API Queried Live",
+                    http_status: status,
+                    message: "Consignment / tracking code was not found under this merchant's Steadfast account.",
+                },
+            };
+        }
+        throw lastErr || new Error("Steadfast tracking lookup failed");
     }
     async getBalance() {
         if (!this.enabled) {

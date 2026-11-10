@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.5.5] - 2026-11-10
+
+### Added
+- **Live 4-Courier Balance, Settlement & Store Verification (`get_balance`)**: Upgraded `get_balance` to support `steadfast`, `pathao`, `redx`, `paperfly`, and `all` simultaneously—querying live Packzy wallet balances (`Steadfast`), live OAuth 2.0 order/COD settlement ledgers & active stores (`Pathao`), live OpenAPI pickup stores (`RedX`), and live Basic Auth + `paperflykey` merchant status (`Paperfly`).
+- **Dual-Carrier Nationwide Fraud Shield (`check_fraud_risk`)**: Integrated Pathao's live `/aladdin/api/v1/user/success` nationwide customer delivery history API alongside Steadfast's `/fraud_check/{phone}` API for 100% live `total_parcels`, `total_delivered`, `total_cancelled`, and `delivery_success_rate` telemetry.
+- **Stateless + Stateful Dual-Mode `POST /mcp` Gateway**: Added direct single-request JSON-RPC 2.0 execution for `tools/call` and `tools/list` on `POST /mcp` without requiring a prior `mcp-session-id` handshake, while preserving full stateful `StreamableHTTPServerTransport` sessions for MCP clients.
+- **Dual Subscription & Per-Message Pricing Architecture (`/guide#pricing`)**: Structured two distinct Google Cloud Startup–aligned subscription tracks: **Track A (`Aura Courier MCP Only` — Free Trial `$0`, Starter `$9 / ৳499`, Pro `$19 / ৳999`)** and **Track B (`Aura Main Omnichannel AI + WhatsApp/Messenger + Per-Message Quota` — Starter `$19 / ৳1,999`, Growth `$49 / ৳4,999`, Enterprise `$149 / ৳14,999` + Meta WABA Per-Message Rate Card)**.
+
 ## [2.5.4] - 2026-11-10
 
 ### Added

@@ -90,20 +90,80 @@ export class CourierRegistry {
         if (courierName) {
             return await this.getAdapter(courierName).trackParcel(trackingCode);
         }
-        // Default try Steadfast first, fallback to Pathao
-        try {
-            return await this.getAdapter("steadfast").trackParcel(trackingCode);
+        const codeUpper = String(trackingCode || "").trim().toUpperCase();
+        let order = ["pathao", "steadfast", "redx", "paperfly"];
+        if (codeUpper.startsWith("DS") || codeUpper.startsWith("DB") || codeUpper.startsWith("DT")) {
+            order = ["pathao", "steadfast", "redx", "paperfly"];
         }
-        catch {
-            return await this.getAdapter("pathao").trackParcel(trackingCode);
+        else if (codeUpper.startsWith("REDX") || codeUpper.startsWith("RX") || /^2[3-9][A-Z0-9]{6,}$/.test(codeUpper)) {
+            order = ["redx", "pathao", "steadfast", "paperfly"];
         }
+        else if (codeUpper.startsWith("PF") || codeUpper.startsWith("PFLY")) {
+            order = ["paperfly", "pathao", "steadfast", "redx"];
+        }
+        else if (codeUpper.startsWith("SF") || /^\d{6,}$/.test(codeUpper)) {
+            order = ["steadfast", "pathao", "redx", "paperfly"];
+        }
+        let firstFallback = null;
+        for (const c of order) {
+            const adapter = this.adapters.get(c);
+            if (!adapter || !adapter.isConfigured())
+                continue;
+            try {
+                const res = await adapter.trackParcel(trackingCode);
+                if (res && res.success) {
+                    return res;
+                }
+                if (!firstFallback && res) {
+                    firstFallback = res;
+                }
+            }
+            catch (_) {
+                // Try next carrier
+            }
+        }
+        if (firstFallback) {
+            return firstFallback;
+        }
+        return await this.getAdapter(order[0]).trackParcel(trackingCode);
     }
     async getBalance(courierName) {
-        return await this.getAdapter(courierName).getBalance();
+        const target = String(courierName || "all").toLowerCase();
+        if (target && target !== "all") {
+            return await this.getAdapter(target).getBalance();
+        }
+        // Query all 4 couriers in parallel
+        const names = ["steadfast", "pathao", "redx", "paperfly"];
+        const results = {};
+        let totalBalanceBdt = 0;
+        await Promise.all(names.map(async (c) => {
+            const adapter = this.adapters.get(c);
+            if (!adapter || !adapter.isConfigured()) {
+                results[c] = { success: false, courier: c, current_balance: 0, status: "not_configured" };
+                return;
+            }
+            try {
+                const bal = await adapter.getBalance();
+                results[c] = bal;
+                totalBalanceBdt += Number(bal.current_balance || 0);
+            }
+            catch (err) {
+                results[c] = { success: false, courier: c, current_balance: 0, error: err?.message || String(err) };
+            }
+        }));
+        return {
+            success: true,
+            courier: "all",
+            total_balance_bdt: totalBalanceBdt,
+            currency: "BDT",
+            carriers: results,
+            timestamp: new Date().toISOString(),
+        };
     }
     async checkFraudRisk(phone) {
         const steadfast = this.adapters.get("steadfast");
-        return await FraudRiskEngine.evaluateRisk(phone, steadfast);
+        const pathao = this.adapters.get("pathao");
+        return await FraudRiskEngine.evaluateRisk(phone, steadfast, pathao);
     }
     async validateAddress(req) {
         return await this.googleMaps.validateAndGeocode(req);

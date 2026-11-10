@@ -43,13 +43,17 @@ export const TOOLS = [
     },
     {
         name: "get_balance",
-        description: "Retrieve live merchant cash-on-delivery (COD) vault balance, pending disbursement amounts, and payout ledger from Steadfast or Pathao merchant portals. READ-ONLY FINANCIAL INQUIRY: Does not initiate payouts or mutate accounting ledgers. Use when accounting or merchant finance operators want to verify accrued COD collections or payout readiness. Do NOT use for customer balance or shipping quote estimation (use 'calculate_delivery_zone_and_fee'). Requires active merchant API keys for the requested courier; throws an error if unconfigured.",
+        description: "Retrieve live merchant cash-on-delivery (COD) vault balance, pending disbursement amounts, active pickup store telemetry, and payout ledger from Steadfast, Pathao, RedX, Paperfly, or all 4 couriers simultaneously. READ-ONLY FINANCIAL INQUIRY: Does not initiate payouts or mutate accounting ledgers. Use when accounting or merchant finance operators want to verify accrued COD collections, active store connections, or payout readiness. Do NOT use for customer balance or shipping quote estimation (use 'calculate_delivery_zone_and_fee').",
         inputSchema: {
             type: "object",
             properties: {
-                courier: { type: "string", enum: ["steadfast", "pathao"], description: "Courier provider to check balance for" },
+                courier: {
+                    type: "string",
+                    enum: ["steadfast", "pathao", "redx", "paperfly", "all"],
+                    description: "Courier provider to check balance/settlement telemetry for ('steadfast', 'pathao', 'redx', 'paperfly', or 'all' for all 4 couriers; default: 'all')",
+                },
             },
-            required: ["courier"],
+            required: [],
         },
     },
     {
@@ -131,7 +135,7 @@ export const TOOLS = [
  * for HTTP it is built per-request from that client's keys.
  */
 export function buildMcpServer(registry, authChecker) {
-    const server = new Server({ name: "aura-courier-mcp", version: "2.5.4" }, { capabilities: { tools: {} } });
+    const server = new Server({ name: "aura-courier-mcp", version: "2.5.5" }, { capabilities: { tools: {} } });
     server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
     server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { name, arguments: args } = request.params;
@@ -166,7 +170,7 @@ export function buildMcpServer(registry, authChecker) {
                     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
                 }
                 case "get_balance": {
-                    const result = await registry.getBalance(String(args?.courier));
+                    const result = await registry.getBalance(args?.courier || "all");
                     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
                 }
                 case "check_fraud_risk": {

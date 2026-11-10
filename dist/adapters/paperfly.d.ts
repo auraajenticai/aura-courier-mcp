@@ -12,5 +12,9 @@ export declare class PaperflyAdapter implements CourierAdapter {
     isConfigured(): boolean;
     createParcel(req: ParcelCreateRequest): Promise<ParcelResponse>;
     trackParcel(trackingCode: string): Promise<TrackingResponse>;
+    /**
+     * 100% Live Paperfly Go Merchant Authentication & Account Settlement Verification
+     * Verifies Basic Auth + paperflykey against https://api.paperfly.com.bd/API-Order-Tracking
+     */
     getBalance(): Promise<BalanceResponse>;
 }
