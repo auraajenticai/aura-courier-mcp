@@ -1,6 +1,14 @@
 import dotenv from "dotenv";
 
-dotenv.config();
+if (process.env.NODE_ENV !== "test") {
+  const runtimePort = process.env.PORT;
+  dotenv.config({ override: true });
+  if (runtimePort) {
+    process.env.PORT = runtimePort;
+  }
+} else {
+  dotenv.config();
+}
 
 export interface CourierConfig {
   steadfast: {

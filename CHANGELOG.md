@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.6.0] - 2026-11-10
+
+### Added
+- **Global Response Envelope (`src/envelope.ts`)**: All 12 MCP tools now return a normalized `{ ok, data, error, meta: { request_id, source, as_of } }` envelope alongside existing top-level backward-compatible fields. Raw Axios error strings (`"Request failed with status code ..."`) are strictly sanitized and replaced with typed `EnvelopeErrorCode` entries (`UNAUTHORIZED`, `INVALID_INPUT`, `CONSIGNMENT_NOT_FOUND`, `COURIER_NOT_CONFIGURED`, `COURIER_UPSTREAM_ERROR`, `UNSUPPORTED_BY_PROVIDER`, `DUPLICATE_INVOICE`).
+- **Task T1 — Authentication, Scopes, Per-Key Rate Limits & Webhook Verification (`src/middleware/auth.ts`)**:
+  - `POST /mcp` now strictly requires `Authorization: Bearer <key>` (`HTTP 401` + `UNAUTHORIZED` envelope when missing/invalid).
+  - Supports `read` (`aura_ro_*`) and `write` (`aura_rw_*` / master) scopes, per-key sliding-window rate limits, tenant credential isolation (`keysFromRequest`), and privacy-safe audit logs (`maskPhone` as `017****1234`, `[REDACTED_ADDRESS]`).
+  - `/webhooks/{steadfast,pathao,redx,paperfly}` verify inbound webhook signatures/tokens (`HTTP 401` on unsigned requests).
+- **Task T2 — Verified Draft-Only `resolve_ndr_issue`**: Verifies `consignment_id` via `track_parcel` first (returning `CONSIGNMENT_NOT_FOUND` on bogus IDs), and returns `status: "DRAFT_GENERATED"`, `actions_executed: []`, `requires_manual_execution: true`, and conditional Bengali copy prefixed with `"প্রস্তাবিত মেসেজ:"`.
+- **Task T3 — Honest `get_balance` Semantics**: `Steadfast` returns live `amount_bdt` and `status: "OK"`; `Pathao`, `RedX`, and `Paperfly` return `amount_bdt: null, pending_bdt: null, status: "UNSUPPORTED_BY_PROVIDER"` with merchant portal hints (never a misleading numeric `0`).
+- **Task T4 — Single Tariff Source of Truth (`src/tariffs.ts`)**: Unified `ZONE_DEFINITIONS` and `CARRIER_TARIFF_TABLE` (`meta.source: "static_tariff"`) across `calculate_delivery_zone_and_fee` and `compare_courier_rates` with structured `sla_hours: { min, max }` and route-specific `coverage_notes`.
+- **Task T5 — Geocoding Accuracy & Thana Verification (`src/adapters/google_maps.ts`)**: `validate_and_geocode_address` derives `thana_resolved` strictly from geocoder components (never echoing `thana_input`), caps `confidence_score` at `60` when `location_type !== "ROOFTOP"`, and returns `match_quality: { road, house, area }`, `needs_review`, and `warnings[]`.
+- **Task T6 — Honest `check_fraud_risk` Taxonomy (`src/adapters/fraud_engine.ts`)**: Returns `risk_level: "INVALID_NUMBER"` with `delivery_success_rate: null` for invalid prefixes (`01000000000`), `risk_level: "NO_HISTORY"` with `null` rates when `sample_size === 0`, and `data_sources`, `sample_size`, and `coverage_note`.
+- **Task T7 — Multi-Courier `track_parcel` & Bounded GET Retry**: Auto-detects prefix, checks all configured couriers (`couriers_checked`), retries transient `429/5xx/timeout` GETs via `withGetRetry`, and returns `CONSIGNMENT_NOT_FOUND` without raw Axios strings.
+- **Task T8 — `create_parcel` Dry-Run, Invoice Idempotency & 3 New Tools (12 Total Tools)**:
+  - `create_parcel` supports `dry_run: true` (zero upstream calls, returns `would_book_with` and `estimated_cost_bdt`) and per-tenant `invoice` idempotency (`idempotent_replay: true/false`).
+  - Added `cancel_parcel(courier, consignment_id)`, `bulk_create_parcels(items[], dry_run?)`, and `get_webhook_events(consignment_id?, since?)`.
+- **Task T9 — Hardened `/health` Endpoint**: Unauthenticated `GET /health` returns `{ ok: true, version: "2.6.0" }` only; full telemetry requires an admin Bearer token.
+- **Automated CI Acceptance Suite (`test/v260.test.mjs`)**: Added 12 mocked unit & acceptance tests covering all `AGENTS.md` criteria (`npm test`).
+
 ## [2.5.5] - 2026-11-10
 
 ### Added

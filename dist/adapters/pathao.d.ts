@@ -33,8 +33,8 @@ export declare class PathaoAdapter implements CourierAdapter {
     createParcel(req: ParcelCreateRequest): Promise<ParcelResponse>;
     trackParcel(trackingCode: string): Promise<TrackingResponse>;
     /**
-     * 100% Live Pathao Merchant Balance & Order Settlement Telemetry
-     * Queries GET /aladdin/api/v1/orders/all and GET /aladdin/api/v1/stores
+     * Pathao does not expose a live wallet balance API endpoint (T3).
+     * Returns amount_bdt: null, current_balance: null, status: UNSUPPORTED_BY_PROVIDER.
      */
     getBalance(): Promise<BalanceResponse>;
     /**

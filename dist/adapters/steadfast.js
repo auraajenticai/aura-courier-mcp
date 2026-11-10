@@ -1,4 +1,5 @@
 import axios from "axios";
+import { McpToolError, withGetRetry } from "../envelope.js";
 export class SteadfastAdapter {
     courierName = "steadfast";
     client;
@@ -52,7 +53,11 @@ export class SteadfastAdapter {
     }
     async trackParcel(trackingCode) {
         if (!this.enabled) {
-            throw new Error("Steadfast Courier credentials are not configured.");
+            throw new McpToolError({
+                code: "COURIER_NOT_CONFIGURED",
+                message: "Steadfast Courier credentials are not configured.",
+                courier: "steadfast",
+            });
         }
         const endpoints = [
             `/status_by_trackingcode/${encodeURIComponent(trackingCode)}`,
@@ -62,7 +67,7 @@ export class SteadfastAdapter {
         let lastErr = null;
         for (const ep of endpoints) {
             try {
-                const response = await this.client.get(ep);
+                const response = await withGetRetry(() => this.client.get(ep));
                 const data = response.data;
                 if (data && (data.status === 200 || data.delivery_status)) {
                     return {
@@ -79,48 +84,66 @@ export class SteadfastAdapter {
                 lastErr = err;
             }
         }
-        // Steadfast Packzy returns HTTP 401/404 when a consignment ID does not belong to the connected merchant account
         const status = lastErr?.response?.status;
-        if (status === 401 || status === 404 || status === 400) {
-            return {
-                success: false,
+        if (status === 404 || status === 400) {
+            throw new McpToolError({
+                code: "CONSIGNMENT_NOT_FOUND",
+                message: `Consignment '${trackingCode}' was not found in Steadfast.`,
+                retryable: false,
                 courier: "steadfast",
-                tracking_code: trackingCode,
-                status: "not_found_in_steadfast_account",
-                updated_at: new Date().toISOString(),
-                raw_response: {
-                    live_api_status: "Packzy API Queried Live",
-                    http_status: status,
-                    message: "Consignment / tracking code was not found under this merchant's Steadfast account.",
-                },
-            };
+            });
         }
-        throw lastErr || new Error("Steadfast tracking lookup failed");
+        if (status === 401 || status === 403) {
+            throw new McpToolError({
+                code: "COURIER_UPSTREAM_ERROR",
+                message: "Steadfast upstream authentication or consignment ownership check failed.",
+                retryable: false,
+                courier: "steadfast",
+            });
+        }
+        throw lastErr || new McpToolError({
+            code: "CONSIGNMENT_NOT_FOUND",
+            message: `Consignment '${trackingCode}' was not found in Steadfast.`,
+            retryable: false,
+            courier: "steadfast",
+        });
     }
     async getBalance() {
         if (!this.enabled) {
-            throw new Error("Steadfast Courier credentials are not configured.");
+            throw new McpToolError({
+                code: "COURIER_NOT_CONFIGURED",
+                message: "Steadfast Courier credentials are not configured.",
+                courier: "steadfast",
+            });
         }
-        const response = await this.client.get("/get_balance");
+        const response = await withGetRetry(() => this.client.get("/get_balance"));
         const data = response.data;
+        const bal = typeof data?.current_balance === "number" ? data.current_balance : Number(data?.current_balance ?? 0);
         return {
             success: true,
             courier: "steadfast",
-            current_balance: Number(data.current_balance || 0),
+            amount_bdt: bal,
+            pending_bdt: 0,
+            current_balance: bal,
+            status: "OK",
+            as_of: new Date().toISOString(),
             raw_response: data,
         };
     }
     /**
      * 100% Real Live Steadfast Fraud Check API
      * Endpoint: GET /fraud_check/{phone}
-     * Returns nationwide parcel history across Bangladesh: total_parcels, total_delivered, total_cancelled
      */
     async fraudCheck(phone) {
         if (!this.enabled) {
-            throw new Error("Steadfast Courier credentials are not configured.");
+            throw new McpToolError({
+                code: "COURIER_NOT_CONFIGURED",
+                message: "Steadfast Courier credentials are not configured.",
+                courier: "steadfast",
+            });
         }
         const cleanPhone = phone.replace(/\D/g, "");
-        const response = await this.client.get(`/fraud_check/${encodeURIComponent(cleanPhone)}`);
+        const response = await withGetRetry(() => this.client.get(`/fraud_check/${encodeURIComponent(cleanPhone)}`));
         return response.data;
     }
 }

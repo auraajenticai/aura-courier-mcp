@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { CourierAdapter } from "./base.js";
+import { McpToolError, withGetRetry } from "../envelope.js";
 import {
   BalanceResponse,
   ParcelCreateRequest,
@@ -107,10 +108,16 @@ export class RedxAdapter implements CourierAdapter {
 
   async trackParcel(trackingCode: string): Promise<TrackingResponse> {
     if (!this.enabled) {
-      throw new Error("RedX credentials are not configured.");
+      throw new McpToolError({
+        code: "COURIER_NOT_CONFIGURED",
+        message: "RedX credentials are not configured.",
+        courier: "redx",
+      });
     }
     try {
-      const response = await this.client.get(`/parcel/track/${encodeURIComponent(trackingCode)}`);
+      const response = await withGetRetry(() =>
+        this.client.get(`/parcel/track/${encodeURIComponent(trackingCode)}`)
+      );
       const data = response.data;
       const events: Array<{ message_en?: string; message_bn?: string; time?: string }> = data?.tracking || [];
       const latest = events[events.length - 1];
@@ -125,43 +132,29 @@ export class RedxAdapter implements CourierAdapter {
       };
     } catch (err: any) {
       if (err?.response?.status === 404 || err?.response?.status === 400) {
-        return {
-          success: false,
+        throw new McpToolError({
+          code: "CONSIGNMENT_NOT_FOUND",
+          message: `Consignment '${trackingCode}' was not found in RedX.`,
+          retryable: false,
           courier: "redx",
-          tracking_code: trackingCode,
-          status: "not_found_in_redx",
-          updated_at: new Date().toISOString(),
-          raw_response: err.response?.data || { message: "No parcel data found in RedX for this tracking ID." },
-        };
+        });
       }
       throw err;
     }
   }
 
   /**
-   * 100% Live RedX Merchant Account & Pickup Store Verification + Settlement Status
-   * Queries GET /pickup/stores on RedX OpenAPI v1.0.0-beta
+   * RedX does not expose a live wallet balance API endpoint (T3).
    */
   async getBalance(): Promise<BalanceResponse> {
-    if (!this.enabled) {
-      throw new Error("RedX credentials are not configured.");
-    }
-    const response = await this.client.get("/pickup/stores");
-    const stores = response.data?.pickup_stores || [];
-    const primaryStore = stores[0] || null;
-
     return {
       success: true,
       courier: "redx",
-      current_balance: 0,
-      raw_response: {
-        live_api_status: "RedX OpenAPI v1.0.0-beta Authenticated & Active",
-        currency: "BDT",
-        settlement_cycle: "Direct Bank / bKash Automatic Daily Settlement",
-        connected_stores_count: stores.length,
-        active_pickup_store: primaryStore,
-        pickup_stores: stores,
-      },
+      amount_bdt: null,
+      pending_bdt: null,
+      current_balance: null,
+      status: "UNSUPPORTED_BY_PROVIDER",
+      hint: "Use RedX merchant portal",
     };
   }
 }

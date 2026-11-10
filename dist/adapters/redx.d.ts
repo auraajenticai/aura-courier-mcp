@@ -11,8 +11,7 @@ export declare class RedxAdapter implements CourierAdapter {
     createParcel(req: ParcelCreateRequest): Promise<ParcelResponse>;
     trackParcel(trackingCode: string): Promise<TrackingResponse>;
     /**
-     * 100% Live RedX Merchant Account & Pickup Store Verification + Settlement Status
-     * Queries GET /pickup/stores on RedX OpenAPI v1.0.0-beta
+     * RedX does not expose a live wallet balance API endpoint (T3).
      */
     getBalance(): Promise<BalanceResponse>;
 }

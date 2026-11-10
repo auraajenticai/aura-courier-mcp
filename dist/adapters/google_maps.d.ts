@@ -5,15 +5,19 @@ export declare class GoogleMapsAdapter {
     constructor(apiKey?: string);
     isConfigured(): boolean;
     /**
-     * Validate and Geocode Bangladesh Address using Google Maps Geocoding API
+     * Evaluate road/house/area token match quality and review warnings (T5)
+     */
+    private buildQualityAssessment;
+    /**
+     * Validate and Geocode Bangladesh Address using Google Maps Geocoding API (T5)
      */
     validateAndGeocode(req: AddressValidationRequest): Promise<AddressValidationResponse>;
     /**
-     * Compute Road Distance & Classify Delivery Zone via Google Routes API
+     * Compute Road Distance & Classify Delivery Zone from Single Tariff Source of Truth (T4)
      */
     calculateDeliveryZoneAndFee(req: ZoneRateRequest): Promise<ZoneRateResponse>;
     /**
-     * Enterprise Multi-Carrier Rate Comparison (Steadfast vs Pathao vs RedX vs Paperfly)
+     * Multi-Carrier Rate Comparison backed by Single Tariff Source of Truth (T4)
      */
     compareRates(req: CourierRateComparisonRequest): Promise<CourierRateComparisonResponse>;
     private fallbackAddressParse;

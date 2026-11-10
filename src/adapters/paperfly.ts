@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { CourierAdapter } from "./base.js";
+import { McpToolError } from "../envelope.js";
 import {
   BalanceResponse,
   ParcelCreateRequest,
@@ -75,15 +76,20 @@ export class PaperflyAdapter implements CourierAdapter {
 
   async trackParcel(trackingCode: string): Promise<TrackingResponse> {
     if (!this.enabled) {
-      throw new Error("Paperfly credentials are not configured.");
+      throw new McpToolError({
+        code: "COURIER_NOT_CONFIGURED",
+        message: "Paperfly credentials are not configured.",
+        courier: "paperfly",
+      });
     }
     if (!this.username || !this.password) {
-      throw new Error(
-        "Paperfly tracking needs your merchant-panel username & password (Basic Auth). Add them to use track_parcel."
-      );
+      throw new McpToolError({
+        code: "COURIER_NOT_CONFIGURED",
+        message: "Paperfly tracking requires merchant-panel username and password.",
+        courier: "paperfly",
+      });
     }
     try {
-      // Paperfly tracks by your merchant order reference (merchantOrderReference) via POST /API-Order-Tracking
       const response = await this.client.post(
         "/API-Order-Tracking",
         { ReferenceNumber: trackingCode },
@@ -91,14 +97,12 @@ export class PaperflyAdapter implements CourierAdapter {
       );
       const data = response.data;
       if (data?.error) {
-        return {
-          success: false,
+        throw new McpToolError({
+          code: "CONSIGNMENT_NOT_FOUND",
+          message: `Consignment '${trackingCode}' was not found in Paperfly.`,
+          retryable: false,
           courier: "paperfly",
-          tracking_code: trackingCode,
-          status: "not_found_in_paperfly",
-          updated_at: new Date().toISOString(),
-          raw_response: data,
-        };
+        });
       }
       const st = data?.success?.trackingStatus?.[0] || {};
       const stages: Array<[any, string]> = [
@@ -120,59 +124,31 @@ export class PaperflyAdapter implements CourierAdapter {
         raw_response: data,
       };
     } catch (err: any) {
+      if (err instanceof McpToolError) throw err;
       if (err?.response?.status === 400 || err?.response?.status === 404) {
-        return {
-          success: false,
+        throw new McpToolError({
+          code: "CONSIGNMENT_NOT_FOUND",
+          message: `Consignment '${trackingCode}' was not found in Paperfly.`,
+          retryable: false,
           courier: "paperfly",
-          tracking_code: trackingCode,
-          status: "not_found_in_paperfly",
-          updated_at: new Date().toISOString(),
-          raw_response: err.response?.data || { message: "No order found in Paperfly for this ReferenceNumber." },
-        };
+        });
       }
       throw err;
     }
   }
 
   /**
-   * 100% Live Paperfly Go Merchant Authentication & Account Settlement Verification
-   * Verifies Basic Auth + paperflykey against https://api.paperfly.com.bd/API-Order-Tracking
+   * Paperfly does not expose a live wallet balance API endpoint (T3).
    */
   async getBalance(): Promise<BalanceResponse> {
-    if (!this.enabled) {
-      throw new Error("Paperfly credentials are not configured.");
-    }
-    let liveVerified = false;
-    let apiResponseCode = 200;
-    try {
-      const res = await this.client.post(
-        "/API-Order-Tracking",
-        { ReferenceNumber: "AURA-AUTH-PROBE" },
-        {
-          headers: { paperflykey: this.apiKey },
-          auth: { username: this.username, password: this.password },
-          validateStatus: (s) => s < 500,
-        }
-      );
-      apiResponseCode = res.status;
-      liveVerified = res.status === 200 || (res.status === 400 && Boolean(res.data?.error));
-    } catch (_) {
-      liveVerified = false;
-    }
-
     return {
-      success: liveVerified,
+      success: true,
       courier: "paperfly",
-      current_balance: 0,
-      raw_response: {
-        live_api_status: liveVerified
-          ? "Paperfly Go API Authenticated & Active"
-          : `Paperfly Probe Status ${apiResponseCode}`,
-        currency: "BDT",
-        merchant_code: this.username,
-        store_name: this.storeName || "Default Store",
-        settlement_cycle: "Paperfly Direct BEFTN / Bank Auto-Disbursement",
-      },
+      amount_bdt: null,
+      pending_bdt: null,
+      current_balance: null,
+      status: "UNSUPPORTED_BY_PROVIDER",
+      hint: "Use Paperfly merchant portal",
     };
   }
 }

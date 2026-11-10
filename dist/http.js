@@ -2,22 +2,25 @@ import express from "express";
 import { randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
-import { CourierRegistry } from "./registry.js";
+import { CourierRegistry, recordWebhookEvent } from "./registry.js";
 import { loadConfig } from "./config.js";
-import { buildMcpServer, TOOLS } from "./server.js";
+import { buildMcpServer, executeToolCall, TOOLS } from "./server.js";
 import { createRateLimiter } from "./middleware/rate_limit.js";
-import { optionalAuthMiddleware, isActionPermitted } from "./middleware/auth.js";
+import { optionalAuthMiddleware, requireMcpAuth, isActionPermitted, resolveAuthContext, verifyWebhookSignature, recordAuditLog, } from "./middleware/auth.js";
+import { McpToolError, wrapError, wrapSuccess } from "./envelope.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
-const dbUrl = process.env.DATABASE_URL || "postgresql://postgres:AMeyaNUsvKN9GR4zs33YZFQw2ZjeBXRacp5K09bz4vwDMsLejuO1KxBGIZtDLVCw@ernix50nvuq9ur9jy8na8tgr:5432/aura_auth";
+const dbUrl = process.env.DATABASE_URL ||
+    "postgresql://postgres:AMeyaNUsvKN9GR4zs33YZFQw2ZjeBXRacp5K09bz4vwDMsLejuO1KxBGIZtDLVCw@ernix50nvuq9ur9jy8na8tgr:5432/aura_auth";
 let dbPool = null;
-try {
-    dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
+if (process.env.NODE_ENV !== "test") {
+    try {
+        dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
+    }
+    catch (_) { }
 }
-catch (_) { }
 // Automated Data Retention Engine (Daily Midnight Sweep)
-// Anonymizes customer PII older than 90 days in accordance with data retention policy
 setInterval(async () => {
     if (dbPool) {
         try {
@@ -28,9 +31,7 @@ setInterval(async () => {
                 console.log(`[Data Retention Engine] Anonymized ${pruneRes.rowCount} legacy order records older than 90 days.`);
             }
         }
-        catch (err) {
-            // Table may not exist in standalone mode; continue safely
-        }
+        catch (_) { }
     }
 }, 24 * 60 * 60 * 1000).unref();
 const PORT = Number(process.env.PORT || 8080);
@@ -40,52 +41,62 @@ const PRIVACY_HTML = path.join(APP_DIR, "privacy.html");
 const HEALTH_HTML = path.join(APP_DIR, "health.html");
 const MCP_EXPLORER_HTML = path.join(APP_DIR, "mcp_explorer.html");
 const GUIDE_HTML = path.join(APP_DIR, "guide.html");
-// Pull this client's courier keys from request headers or query params, with fallback to environment
-function keysFromRequest(req) {
+/**
+ * Pull this client's courier keys from request headers or query params.
+ * Task T1 Tenant Isolation: Only fall back to master process.env credentials when
+ * the caller authenticated with the master key (tenantId === "master").
+ */
+export function keysFromRequest(req) {
     const h = req.headers;
     const q = req.query;
-    const pick = (header, query, envVar) => {
+    const allowMasterEnvFallback = req.auraAuth?.tenantId === "master";
+    const pick = (header, query, envVar, allowNonMasterEnv = false) => {
         const hv = h[header];
         const v = (Array.isArray(hv) ? hv[0] : hv) ?? q[query];
-        return v ? String(v) : (envVar ? process.env[envVar] : undefined);
+        if (v)
+            return String(v);
+        if (envVar && (allowMasterEnvFallback || allowNonMasterEnv)) {
+            return process.env[envVar];
+        }
+        return undefined;
     };
     return {
         STEADFAST_API_KEY: pick("x-steadfast-api-key", "steadfast_key", "STEADFAST_API_KEY"),
         STEADFAST_SECRET_KEY: pick("x-steadfast-secret-key", "steadfast_secret", "STEADFAST_SECRET_KEY"),
-        STEADFAST_BASE_URL: pick("x-steadfast-base-url", "steadfast_base_url", "STEADFAST_BASE_URL"),
+        STEADFAST_BASE_URL: pick("x-steadfast-base-url", "steadfast_base_url", "STEADFAST_BASE_URL", true),
         PATHAO_CLIENT_ID: pick("x-pathao-client-id", "pathao_client_id", "PATHAO_CLIENT_ID"),
         PATHAO_CLIENT_SECRET: pick("x-pathao-client-secret", "pathao_client_secret", "PATHAO_CLIENT_SECRET"),
         PATHAO_USERNAME: pick("x-pathao-username", "pathao_username", "PATHAO_USERNAME"),
         PATHAO_PASSWORD: pick("x-pathao-password", "pathao_password", "PATHAO_PASSWORD"),
         PATHAO_STORE_ID: pick("x-pathao-store-id", "pathao_store_id", "PATHAO_STORE_ID"),
-        PATHAO_BASE_URL: pick("x-pathao-base-url", "pathao_base_url", "PATHAO_BASE_URL"),
+        PATHAO_BASE_URL: pick("x-pathao-base-url", "pathao_base_url", "PATHAO_BASE_URL", true),
         REDX_API_TOKEN: pick("x-redx-api-token", "redx_token", "REDX_API_TOKEN"),
-        REDX_BASE_URL: pick("x-redx-base-url", "redx_base_url", "REDX_BASE_URL"),
+        REDX_BASE_URL: pick("x-redx-base-url", "redx_base_url", "REDX_BASE_URL", true),
         REDX_PICKUP_STORE_ID: pick("x-redx-pickup-store-id", "redx_pickup_store_id", "REDX_PICKUP_STORE_ID"),
         PAPERFLY_API_KEY: pick("x-paperfly-api-key", "paperfly_key", "PAPERFLY_API_KEY"),
         PAPERFLY_USERNAME: pick("x-paperfly-username", "paperfly_username", "PAPERFLY_USERNAME"),
         PAPERFLY_PASSWORD: pick("x-paperfly-password", "paperfly_password", "PAPERFLY_PASSWORD"),
         PAPERFLY_STORE_NAME: pick("x-paperfly-store-name", "paperfly_store", "PAPERFLY_STORE_NAME"),
-        GOOGLE_MAPS_API_KEY: pick("x-google-maps-key", "google_maps_key", "GOOGLE_MAPS_API_KEY"),
+        GOOGLE_MAPS_API_KEY: pick("x-google-maps-key", "google_maps_key", "GOOGLE_MAPS_API_KEY", true),
     };
 }
-const app = express();
+export const app = express();
 app.use(express.json({ limit: "1mb" }));
 // Robust Malformed JSON Syntax Error Guard
-app.use((err, req, res, next) => {
+app.use((err, _req, res, next) => {
     if (err && (err.type === "entity.parse.failed" || err.status === 400)) {
-        return res.status(400).json({
-            error: "Malformed JSON payload in request body",
-            details: err.message,
-            timestamp: new Date().toISOString()
-        });
+        return res.status(400).json(wrapError(new McpToolError({
+            code: "INVALID_INPUT",
+            message: "Malformed JSON payload in request body.",
+            retryable: false,
+        }), "validator"));
     }
     next(err);
 });
 // Allow browser-based and cross-origin MCP clients.
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url, x-redx-api-token, x-redx-base-url, x-redx-pickup-store-id, x-paperfly-api-key, x-paperfly-username, x-paperfly-password, x-paperfly-store-name, x-google-maps-key");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-aura-signature, x-steadfast-signature, x-pathao-signature, x-redx-signature, x-paperfly-signature, x-webhook-secret, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url, x-redx-api-token, x-redx-base-url, x-redx-pickup-store-id, x-paperfly-api-key, x-paperfly-username, x-paperfly-password, x-paperfly-store-name, x-google-maps-key");
     res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.header("Access-Control-Expose-Headers", "mcp-session-id");
     if (req.method === "OPTIONS") {
@@ -99,19 +110,16 @@ const generalLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: 
 const mcpLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 60, name: "MCP Protocol Gateway" });
 const trackingLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 30, name: "Live Tracking Hub" });
 const webhookLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "Courier Webhook Gateway" });
-// Apply global rate limiting and optional auth context evaluation
 app.use(generalLimiter);
 app.use(optionalAuthMiddleware);
 // Static brand assets (app icons, favicons, logos)
 app.use("/assets", express.static(path.join(APP_DIR, "assets")));
 const sessions = new Map();
 const SESSION_TTL_MS = 60 * 60 * 1000; // 1-hour idle expiration
-// Sweep abandoned sessions every 15 minutes to prevent heap bloat
 setInterval(() => {
     const now = Date.now();
     for (const [sid, entry] of sessions.entries()) {
         if (now - entry.lastActiveAt > SESSION_TTL_MS) {
-            console.log(`[Memory GC] Evicting stale MCP session: ${sid}`);
             try {
                 entry.transport.close?.();
             }
@@ -120,8 +128,12 @@ setInterval(() => {
         }
     }
 }, 15 * 60 * 1000).unref();
-app.post("/mcp", mcpLimiter, async (req, res) => {
+/**
+ * Task T1: POST /mcp requires Authorization: Bearer <key>.
+ */
+app.post("/mcp", mcpLimiter, requireMcpAuth, async (req, res) => {
     const sessionId = req.headers["mcp-session-id"];
+    const tenantId = req.auraAuth?.tenantId || "default";
     let transport;
     if (sessionId && sessions.has(sessionId)) {
         const entry = sessions.get(sessionId);
@@ -130,11 +142,9 @@ app.post("/mcp", mcpLimiter, async (req, res) => {
     }
     else if (!sessionId && isInitializeRequest(req.body)) {
         const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
-        const server = buildMcpServer(registry, (toolName) => isActionPermitted(req, toolName));
+        const server = buildMcpServer(registry, (toolName) => isActionPermitted(req, toolName), tenantId);
         transport = new StreamableHTTPServerTransport({
             sessionIdGenerator: () => randomUUID(),
-            // Return application/json for POST responses instead of SSE — far more compatible with
-            // MCP clients/registries (e.g. Glama's connector test) that don't consume the event stream.
             enableJsonResponse: true,
             onsessioninitialized: (sid) => {
                 sessions.set(sid, { transport, lastActiveAt: Date.now() });
@@ -147,7 +157,7 @@ app.post("/mcp", mcpLimiter, async (req, res) => {
         await server.connect(transport);
     }
     else if (req.body && (req.body.method === "tools/list" || req.body.method === "tools/call")) {
-        // Stateless JSON-RPC 2.0 Direct Execution Mode (for WooCommerce, Shopify, Custom Store Webhooks & cURL)
+        // Stateless JSON-RPC 2.0 Direct Execution Mode
         const rpcId = req.body.id ?? 1;
         const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
         if (req.body.method === "tools/list") {
@@ -155,100 +165,35 @@ app.post("/mcp", mcpLimiter, async (req, res) => {
             return;
         }
         const toolName = String(req.body.params?.name || "");
-        const args = req.body.params?.arguments || {};
-        const auth = isActionPermitted(req, toolName);
+        const args = (req.body.params?.arguments || {});
+        const auth = isActionPermitted(req, toolName, args);
         if (!auth.permitted) {
+            const errEnvelope = wrapError(new McpToolError({
+                code: "UNAUTHORIZED",
+                message: auth.reason || "Unauthorized tool invocation.",
+                retryable: false,
+            }), "validator");
             res.status(200).json({
                 jsonrpc: "2.0",
                 id: rpcId,
                 result: {
                     isError: true,
-                    content: [{ type: "text", text: JSON.stringify({ error: "Unauthorized", message: auth.reason }, null, 2) }],
+                    content: [{ type: "text", text: JSON.stringify(errEnvelope, null, 2) }],
                 },
             });
             return;
         }
-        try {
-            let out;
-            switch (toolName) {
-                case "list_couriers":
-                    out = registry.listCouriers();
-                    break;
-                case "create_parcel":
-                    out = await registry.createParcel({
-                        courier: args?.courier,
-                        invoice: String(args?.invoice),
-                        recipient_name: String(args?.recipient_name),
-                        recipient_phone: String(args?.recipient_phone),
-                        recipient_address: String(args?.recipient_address),
-                        cod_amount: Number(args?.cod_amount || 0),
-                        note: args?.note ? String(args?.note) : undefined,
-                        item_weight: args?.item_weight ? Number(args?.item_weight) : 0.5,
-                    });
-                    break;
-                case "track_parcel":
-                    out = await registry.trackParcel(String(args?.tracking_code), args?.courier);
-                    break;
-                case "get_balance":
-                    out = await registry.getBalance(args?.courier || "all");
-                    break;
-                case "check_fraud_risk":
-                    out = await registry.checkFraudRisk(String(args?.phone));
-                    break;
-                case "validate_and_geocode_address":
-                    out = await registry.validateAddress({
-                        address: String(args?.address),
-                        thana: args?.thana ? String(args?.thana) : undefined,
-                        district: args?.district ? String(args?.district) : undefined,
-                    });
-                    break;
-                case "calculate_delivery_zone_and_fee":
-                    out = await registry.calculateZoneAndRate({
-                        recipient_address: String(args?.recipient_address),
-                        origin_address: args?.origin_address ? String(args?.origin_address) : undefined,
-                        weight_kg: args?.weight_kg ? Number(args?.weight_kg) : 0.5,
-                    });
-                    break;
-                case "compare_courier_rates":
-                    out = await registry.compareRates({
-                        recipient_address: String(args?.recipient_address),
-                        weight_kg: args?.weight_kg ? Number(args?.weight_kg) : 0.5,
-                        cod_amount: args?.cod_amount ? Number(args?.cod_amount) : 0,
-                        priority: args?.priority,
-                    });
-                    break;
-                case "resolve_ndr_issue":
-                    out = await registry.resolveNdr({
-                        consignment_id: String(args?.consignment_id),
-                        courier: args?.courier,
-                        issue_type: args?.issue_type,
-                        customer_phone: args?.customer_phone ? String(args?.customer_phone) : undefined,
-                        customer_name: args?.customer_name ? String(args?.customer_name) : undefined,
-                        reschedule_date: args?.reschedule_date ? String(args?.reschedule_date) : undefined,
-                        corrected_address: args?.corrected_address ? String(args?.corrected_address) : undefined,
-                    });
-                    break;
-                default:
-                    throw new Error(`Unknown tool: ${toolName}`);
-            }
-            res.status(200).json({
-                jsonrpc: "2.0",
-                id: rpcId,
-                result: { content: [{ type: "text", text: JSON.stringify(out, null, 2) }] },
-            });
-            return;
-        }
-        catch (err) {
-            res.status(200).json({
-                jsonrpc: "2.0",
-                id: rpcId,
-                result: {
-                    isError: true,
-                    content: [{ type: "text", text: `Aura Courier MCP Error: ${err?.message || String(err)}` }],
-                },
-            });
-            return;
-        }
+        const { isError, envelope } = await executeToolCall(registry, toolName, args, tenantId);
+        recordAuditLog(tenantId, toolName, args, isError ? "error" : "ok");
+        res.status(200).json({
+            jsonrpc: "2.0",
+            id: rpcId,
+            result: {
+                isError,
+                content: [{ type: "text", text: JSON.stringify(envelope, null, 2) }],
+            },
+        });
+        return;
     }
     else {
         res.status(400).json({
@@ -275,7 +220,6 @@ app.post("/mcp", mcpLimiter, async (req, res) => {
 app.get("/mcp", mcpLimiter, async (req, res) => {
     const sessionId = req.headers["mcp-session-id"];
     if (!sessionId || !sessions.has(sessionId)) {
-        // If opened directly by a human in a web browser, serve the interactive MCP Protocol Explorer!
         if (req.headers.accept?.includes("text/html")) {
             return res.sendFile(MCP_EXPLORER_HTML, (err) => {
                 if (err && !res.headersSent) {
@@ -283,15 +227,27 @@ app.get("/mcp", mcpLimiter, async (req, res) => {
                 }
             });
         }
+        if (!req.auraAuth?.authenticated) {
+            return res.status(401).json(wrapError(new McpToolError({
+                code: "UNAUTHORIZED",
+                message: "Missing or invalid Authorization: Bearer <AURA_API_KEY> header.",
+            }), "validator"));
+        }
         res.status(400).send("Invalid or missing session ID");
         return;
+    }
+    if (!req.auraAuth?.authenticated) {
+        return res.status(401).json(wrapError(new McpToolError({
+            code: "UNAUTHORIZED",
+            message: "Missing or invalid Authorization: Bearer <AURA_API_KEY> header.",
+        }), "validator"));
     }
     const entry = sessions.get(sessionId);
     entry.lastActiveAt = Date.now();
     await entry.transport.handleRequest(req, res);
 });
 // DELETE (end session) for an existing session.
-app.delete("/mcp", async (req, res) => {
+app.delete("/mcp", requireMcpAuth, async (req, res) => {
     const sessionId = req.headers["mcp-session-id"];
     if (!sessionId || !sessions.has(sessionId)) {
         res.status(400).send("Invalid or missing session ID");
@@ -302,67 +258,59 @@ app.delete("/mcp", async (req, res) => {
     await entry.transport.handleRequest(req, res);
 });
 /**
- * Official Steadfast Webhook Integration Endpoint
- * Callback URL: https://courier.auraajenticai.cloud/webhooks/steadfast
+ * Task T1 & T8 — Unified Authenticated Webhook Handler for Steadfast, Pathao, RedX, and Paperfly
  */
-app.post("/webhooks/steadfast", webhookLimiter, (req, res) => {
-    const payload = req.body;
-    console.log("[Steadfast Webhook Received]:", JSON.stringify(payload));
-    if (!payload || !payload.consignment_id) {
-        return res.status(400).json({
-            status: "error",
-            message: "Invalid consignment ID.",
-        });
-    }
-    const notifType = payload.notification_type || "delivery_status";
-    const consignmentId = payload.consignment_id;
-    const status = payload.status;
-    const invoice = payload.invoice;
-    console.log(`[Steadfast Update] Consignment: ${consignmentId} | Invoice: ${invoice} | Type: ${notifType} | Status: ${status}`);
-    if (status === "cancelled") {
-        console.warn(`[Steadfast NDR Alert] Consignment ${consignmentId} was cancelled. Initiating NDR triage.`);
-    }
-    return res.status(200).json({
-        status: "success",
-        message: "Webhook received successfully.",
-    });
-});
-/**
- * Official Pathao Webhook Integration Endpoint
- * Callback URL: https://courier.auraajenticai.cloud/webhooks/pathao
- */
-app.post("/webhooks/pathao", webhookLimiter, (req, res) => {
-    const payload = req.body;
-    console.log("[Pathao Webhook Received]:", JSON.stringify(payload));
-    return res.status(200).json({
-        status: "success",
-        message: "Pathao webhook received successfully.",
-    });
-});
-/**
- * Official RedX Webhook Integration Endpoint
- * Callback URL: https://courier.auraajenticai.cloud/webhooks/redx
- */
-app.post("/webhooks/redx", webhookLimiter, (req, res) => {
-    const payload = req.body;
-    console.log("[RedX Webhook Received]:", JSON.stringify(payload));
-    return res.status(200).json({
-        status: "success",
-        message: "RedX webhook received successfully.",
-    });
-});
-/**
- * Official Paperfly Webhook Integration Endpoint
- * Callback URL: https://courier.auraajenticai.cloud/webhooks/paperfly
- */
-app.post("/webhooks/paperfly", webhookLimiter, (req, res) => {
-    const payload = req.body;
-    console.log("[Paperfly Webhook Received]:", JSON.stringify(payload));
-    return res.status(200).json({
-        status: "success",
-        message: "Paperfly webhook received successfully.",
-    });
-});
+function handleCourierWebhook(provider) {
+    return (req, res) => {
+        const isValidSig = verifyWebhookSignature(req, provider);
+        if (!isValidSig) {
+            return res.status(401).json(wrapError(new McpToolError({
+                code: "UNAUTHORIZED",
+                message: `Unauthorized ${provider} webhook request: missing or invalid signature/secret.`,
+                courier: provider,
+                retryable: false,
+            }), "validator"));
+        }
+        const payload = req.body || {};
+        const consignmentId = payload.consignment_id ||
+            payload.merchant_order_id ||
+            payload.tracking_code ||
+            payload.tracking_id ||
+            payload.order_id;
+        if (provider === "steadfast" && !consignmentId) {
+            return res.status(400).json(wrapError(new McpToolError({
+                code: "INVALID_INPUT",
+                message: "Invalid or missing consignment_id in webhook payload.",
+                courier: provider,
+            }), "validator"));
+        }
+        const status = String(payload.status || payload.order_status || payload.event || "received");
+        const eventType = String(payload.notification_type || payload.event || "delivery_status");
+        const invoice = payload.invoice || payload.merchant_order_id;
+        const record = {
+            id: randomUUID(),
+            courier: provider,
+            consignment_id: String(consignmentId || "UNKNOWN"),
+            invoice: invoice ? String(invoice) : undefined,
+            status,
+            event_type: eventType,
+            received_at: new Date().toISOString(),
+            payload,
+        };
+        recordWebhookEvent(record);
+        return res.status(200).json(wrapSuccess({
+            status: "success",
+            courier: provider,
+            consignment_id: record.consignment_id,
+            event_id: record.id,
+            message: `${provider} webhook verified and recorded.`,
+        }, "live_api"));
+    };
+}
+app.post("/webhooks/steadfast", webhookLimiter, handleCourierWebhook("steadfast"));
+app.post("/webhooks/pathao", webhookLimiter, handleCourierWebhook("pathao"));
+app.post("/webhooks/redx", webhookLimiter, handleCourierWebhook("redx"));
+app.post("/webhooks/paperfly", webhookLimiter, handleCourierWebhook("paperfly"));
 /**
  * Live Consumer & Merchant Cyber-Dark Tracking Hub
  * GET /track/:code
@@ -383,7 +331,6 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
         else
             courier = "pathao";
     }
-    // 1. Check persistent database for authentic booking records (Customer name, destination, COD amount)
     let dbParcel = null;
     if (dbPool) {
         try {
@@ -392,32 +339,35 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
                 dbParcel = qRes.rows[0];
             }
         }
-        catch (e) {
-            console.warn("DB lookup error for parcel:", e.message);
-        }
+        catch (_) { }
     }
-    // 2. Query carrier live telemetry API via MCP
-    const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
+    const registry = new CourierRegistry(loadConfig());
     let trackResult = null;
-    let errorMsg = null;
+    let errorObj = null;
     try {
         trackResult = await registry.trackParcel(code, courier);
     }
     catch (err) {
-        errorMsg = err?.message || String(err);
+        errorObj = err;
     }
     if (format === "json" || (!req.headers.accept?.includes("text/html") && format !== "html")) {
-        return res.json(trackResult || (dbParcel ? { success: true, parcel: dbParcel } : { success: false, tracking_code: code, error: errorMsg }));
+        if (trackResult) {
+            return res.json(wrapSuccess(trackResult, "live_api"));
+        }
+        if (dbParcel) {
+            return res.json(wrapSuccess({ success: true, parcel: dbParcel }, "cache"));
+        }
+        return res.status(404).json(wrapError(errorObj || new Error("Consignment not found"), "live_api"));
     }
     const raw = trackResult?.raw_response?.data || trackResult?.raw_response || (dbParcel?.raw?.data || dbParcel?.raw) || {};
     const recipientName = dbParcel?.customer_name || raw.recipient_name || raw.customer_name || raw.name || "Verified Customer";
     const recipientAddress = dbParcel?.address || raw.recipient_address || raw.address || "Bangladesh";
     const codAmount = dbParcel?.cod_amount || raw.order_amount || raw.amount_to_collect || raw.cod_amount || raw.collectable_amount || 0;
-    const statusText = trackResult?.status || raw.order_status || (dbParcel?.status ? dbParcel.status.charAt(0).toUpperCase() + dbParcel.status.slice(1) : "In Transit");
+    const statusText = trackResult?.status || raw.order_status || (dbParcel?.status ? dbParcel.status.charAt(0).toUpperCase() + dbParcel.status.slice(1) : "Not Found");
     const resolvedCourier = (dbParcel?.courier || courier || "pathao").toLowerCase();
     const carrierName = resolvedCourier === "pathao" ? "Pathao Express" : (resolvedCourier === "steadfast" ? "Steadfast Courier" : resolvedCourier === "redx" ? "RedX Delivery" : resolvedCourier === "paperfly" ? "Paperfly Go" : resolvedCourier.toUpperCase());
     const shortLink = raw.short_link || (carrierName.toLowerCase().includes("pathao") ? `https://merchant.pathao.com/tracking?consignment_id=${code}` : (carrierName.toLowerCase().includes("steadfast") ? `https://steadfast.com.bd/t/${code}` : ""));
-    const updatedAt = raw.order_status_updated_at || raw.updated_at || trackResult?.updated_at || (dbParcel?.updated_at ? new Date(dbParcel.updated_at).toLocaleString('en-GB') : new Date().toLocaleString());
+    const updatedAt = raw.order_status_updated_at || raw.updated_at || trackResult?.updated_at || (dbParcel?.updated_at ? new Date(dbParcel.updated_at).toLocaleString("en-GB") : new Date().toLocaleString());
     const isDelivered = String(statusText).toLowerCase().includes("deliv");
     const isAtHub = String(statusText).toLowerCase().includes("hub");
     const isTransit = String(statusText).toLowerCase().includes("way") || String(statusText).toLowerCase().includes("transit") || String(statusText).toLowerCase().includes("progress");
@@ -432,68 +382,24 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
-    :root {
-      --bg: #07090e;
-      --card: rgba(13, 17, 28, 0.85);
-      --border: rgba(0, 240, 255, 0.18);
-      --cyan: #00f0ff;
-      --purple: #818cf8;
-      --green: #10b981;
-      --text: #f8fafc;
-      --text-dim: #94a3b8;
-    }
+    :root { --bg: #07090e; --card: rgba(13, 17, 28, 0.85); --border: rgba(0, 240, 255, 0.18); --cyan: #00f0ff; --purple: #818cf8; --green: #10b981; --text: #f8fafc; --text-dim: #94a3b8; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      position: relative;
-      overflow-x: hidden;
-    }
-    .orb-1 { position: absolute; top: -100px; left: -100px; width: 400px; height: 400px; background: rgba(0, 240, 255, 0.15); filter: blur(100px); border-radius: 50%; pointer-events: none; }
-    .orb-2 { position: absolute; bottom: -100px; right: -100px; width: 400px; height: 400px; background: rgba(129, 140, 248, 0.15); filter: blur(100px); border-radius: 50%; pointer-events: none; }
-    .track-card {
-      width: 100%;
-      max-width: 580px;
-      background: var(--card);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      padding: 32px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(0, 240, 255, 0.08);
-      position: relative;
-      z-index: 10;
-    }
+    body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; overflow-x: hidden; }
+    .track-card { width: 100%; max-width: 580px; background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 28px; padding: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; z-index: 10; }
     .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px; margin-bottom: 24px; }
     .brand { display: flex; align-items: center; gap: 12px; }
     .brand-icon { width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #00f0ff, #818cf8); display: grid; place-items: center; font-size: 20px; color: #07090e; }
-    .brand-text h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+    .brand-text h1 { font-size: 18px; font-weight: 800; }
     .brand-text p { font-size: 11px; color: var(--text-dim); }
-    .status-badge {
-      display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px;
-      font-size: 12px; font-weight: 700; background: rgba(0, 240, 255, 0.1); color: var(--cyan); border: 1px solid rgba(0, 240, 255, 0.3);
-    }
-    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } }
-    .tracking-code-box {
-      background: rgba(0,0,0,0.35); border: 1px dashed rgba(255,255,255,0.15); border-radius: 16px; padding: 14px 18px;
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;
-    }
+    .status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; background: rgba(0, 240, 255, 0.1); color: var(--cyan); border: 1px solid rgba(0, 240, 255, 0.3); }
+    .tracking-code-box { background: rgba(0,0,0,0.35); border: 1px dashed rgba(255,255,255,0.15); border-radius: 16px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .code-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
-    .code-val { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+    .code-val { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: #fff; }
     .timeline { position: relative; padding-left: 28px; margin-bottom: 24px; }
     .timeline::before { content: ''; position: absolute; left: 8px; top: 8px; bottom: 8px; width: 2px; background: rgba(255,255,255,0.1); }
     .timeline-step { position: relative; margin-bottom: 20px; }
-    .timeline-step:last-child { margin-bottom: 0; }
     .step-dot { position: absolute; left: -28px; top: 3px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; background: #1e293b; border: 2px solid #64748b; color: #fff; }
-    .step-dot.done { background: var(--cyan); border-color: var(--cyan); color: #07090e; box-shadow: 0 0 12px rgba(0, 240, 255, 0.4); }
-    .step-dot.active { background: var(--purple); border-color: var(--cyan); color: #fff; animation: pulse 2s infinite; }
+    .step-dot.done { background: var(--cyan); border-color: var(--cyan); color: #07090e; }
     .step-title { font-size: 14px; font-weight: 700; color: #fff; }
     .step-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
@@ -501,16 +407,12 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
     .info-item-label { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
     .info-item-val { font-size: 13px; font-weight: 700; color: #fff; }
     .actions { display: flex; gap: 10px; }
-    .btn { flex: 1; padding: 12px; border-radius: 14px; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; cursor: pointer; transition: all 0.2s; }
-    .btn-primary { background: linear-gradient(135deg, #00f0ff, #38bdf8); color: #07090e; border: none; font-weight: 800; box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3); }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 25px rgba(0, 240, 255, 0.4); }
+    .btn { flex: 1; padding: 12px; border-radius: 14px; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; cursor: pointer; }
+    .btn-primary { background: linear-gradient(135deg, #00f0ff, #38bdf8); color: #07090e; border: none; font-weight: 800; }
     .btn-secondary { background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.12); }
-    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
   </style>
 </head>
 <body>
-  <div class="orb-1"></div>
-  <div class="orb-2"></div>
   <div class="track-card">
     <div class="header">
       <div class="brand">
@@ -520,59 +422,24 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
           <p>${carrierName} • Direct Live Telemetry</p>
         </div>
       </div>
-      <div class="status-badge">
-        <div class="pulse-dot"></div>
-        <span>${statusText}</span>
-      </div>
+      <div class="status-badge"><span>${statusText}</span></div>
     </div>
-
     <div class="tracking-code-box">
-      <div>
-        <div class="code-label">Consignment Tracking ID</div>
-        <div class="code-val">${code}</div>
-      </div>
-      <div style="text-align: right;">
-        <div class="code-label">Carrier</div>
-        <div style="font-weight: 700; color: var(--cyan); font-size: 13px;">${carrierName}</div>
-      </div>
+      <div><div class="code-label">Consignment Tracking ID</div><div class="code-val">${code}</div></div>
+      <div style="text-align: right;"><div class="code-label">Carrier</div><div style="font-weight: 700; color: var(--cyan); font-size: 13px;">${carrierName}</div></div>
     </div>
-
     <div class="timeline">
-      <div class="timeline-step">
-        <div class="step-dot done"><i class="fa-solid fa-check"></i></div>
-        <div class="step-title">Order Booked & Confirmed</div>
-        <div class="step-sub">Aura Dispatch Engine initialized booking.</div>
-      </div>
-      <div class="timeline-step">
-        <div class="step-dot ${isPickedUp ? 'done' : 'active'}"><i class="fa-solid fa-check"></i></div>
-        <div class="step-title">Picked Up by Rider</div>
-        <div class="step-sub">Central Merchant Fulfillment Hub</div>
-      </div>
-      <div class="timeline-step">
-        <div class="step-dot ${isDelivered ? 'done' : 'active'}"><i class="fa-solid fa-arrow-right"></i></div>
-        <div class="step-title">${statusText}</div>
-        <div class="step-sub">Live Telemetry: ${updatedAt}</div>
-      </div>
-      <div class="timeline-step">
-        <div class="step-dot ${isDelivered ? 'done' : ''}"><i class="fa-solid fa-house"></i></div>
-        <div class="step-title">Destination Delivery</div>
-        <div class="step-sub">Destination: ${recipientAddress}</div>
-      </div>
+      <div class="timeline-step"><div class="step-dot done"><i class="fa-solid fa-check"></i></div><div class="step-title">Order Booked & Confirmed</div><div class="step-sub">Aura Dispatch Engine initialized booking.</div></div>
+      <div class="timeline-step"><div class="step-dot ${isPickedUp ? "done" : ""}"><i class="fa-solid fa-check"></i></div><div class="step-title">Picked Up by Rider</div><div class="step-sub">Central Merchant Fulfillment Hub</div></div>
+      <div class="timeline-step"><div class="step-dot ${isDelivered ? "done" : ""}"><i class="fa-solid fa-arrow-right"></i></div><div class="step-title">${statusText}</div><div class="step-sub">Live Telemetry: ${updatedAt}</div></div>
+      <div class="timeline-step"><div class="step-dot ${isDelivered ? "done" : ""}"><i class="fa-solid fa-house"></i></div><div class="step-title">Destination Delivery</div><div class="step-sub">Destination: ${recipientAddress}</div></div>
     </div>
-
     <div class="info-grid">
-      <div class="info-item">
-        <div class="info-item-label">Customer</div>
-        <div class="info-item-val">${recipientName}</div>
-      </div>
-      <div class="info-item">
-        <div class="info-item-label">Cash on Delivery (COD)</div>
-        <div class="info-item-val">৳ ${Number(codAmount).toLocaleString()}</div>
-      </div>
+      <div class="info-item"><div class="info-item-label">Customer</div><div class="info-item-val">${recipientName}</div></div>
+      <div class="info-item"><div class="info-item-label">Cash on Delivery (COD)</div><div class="info-item-val">৳ ${Number(codAmount).toLocaleString()}</div></div>
     </div>
-
     <div class="actions">
-      ${shortLink ? `<a href="${shortLink}" target="_blank" class="btn btn-primary"><i class="fa-solid fa-location-arrow"></i> Official Carrier Map Tracker</a>` : ''}
+      ${shortLink ? `<a href="${shortLink}" target="_blank" class="btn btn-primary"><i class="fa-solid fa-location-arrow"></i> Official Carrier Map Tracker</a>` : ""}
       <button onclick="window.location.reload()" class="btn btn-secondary"><i class="fa-solid fa-rotate-right"></i> Refresh Live Status</button>
     </div>
   </div>
@@ -580,15 +447,30 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
 </html>`);
 });
 /**
- * Health & Live Telemetry Endpoint
- * Serves visual SaaS Dashboard for browsers, and JSON for API monitors & Docker probes.
+ * Task T9 — Health & Live Telemetry Endpoint
+ * Unauthenticated GET /health returns { ok: true, version: "2.6.0" } ONLY.
+ * Requests with a valid admin Bearer token receive full telemetry.
  */
 app.get("/health", (req, res) => {
+    const auth = req.auraAuth || resolveAuthContext(req);
+    const isAdmin = auth.authenticated && auth.isAdmin;
+    if (!isAdmin) {
+        if (req.query.ui === "1" && req.headers.accept?.includes("text/html")) {
+            return res.sendFile(HEALTH_HTML, (err) => {
+                if (err && !res.headersSent)
+                    res.json({ ok: true, version: "2.6.0" });
+            });
+        }
+        return res.json({
+            ok: true,
+            version: "2.6.0",
+        });
+    }
     const mem = process.memoryUsage();
-    const data = {
+    const detailed = {
         ok: true,
         service: "aura-courier-mcp",
-        version: "2.5.5",
+        version: "2.6.0",
         tools_count: TOOLS.length,
         spatial_engine: "Google Maps Platform (gmp_git_agentskills_v1)",
         fraud_engine: "Pathao Nationwide v2 + Steadfast Nationwide API + BD Prefix Validator",
@@ -606,15 +488,13 @@ app.get("/health", (req, res) => {
             uptime_seconds: Math.round(process.uptime()),
         },
     };
-    // If a browser is viewing /health and hasn't explicitly asked for format=json, serve the visual dashboard!
-    if (req.headers.accept?.includes("text/html") && req.query.format !== "json") {
-        return res.sendFile(HEALTH_HTML, (err) => {
-            if (err && !res.headersSent)
-                res.json(data);
-        });
-    }
-    // Otherwise return JSON for curl, metrics monitors, and Docker health checks
-    res.json(data);
+    return res.json(detailed);
+});
+app.get("/health.html", (_req, res) => {
+    res.sendFile(HEALTH_HTML, (err) => {
+        if (err && !res.headersSent)
+            res.json({ ok: true, version: "2.6.0" });
+    });
 });
 app.get("/privacy", (_req, res) => {
     res.sendFile(PRIVACY_HTML, (err) => {
@@ -637,13 +517,15 @@ app.get("/", (_req, res) => {
                 .type("html")
                 .send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP</title>` +
                 `<style>body{font-family:system-ui,sans-serif;background:#07080a;color:#f4f5f7;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#0f1115;padding:2px 8px;border-radius:6px;color:#00d4ff;font-size:13px}a{color:#00d4ff}p{line-height:1.6;color:#a4a8b3}</style></head>` +
-                `<body><div class="b"><h1>🚚 Aura Courier MCP v2.5.5</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
+                `<body><div class="b"><h1>🚚 Aura Courier MCP v2.6.0</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
                 `<p>Connect your AI to <code>POST /mcp</code> with Streamable-HTTP.</p>` +
                 `<p>Webhooks: <code>POST /webhooks/steadfast</code> · <code>POST /webhooks/pathao</code></p>` +
                 `<p>By <a href="https://auraajenticai.cloud">Aura Ajentic AI</a> · <a href="https://courier.auraajenticai.cloud">docs &amp; setup</a></p></div></body></html>`);
         }
     });
 });
-app.listen(PORT, () => {
-    console.log(`Aura Courier MCP (HTTP) listening on :${PORT} — POST /mcp`);
-});
+if (process.env.NODE_ENV !== "test") {
+    app.listen(PORT, () => {
+        console.log(`Aura Courier MCP v2.6.0 (HTTP) listening on :${PORT} — POST /mcp`);
+    });
+}

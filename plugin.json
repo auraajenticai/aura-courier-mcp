@@ -1,12 +1,12 @@
 {
   "name": "aura-courier",
   "displayName": "Aura Courier MCP",
-  "version": "2.5.5",
+  "version": "2.6.0",
   "category": "Business / Logistics",
   "description": "Enterprise Bangladesh Courier & Logistics Automation Hub. Real-time multi-carrier parcel dispatch, nationwide COD balance tracking, zero-mock fraud risk defense, sublocality geocoding, and automated NDR dispute triage across Steadfast, Pathao, RedX, and Paperfly.",
   "logo": "assets/logo.svg",
   "suggestedPrompts": [
-    "Check nationwide delivery fraud risk for customer phone 01712345678",
+    "Check nationwide delivery fraud risk for customer phone 01700000000",
     "Compare delivery rates and SLAs for a 1.2kg parcel going to Dhanmondi, Dhaka",
     "Book an auto-routed COD parcel of ৳2,400 to Agrabad, Chittagong via create_parcel"
   ],

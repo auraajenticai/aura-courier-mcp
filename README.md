@@ -1,10 +1,10 @@
-# 🚚 AURA COURIER MCP v2.5.4 — THE ENTERPRISE LOGISTICS MASTER MANUAL
+# 🚚 AURA COURIER MCP v2.6.0 — THE ENTERPRISE LOGISTICS MASTER MANUAL
 ### Universal Multi-Carrier Logistics Engine, Spatial Intelligence Hub & Zero-Risk COD Gateway
 **Published by Aura Agentic AI · Architected with DeepMind Principles & Google Maps Platform**
 
 [![Google Cloud Partner Advantage](https://img.shields.io/badge/Google_Cloud_Partner-Aura_Ajentic_AI-4285F4?logo=google-cloud&logoColor=white)](https://cloud.google.com/find-a-partner/partner/aura-ajentic-ai)
 [![auraajenticai/aura-courier-mcp MCP server](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp/badges/score.svg)](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp)
-[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.5.4-0676FF?logo=google&logoColor=white)](plugin.json)
+[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.6.0-0676FF?logo=google&logoColor=white)](plugin.json)
 [![User Guide BN/EN](https://img.shields.io/badge/User_Guide-বাংলা_%26_English-f59e0b)](https://courier.auraajenticai.cloud/guide)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Status](https://img.shields.io/badge/Status-Production%20Active-success.svg)](https://courier.auraajenticai.cloud)
@@ -228,7 +228,7 @@ curl -s https://courier.auraajenticai.cloud/health | jq
 {
   "ok": true,
   "service": "aura-courier-mcp",
-  "version": "2.5.4",
+  "version": "2.6.0",
   "tools_count": 9,
   "spatial_engine": "Google Maps Platform (gmp_git_agentskills_v1)",
   "fraud_engine": "Steadfast Nationwide API + BD Prefix Validator",
@@ -286,7 +286,7 @@ Add this configuration block to your client settings (`claude_desktop_config.jso
   "mcpServers": {
     "aura-courier": {
       "command": "npx",
-      "args": ["-y", "aura-courier-mcp@2.5.4"],
+      "args": ["-y", "aura-courier-mcp@2.6.0"],
       "env": {
         "PORT": "8080",
         "GOOGLE_MAPS_API_KEY": "<GOOGLE_MAPS_API_KEY>",
@@ -348,7 +348,7 @@ Bundles the complete `courier-ops` skill (9 tools), `rules/COURIER_RULES.md` (sm
 
 ## 9. Version History & Glama TDQS 5.0 Audit Log
 
-* **v2.5.4 (Nov 10, 2026)**:
+* **v2.6.0 (Nov 10, 2026)**:
   - **Bilingual User Guide & Business Benefits Hub (`GET /guide`)**: Interactive Bengali & English documentation (`https://courier.auraajenticai.cloud/guide`) covering 3-in-1 WooCommerce/Shopify integration, 6-Pillar WhatsApp/Messenger AI Bot harmony, Multi-Tenant Isolation, and MCP AI Agent setup.
   - **Bilingual Real-Time Fraud Risk Output (`🇧🇩 বাংলা | 🇬🇧 English`)**: Upgraded `FraudRiskEngine.evaluateRisk` and In-Dashboard Quick-Ship widget (`/api/courier/quick-ship`) with bilingual recommendations and 1-click language switching.
   - **Repository Governance & Glama Discovery Optimization**: Added `SECURITY.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, and official Glama MCP card badge.

@@ -1,5 +1,14 @@
 import dotenv from "dotenv";
-dotenv.config();
+if (process.env.NODE_ENV !== "test") {
+    const runtimePort = process.env.PORT;
+    dotenv.config({ override: true });
+    if (runtimePort) {
+        process.env.PORT = runtimePort;
+    }
+}
+else {
+    dotenv.config();
+}
 /**
  * Build a CourierConfig from a key/value source.
  * Defaults to process.env (used by the STDIO/npx entrypoint); the HTTP
