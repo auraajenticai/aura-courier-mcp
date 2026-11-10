@@ -7,6 +7,10 @@ import { GoogleMapsAdapter } from "./adapters/google_maps.js";
 import { loadConfig } from "./config.js";
 import { McpToolError } from "./envelope.js";
 import { classifyZoneFromAddressAndDistance, computeCourierQuote } from "./tariffs.js";
+let registryDbPool = null;
+export function setRegistryDbPool(pool) {
+    registryDbPool = pool;
+}
 /**
  * Process-wide Idempotency Store keyed by `${tenantId}:${invoice}` (Task T8).
  */
@@ -490,9 +494,9 @@ export class CourierRegistry {
         };
     }
     /**
-     * Task T8 — cancel_parcel(courier, consignment_id)
+     * Task T8 — cancel_parcel(courier, consignment_id, reason?)
      */
-    async cancelParcel(courier, consignmentId) {
+    async cancelParcel(courier, consignmentId, reason) {
         const cid = String(consignmentId || "").trim();
         if (!cid) {
             throw new McpToolError({
@@ -500,18 +504,32 @@ export class CourierRegistry {
                 message: "consignment_id is required to request cancellation.",
             });
         }
-        this.getAdapter(courier); // Validates supported courier name
-        throw new McpToolError({
-            code: "UNSUPPORTED_BY_PROVIDER",
-            message: `${courier} does not expose an automated parcel cancellation endpoint in its public merchant API; please cancel consignment '${cid}' in the ${courier} merchant portal.`,
+        const adapter = this.getAdapter(courier);
+        if (typeof adapter.cancelParcel !== "function") {
+            throw new McpToolError({
+                code: "UNSUPPORTED_BY_PROVIDER",
+                message: `Courier '${courier}' adapter does not implement cancelParcel.`,
+                courier,
+            });
+        }
+        const result = await adapter.cancelParcel(cid, reason);
+        if (registryDbPool) {
+            try {
+                await registryDbPool.query(`UPDATE courier_parcels 
+           SET status = 'cancelled', updated_at = NOW() 
+           WHERE consignment_id = $1 OR tracking_code = $1`, [cid]);
+            }
+            catch (_) { }
+        }
+        recordWebhookEvent({
+            id: "cancel_" + cid,
+            consignment_id: cid,
             courier,
-            retryable: false,
-            extraFields: {
-                consignment_id: cid,
-                cancellable_via_api: false,
-                hint: `Use ${courier} merchant portal`,
-            },
+            status: result.status || "cancelled",
+            received_at: new Date().toISOString(),
+            payload: result,
         });
+        return result;
     }
     /**
      * Task T8 — bulk_create_parcels(items[], dry_run?)

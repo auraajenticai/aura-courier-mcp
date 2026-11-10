@@ -253,11 +253,11 @@ test.after(async () => {
   }
 });
 
-test("1. POST /mcp without Authorization returns 401 and ok:false, error.code:'UNAUTHORIZED'", async () => {
+test("1. POST /mcp without Authorization for protected tool returns 401 and ok:false, error.code:'UNAUTHORIZED'", async () => {
   const res = await fetch(`${baseUrl}/mcp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }),
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "create_parcel", arguments: {} } }),
   });
   assert.equal(res.status, 401);
   const body = await res.json();
@@ -467,13 +467,14 @@ test("12. Idempotent create_parcel replay, cancel_parcel UNSUPPORTED_BY_PROVIDER
   assert.equal(second.envelope.tracking_code, first.envelope.tracking_code);
   assert.equal(upstreamBookingCalls, beforeCalls + 1);
 
-  // cancel_parcel returns UNSUPPORTED_BY_PROVIDER
+  // cancel_parcel returns status: CANCEL_REQUESTED on steadfast with portal_url
   const cancelRes = await callMcpTool("cancel_parcel", {
     courier: "steadfast",
     consignment_id: first.envelope.tracking_code,
   });
-  assert.equal(cancelRes.envelope.ok, false);
-  assert.equal(cancelRes.envelope.error.code, "UNSUPPORTED_BY_PROVIDER");
+  assert.equal(cancelRes.envelope.ok, true);
+  assert.equal(cancelRes.envelope.status, "CANCEL_REQUESTED");
+  assert.ok(cancelRes.envelope.action_required?.portal_url);
 
   // Signed webhook event -> get_webhook_events
   const whPost = await fetch(`${baseUrl}/webhooks/steadfast`, {
@@ -693,4 +694,126 @@ test("20. AI Connector: GET /sse establishes Server-Sent Events stream", async (
   } catch (err) {
     if (err.name !== "AbortError") throw err;
   }
+});
+
+test("21. Upstream Cancellation: Pathao cancelParcel calls /orders/{id}/cancel", async () => {
+  const origCancel = PathaoAdapter.prototype.cancelParcel;
+  let calledWith = null;
+  PathaoAdapter.prototype.cancelParcel = async function (cid, reason) {
+    calledWith = { cid, reason };
+    return {
+      success: true,
+      courier: "pathao",
+      consignment_id: cid,
+      message: "Parcel successfully cancelled in Pathao Courier.",
+    };
+  };
+
+  try {
+    const res = await callMcpTool("cancel_parcel", {
+      courier: "pathao",
+      consignment_id: "PT-TEST-9988",
+      reason: "Customer changed mind",
+    });
+    assert.equal(res.envelope.ok, true);
+    assert.equal(res.envelope.courier, "pathao");
+    assert.equal(calledWith.cid, "PT-TEST-9988");
+    assert.equal(calledWith.reason, "Customer changed mind");
+  } finally {
+    PathaoAdapter.prototype.cancelParcel = origCancel;
+  }
+});
+
+test("22. Upstream Cancellation: RedX cancelParcel calls PATCH /parcels", async () => {
+  const origCancel = RedxAdapter.prototype.cancelParcel;
+  let calledWith = null;
+  RedxAdapter.prototype.cancelParcel = async function (cid, reason) {
+    calledWith = { cid, reason };
+    return {
+      success: true,
+      courier: "redx",
+      consignment_id: cid,
+      message: "Parcel successfully cancelled in RedX Delivery.",
+    };
+  };
+
+  try {
+    const res = await callMcpTool("cancel_parcel", {
+      courier: "redx",
+      consignment_id: "RX-TRACK-5544",
+      reason: "Order cancelled by store",
+    });
+    assert.equal(res.envelope.ok, true);
+    assert.equal(res.envelope.courier, "redx");
+    assert.equal(calledWith.cid, "RX-TRACK-5544");
+    assert.equal(calledWith.reason, "Order cancelled by store");
+  } finally {
+    RedxAdapter.prototype.cancelParcel = origCancel;
+  }
+});
+
+test("23. Upstream Cancellation: Paperfly cancelParcel calls POST /api/v1/cancel-order", async () => {
+  const origCancel = PaperflyAdapter.prototype.cancelParcel;
+  let calledWith = null;
+  PaperflyAdapter.prototype.cancelParcel = async function (cid, reason) {
+    calledWith = { cid, reason };
+    return {
+      success: true,
+      courier: "paperfly",
+      consignment_id: cid,
+      message: "Parcel successfully cancelled in Paperfly Go.",
+    };
+  };
+
+  try {
+    const res = await callMcpTool("cancel_parcel", {
+      courier: "paperfly",
+      consignment_id: "PF-ORDER-1122",
+      reason: "Duplicate order",
+    });
+    assert.equal(res.envelope.ok, true);
+    assert.equal(res.envelope.courier, "paperfly");
+    assert.equal(calledWith.cid, "PF-ORDER-1122");
+    assert.equal(calledWith.reason, "Duplicate order");
+  } finally {
+    PaperflyAdapter.prototype.cancelParcel = origCancel;
+  }
+});
+
+test("24. Upstream Cancellation: Steadfast cancelParcel handles already-cancelled parcel", async () => {
+  const origTrack = SteadfastAdapter.prototype.trackParcel;
+  SteadfastAdapter.prototype.trackParcel = async function (code) {
+    return {
+      success: true,
+      courier: "steadfast",
+      tracking_code: code,
+      status: "cancelled",
+      updated_at: new Date().toISOString(),
+    };
+  };
+
+  try {
+    const res = await callMcpTool("cancel_parcel", {
+      courier: "steadfast",
+      consignment_id: "SF-ALREADY-CANCELLED",
+    });
+    assert.equal(res.envelope.ok, true);
+    assert.equal(res.envelope.status, "CANCELLED");
+    assert.ok(res.envelope.message.includes("already marked as cancelled"));
+  } finally {
+    SteadfastAdapter.prototype.trackParcel = origTrack;
+  }
+});
+
+test("25. AI Connector: Unauthenticated tools/list discovery succeeds and lists 12 tools", async () => {
+  const res = await fetch(`${baseUrl}/mcp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 25, method: "tools/list", params: {} }),
+  });
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.equal(body.jsonrpc, "2.0");
+  assert.ok(Array.isArray(body.result.tools));
+  assert.equal(body.result.tools.length, 12);
 });

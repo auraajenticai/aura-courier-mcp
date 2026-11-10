@@ -42,7 +42,8 @@ export declare function resolveAuthContext(req: Request): AuraAuthContext;
 export declare function optionalAuthMiddleware(req: Request, _res: Response, next: NextFunction): void;
 /**
  * Strict /mcp Authentication & Per-Key Rate Limit Guard
- * F14: Allows unauthenticated read-only discovery on tools/list.
+ * Allows unauthenticated discovery handshakes (initialize, notifications/initialized, tools/list, ping, list_couriers)
+ * so AI agent connectors (Claude Desktop, Cursor, Glama, LibreChat, Smithery) can connect seamlessly.
  */
 export declare function requireMcpAuth(req: Request, res: Response, next: NextFunction): void;
 /**

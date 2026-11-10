@@ -16,4 +16,15 @@ export declare class PaperflyAdapter implements CourierAdapter {
      * Paperfly does not expose a live wallet balance API endpoint (T3).
      */
     getBalance(): Promise<BalanceResponse>;
+    /**
+     * Authentic Upstream Paperfly Cancellation
+     * Endpoint: POST /api/v1/cancel-order
+     */
+    cancelParcel(orderId: string, reason?: string): Promise<{
+        success: boolean;
+        courier: SupportedCourier;
+        consignment_id: string;
+        message: string;
+        raw_response?: any;
+    }>;
 }

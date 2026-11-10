@@ -43,4 +43,15 @@ export declare class PathaoAdapter implements CourierAdapter {
      */
     fraudCheck(phone: string): Promise<any>;
     getLocations(cityName?: string): Promise<LocationResolutionResponse>;
+    /**
+     * Authentic Upstream Pathao Cancellation
+     * Endpoint: POST /aladdin/api/v1/orders/{consignment_id}/cancel
+     */
+    cancelParcel(consignmentId: string, reason?: string): Promise<{
+        success: boolean;
+        courier: SupportedCourier;
+        consignment_id: string;
+        message: string;
+        raw_response?: any;
+    }>;
 }

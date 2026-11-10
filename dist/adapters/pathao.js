@@ -304,4 +304,37 @@ export class PathaoAdapter {
             })),
         };
     }
+    /**
+     * Authentic Upstream Pathao Cancellation
+     * Endpoint: POST /aladdin/api/v1/orders/{consignment_id}/cancel
+     */
+    async cancelParcel(consignmentId, reason) {
+        if (!this.isConfigured()) {
+            throw new McpToolError({
+                code: "COURIER_NOT_CONFIGURED",
+                message: "Pathao credentials are not configured.",
+                courier: "pathao",
+            });
+        }
+        try {
+            const client = await this.getClient();
+            const response = await client.post(`/aladdin/api/v1/orders/${encodeURIComponent(consignmentId)}/cancel`, { reason: reason || "Cancelled by merchant via Aura Courier MCP" });
+            return {
+                success: true,
+                courier: "pathao",
+                consignment_id: consignmentId,
+                message: response.data?.message || "Parcel successfully cancelled in Pathao Courier.",
+                raw_response: response.data,
+            };
+        }
+        catch (err) {
+            const msg = err.response?.data?.message || err.message;
+            throw new McpToolError({
+                code: "COURIER_UPSTREAM_ERROR",
+                message: `Pathao cancellation failed: ${msg}`,
+                courier: "pathao",
+                retryable: false,
+            });
+        }
+    }
 }

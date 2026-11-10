@@ -161,21 +161,40 @@ export function optionalAuthMiddleware(req, _res, next) {
 }
 /**
  * Strict /mcp Authentication & Per-Key Rate Limit Guard
- * F14: Allows unauthenticated read-only discovery on tools/list.
+ * Allows unauthenticated discovery handshakes (initialize, notifications/initialized, tools/list, ping, list_couriers)
+ * so AI agent connectors (Claude Desktop, Cursor, Glama, LibreChat, Smithery) can connect seamlessly.
  */
 export function requireMcpAuth(req, res, next) {
-    // Allow unauthenticated MCP initialize handshake for AI agent connector negotiation
     const body = req.body || {};
-    const isInit = body && typeof body === "object" && body.method === "initialize";
-    if (isInit) {
-        return next();
-    }
+    const method = body && typeof body === "object" ? body.method : undefined;
     const ctx = req.auraAuth || resolveAuthContext(req);
     req.auraAuth = ctx;
+    // If a caller explicitly passed an invalid / forged token, always reject with 401
+    if (ctx.tenantId === "invalid") {
+        res.status(401).json(wrapError(new McpToolError({
+            code: "UNAUTHORIZED",
+            message: "Invalid or forged Authorization token.",
+            retryable: false,
+            source: "validator",
+        })));
+        return;
+    }
+    // Allow unauthenticated discovery handshakes (initialize, notifications/initialized, tools/list, ping)
+    const isDiscovery = method === "initialize" ||
+        method === "notifications/initialized" ||
+        method === "tools/list" ||
+        method === "ping";
+    if (isDiscovery) {
+        return next();
+    }
+    // BYOK headers (x-steadfast-api-key, etc.) allow tool execution with caller's carrier credentials
+    if (ctx.isByok) {
+        return next();
+    }
     if (!ctx.authenticated) {
         res.status(401).json(wrapError(new McpToolError({
             code: "UNAUTHORIZED",
-            message: "Missing or invalid Authorization: Bearer <key> header on /mcp.",
+            message: "Missing or invalid Authorization: Bearer <key> header on /mcp. Please provide your API key or BYOK carrier keys.",
             retryable: false,
             source: "validator",
         })));
@@ -207,8 +226,20 @@ export function requireMcpAuth(req, res, next) {
  */
 export function isActionPermitted(req, toolName, args) {
     const ctx = req.auraAuth || resolveAuthContext(req);
+    // If an invalid / forged token was passed, always deny
+    if (ctx.tenantId === "invalid") {
+        recordAuditLog(ctx.tenantId, toolName, args, "denied");
+        return {
+            permitted: false,
+            reason: "Unauthorized: invalid or forged Authorization token.",
+        };
+    }
     // F14: list_couriers is allowed for discovery
     if (toolName === "list_couriers") {
+        return { permitted: true };
+    }
+    // BYOK mode: caller provided specific courier credentials in headers
+    if (ctx.isByok) {
         return { permitted: true };
     }
     if (!ctx.authenticated) {

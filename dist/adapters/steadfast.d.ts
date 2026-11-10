@@ -14,4 +14,16 @@ export declare class SteadfastAdapter implements CourierAdapter {
      * Endpoint: GET /fraud_check/{phone}
      */
     fraudCheck(phone: string): Promise<any>;
+    /**
+     * Steadfast Status-Aware Cancellation & 1-Click Portal Deep Link
+     * Checks real consignment status. If cancellable, registers local cancellation and provides direct portal action link.
+     */
+    cancelParcel(consignmentId: string, reason?: string): Promise<{
+        success: boolean;
+        courier: SupportedCourier;
+        consignment_id: string;
+        status: string;
+        message: string;
+        action_required?: any;
+    }>;
 }

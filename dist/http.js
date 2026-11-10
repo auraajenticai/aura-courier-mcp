@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
-import { CourierRegistry, recordWebhookEvent } from "./registry.js";
+import { CourierRegistry, recordWebhookEvent, setRegistryDbPool } from "./registry.js";
 import { loadConfig } from "./config.js";
 import { buildMcpServer, executeToolCall, TOOLS } from "./server.js";
 import { createRateLimiter } from "./middleware/rate_limit.js";
@@ -21,6 +21,7 @@ let dbPool = null;
 if (process.env.NODE_ENV !== "test" && dbUrl) {
     try {
         dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
+        setRegistryDbPool(dbPool);
     }
     catch (err) {
         console.warn("[PostgreSQL] Connection initialization skipped:", err?.message);
@@ -47,6 +48,7 @@ const PRIVACY_HTML = path.join(APP_DIR, "privacy.html");
 const HEALTH_HTML = path.join(APP_DIR, "health.html");
 const MCP_EXPLORER_HTML = path.join(APP_DIR, "mcp_explorer.html");
 const GUIDE_HTML = path.join(APP_DIR, "guide.html");
+const SIMULATOR_HTML = path.join(APP_DIR, "simulator.html");
 /**
  * F04 Helper: HTML entity escaping to prevent stored/reflected XSS.
  */
@@ -288,8 +290,8 @@ app.get("/mcp", mcpLimiter, async (req, res) => {
         return;
     }
     const entry = sessions.get(sessionId);
-    const callerTenant = req.auraAuth?.tenantId || "default";
-    if (entry.tenantId !== callerTenant && callerTenant !== "master") {
+    const callerTenant = req.auraAuth?.authenticated ? req.auraAuth.tenantId : entry.tenantId;
+    if (entry.tenantId !== callerTenant && callerTenant !== "master" && entry.tenantId !== "default" && entry.tenantId !== "anonymous") {
         return res.status(403).json(wrapError(new McpToolError({
             code: "UNAUTHORIZED",
             message: "MCP Session belongs to another tenant.",
@@ -324,7 +326,11 @@ app.delete("/mcp", requireMcpAuth, async (req, res) => {
  */
 app.get("/sse", mcpLimiter, async (req, res) => {
     const tenantId = req.auraAuth?.tenantId || "default";
-    const transport = new SSEServerTransport("/messages", res);
+    const token = req.query.token || req.query.key || req.query.apiKey || req.query.api_key;
+    const endpointUrl = token
+        ? `/messages?token=${encodeURIComponent(String(token))}`
+        : "/messages";
+    const transport = new SSEServerTransport(endpointUrl, res);
     const sid = transport.sessionId;
     sseSessions.set(sid, { transport, tenantId, lastActiveAt: Date.now() });
     transport.onclose = () => {
@@ -343,8 +349,8 @@ app.post("/messages", mcpLimiter, async (req, res) => {
         return res.status(400).send("Invalid or missing sessionId");
     }
     const entry = sseSessions.get(sessionId);
-    const callerTenant = req.auraAuth?.tenantId || "default";
-    if (entry.tenantId !== callerTenant && callerTenant !== "master") {
+    const callerTenant = req.auraAuth?.authenticated ? req.auraAuth.tenantId : entry.tenantId;
+    if (entry.tenantId !== callerTenant && callerTenant !== "master" && entry.tenantId !== "default" && entry.tenantId !== "anonymous") {
         return res.status(403).json(wrapError(new McpToolError({
             code: "UNAUTHORIZED",
             message: "SSE Session belongs to another tenant.",
@@ -634,6 +640,13 @@ app.get("/guide", (_req, res) => {
     res.sendFile(GUIDE_HTML, (err) => {
         if (err && !res.headersSent) {
             res.redirect("/");
+        }
+    });
+});
+app.get("/simulator", (_req, res) => {
+    res.sendFile(SIMULATOR_HTML, (err) => {
+        if (err && !res.headersSent) {
+            res.redirect("/guide");
         }
     });
 });
