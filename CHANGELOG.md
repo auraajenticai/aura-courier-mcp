@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.3] - 2026-11-10
+
+### Added
+- **Interactive In-Dashboard Store Simulator (`/guide`)**: Added a full interactive store admin simulator directly inside `https://courier.auraajenticai.cloud/guide` allowing merchants to switch between **WooCommerce (WP Admin)**, **Shopify Admin**, and **Custom Website (Supabase)**, toggle **Safe vs. High-Risk Fraud Customer** telemetry, select any of the **4 Couriers (Steadfast, Pathao, RedX, Paperfly)**, book parcels with 1 click, and preview **4x6 Thermal Barcode Shipping Labels**.
+- **Official High-Res Brand Icon (`/assets/courier-logo.jpg`)**: Integrated the official Aura Courier MCP brand icon across `/guide` and static assets.
+- **GitHub Linguist Configuration (`.gitattributes`)**: Marked static HTML documentation pages as `linguist-documentation` so GitHub and Glama AI classify the repository language accurately as `TypeScript`.
+
 All notable changes to **Aura Courier MCP** are documented in this file.
 
 ## [2.5.2] - 2026-11-10
