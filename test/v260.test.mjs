@@ -631,3 +631,66 @@ test("17. F09: Pathao Webhook HMAC-SHA256 signature verification", async () => {
   });
   assert.equal(badRes.status, 401);
 });
+
+test("18. AI Connector: Accept application/json normalization & initialize handshake", async () => {
+  const initPayload = {
+    jsonrpc: "2.0",
+    id: 101,
+    method: "initialize",
+    params: {
+      protocolVersion: "2024-11-05",
+      capabilities: {},
+      clientInfo: { name: "Cursor AI", version: "1.0.0" },
+    },
+  };
+  const res = await fetch(`${baseUrl}/mcp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": `Bearer ${process.env.AURA_API_KEY}`,
+    },
+    body: JSON.stringify(initPayload),
+  });
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.jsonrpc, "2.0");
+  assert.ok(data.result);
+  assert.ok(data.result.serverInfo);
+  assert.equal(data.result.serverInfo.name, "aura-courier-mcp");
+});
+
+test("19. AI Connector: Query parameter token authentication (?token=...)", async () => {
+  const res = await fetch(`${baseUrl}/mcp?token=${process.env.AURA_API_KEY}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json, text/event-stream",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 102,
+      method: "tools/call",
+      params: { name: "get_balance", arguments: { courier: "steadfast" } },
+    }),
+  });
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.result.isError, false);
+});
+
+test("20. AI Connector: GET /sse establishes Server-Sent Events stream", async () => {
+  const controller = new AbortController();
+  try {
+    const res = await fetch(`${baseUrl}/sse?token=${process.env.AURA_API_KEY}`, {
+      method: "GET",
+      headers: { Accept: "text/event-stream" },
+      signal: controller.signal,
+    });
+    assert.equal(res.status, 200);
+    assert.ok(res.headers.get("content-type")?.includes("text/event-stream"));
+    controller.abort();
+  } catch (err) {
+    if (err.name !== "AbortError") throw err;
+  }
+});

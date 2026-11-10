@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { CourierRegistry, recordWebhookEvent } from "./registry.js";
 import { loadConfig, EnvSource } from "./config.js";
@@ -179,7 +180,14 @@ interface SessionEntry {
   tenantId: string;
 }
 
+interface SseSessionEntry {
+  transport: SSEServerTransport;
+  lastActiveAt: number;
+  tenantId: string;
+}
+
 const sessions = new Map<string, SessionEntry>();
+const sseSessions = new Map<string, SseSessionEntry>();
 const SESSION_TTL_MS = 30 * 60 * 1000;
 
 setInterval(() => {
@@ -189,7 +197,24 @@ setInterval(() => {
       sessions.delete(sid);
     }
   }
+  for (const [sid, entry] of sseSessions.entries()) {
+    if (now - entry.lastActiveAt > SESSION_TTL_MS) {
+      sseSessions.delete(sid);
+    }
+  }
 }, 60 * 1000).unref();
+
+/**
+ * AI Agent Connector Accept Normalizer:
+ * Ensures clients sending Accept: application/json or wildcard do not get HTTP 406 from StreamableHTTPServerTransport.
+ */
+app.use("/mcp", (req, _res, next) => {
+  const accept = req.headers["accept"] || "";
+  if (!accept.includes("text/event-stream")) {
+    req.headers["accept"] = accept ? `${accept}, text/event-stream` : "application/json, text/event-stream";
+  }
+  next();
+});
 
 /**
  * POST /mcp - MCP Protocol Gateway
@@ -374,6 +399,56 @@ app.delete("/mcp", requireMcpAuth, async (req: Request, res: Response) => {
 
   entry.lastActiveAt = Date.now();
   await entry.transport.handleRequest(req, res);
+});
+
+/**
+ * GET /sse - Standard MCP Server-Sent Events Endpoint for AI Agent Connectors (Claude Desktop, Cursor, Glama, LibreChat, Smithery)
+ */
+app.get("/sse", mcpLimiter, async (req: Request, res: Response) => {
+  const tenantId = req.auraAuth?.tenantId || "default";
+  const transport = new SSEServerTransport("/messages", res);
+  const sid = transport.sessionId;
+  sseSessions.set(sid, { transport, tenantId, lastActiveAt: Date.now() });
+
+  transport.onclose = () => {
+    sseSessions.delete(sid);
+  };
+
+  const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
+  const server = buildMcpServer(
+    registry,
+    (toolName) => isActionPermitted(req, toolName),
+    tenantId
+  );
+
+  await server.connect(transport);
+});
+
+/**
+ * POST /messages - Standard MCP JSON-RPC Message Ingestion Endpoint for SSE Transports
+ */
+app.post("/messages", mcpLimiter, async (req: Request, res: Response) => {
+  const sessionId = (req.query.sessionId || req.headers["mcp-session-id"]) as string | undefined;
+  if (!sessionId || !sseSessions.has(sessionId)) {
+    return res.status(400).send("Invalid or missing sessionId");
+  }
+  const entry = sseSessions.get(sessionId)!;
+  const callerTenant = req.auraAuth?.tenantId || "default";
+  if (entry.tenantId !== callerTenant && callerTenant !== "master") {
+    return res.status(403).json(
+      wrapError(
+        new McpToolError({
+          code: "UNAUTHORIZED",
+          message: "SSE Session belongs to another tenant.",
+          retryable: false,
+        }),
+        "validator"
+      )
+    );
+  }
+
+  entry.lastActiveAt = Date.now();
+  await entry.transport.handlePostMessage(req, res, req.body);
 });
 
 /**

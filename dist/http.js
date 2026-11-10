@@ -1,24 +1,30 @@
 import express from "express";
 import { randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { CourierRegistry, recordWebhookEvent } from "./registry.js";
 import { loadConfig } from "./config.js";
 import { buildMcpServer, executeToolCall, TOOLS } from "./server.js";
 import { createRateLimiter } from "./middleware/rate_limit.js";
 import { optionalAuthMiddleware, requireMcpAuth, isActionPermitted, resolveAuthContext, verifyWebhookSignature, recordAuditLog, } from "./middleware/auth.js";
-import { McpToolError, wrapError, wrapSuccess } from "./envelope.js";
+import { McpToolError, wrapError, wrapSuccess, maskPhone } from "./envelope.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
-const dbUrl = process.env.DATABASE_URL ||
-    "postgresql://postgres:AMeyaNUsvKN9GR4zs33YZFQw2ZjeBXRacp5K09bz4vwDMsLejuO1KxBGIZtDLVCw@ernix50nvuq9ur9jy8na8tgr:5432/aura_auth";
+/**
+ * F02 Fix: Remove hardcoded plaintext password.
+ * Connection string is read strictly from process.env.DATABASE_URL.
+ */
+const dbUrl = process.env.DATABASE_URL;
 let dbPool = null;
-if (process.env.NODE_ENV !== "test") {
+if (process.env.NODE_ENV !== "test" && dbUrl) {
     try {
         dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
     }
-    catch (_) { }
+    catch (err) {
+        console.warn("[PostgreSQL] Connection initialization skipped:", err?.message);
+    }
 }
 // Automated Data Retention Engine (Daily Midnight Sweep)
 setInterval(async () => {
@@ -42,46 +48,74 @@ const HEALTH_HTML = path.join(APP_DIR, "health.html");
 const MCP_EXPLORER_HTML = path.join(APP_DIR, "mcp_explorer.html");
 const GUIDE_HTML = path.join(APP_DIR, "guide.html");
 /**
- * Pull this client's courier keys from request headers or query params.
- * Task T1 Tenant Isolation: Only fall back to master process.env credentials when
- * the caller authenticated with the master key (tenantId === "master").
+ * F04 Helper: HTML entity escaping to prevent stored/reflected XSS.
+ */
+function escapeHtml(str) {
+    if (str == null)
+        return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+/**
+ * F03 Helper: Redact recipient street address to District/City level for public tracking.
+ */
+function redactAddressToDistrict(addr) {
+    if (!addr)
+        return "Bangladesh";
+    const parts = addr.split(",").map((p) => p.trim()).filter(Boolean);
+    if (parts.length > 1) {
+        return parts.slice(-2).join(", ");
+    }
+    return addr;
+}
+/**
+ * F10 Fix: Pull client courier keys strictly from request headers.
+ * Query parameters are completely ignored to prevent credential leakage in URL logs.
  */
 export function keysFromRequest(req) {
     const h = req.headers;
-    const q = req.query;
     const allowMasterEnvFallback = req.auraAuth?.tenantId === "master";
-    const pick = (header, query, envVar, allowNonMasterEnv = false) => {
+    const pick = (header, envVar, allowNonMasterEnv = false) => {
         const hv = h[header];
-        const v = (Array.isArray(hv) ? hv[0] : hv) ?? q[query];
-        if (v)
-            return String(v);
+        const v = Array.isArray(hv) ? hv[0] : hv;
+        if (v && typeof v === "string" && v.trim())
+            return v.trim();
         if (envVar && (allowMasterEnvFallback || allowNonMasterEnv)) {
             return process.env[envVar];
         }
         return undefined;
     };
     return {
-        STEADFAST_API_KEY: pick("x-steadfast-api-key", "steadfast_key", "STEADFAST_API_KEY"),
-        STEADFAST_SECRET_KEY: pick("x-steadfast-secret-key", "steadfast_secret", "STEADFAST_SECRET_KEY"),
-        STEADFAST_BASE_URL: pick("x-steadfast-base-url", "steadfast_base_url", "STEADFAST_BASE_URL", true),
-        PATHAO_CLIENT_ID: pick("x-pathao-client-id", "pathao_client_id", "PATHAO_CLIENT_ID"),
-        PATHAO_CLIENT_SECRET: pick("x-pathao-client-secret", "pathao_client_secret", "PATHAO_CLIENT_SECRET"),
-        PATHAO_USERNAME: pick("x-pathao-username", "pathao_username", "PATHAO_USERNAME"),
-        PATHAO_PASSWORD: pick("x-pathao-password", "pathao_password", "PATHAO_PASSWORD"),
-        PATHAO_STORE_ID: pick("x-pathao-store-id", "pathao_store_id", "PATHAO_STORE_ID"),
-        PATHAO_BASE_URL: pick("x-pathao-base-url", "pathao_base_url", "PATHAO_BASE_URL", true),
-        REDX_API_TOKEN: pick("x-redx-api-token", "redx_token", "REDX_API_TOKEN"),
-        REDX_BASE_URL: pick("x-redx-base-url", "redx_base_url", "REDX_BASE_URL", true),
-        REDX_PICKUP_STORE_ID: pick("x-redx-pickup-store-id", "redx_pickup_store_id", "REDX_PICKUP_STORE_ID"),
-        PAPERFLY_API_KEY: pick("x-paperfly-api-key", "paperfly_key", "PAPERFLY_API_KEY"),
-        PAPERFLY_USERNAME: pick("x-paperfly-username", "paperfly_username", "PAPERFLY_USERNAME"),
-        PAPERFLY_PASSWORD: pick("x-paperfly-password", "paperfly_password", "PAPERFLY_PASSWORD"),
-        PAPERFLY_STORE_NAME: pick("x-paperfly-store-name", "paperfly_store", "PAPERFLY_STORE_NAME"),
-        GOOGLE_MAPS_API_KEY: pick("x-google-maps-key", "google_maps_key", "GOOGLE_MAPS_API_KEY", true),
+        STEADFAST_API_KEY: pick("x-steadfast-api-key", "STEADFAST_API_KEY"),
+        STEADFAST_SECRET_KEY: pick("x-steadfast-secret-key", "STEADFAST_SECRET_KEY"),
+        STEADFAST_BASE_URL: pick("x-steadfast-base-url", "STEADFAST_BASE_URL", true),
+        PATHAO_CLIENT_ID: pick("x-pathao-client-id", "PATHAO_CLIENT_ID"),
+        PATHAO_CLIENT_SECRET: pick("x-pathao-client-secret", "PATHAO_CLIENT_SECRET"),
+        PATHAO_USERNAME: pick("x-pathao-username", "PATHAO_USERNAME"),
+        PATHAO_PASSWORD: pick("x-pathao-password", "PATHAO_PASSWORD"),
+        PATHAO_STORE_ID: pick("x-pathao-store-id", "PATHAO_STORE_ID"),
+        PATHAO_BASE_URL: pick("x-pathao-base-url", "PATHAO_BASE_URL", true),
+        REDX_API_TOKEN: pick("x-redx-api-token", "REDX_API_TOKEN"),
+        REDX_BASE_URL: pick("x-redx-base-url", "REDX_BASE_URL", true),
+        REDX_PICKUP_STORE_ID: pick("x-redx-pickup-store-id", "REDX_PICKUP_STORE_ID"),
+        PAPERFLY_API_KEY: pick("x-paperfly-api-key", "PAPERFLY_API_KEY"),
+        PAPERFLY_USERNAME: pick("x-paperfly-username", "PAPERFLY_USERNAME"),
+        PAPERFLY_PASSWORD: pick("x-paperfly-password", "PAPERFLY_PASSWORD"),
+        PAPERFLY_STORE_NAME: pick("x-paperfly-store-name", "PAPERFLY_STORE_NAME"),
+        GOOGLE_MAPS_API_KEY: pick("x-google-maps-key", "GOOGLE_MAPS_API_KEY", true),
     };
 }
 export const app = express();
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({
+    limit: "1mb",
+    verify: (req, _res, buf) => {
+        req.rawBody = buf;
+    },
+}));
 // Robust Malformed JSON Syntax Error Guard
 app.use((err, _req, res, next) => {
     if (err && (err.type === "entity.parse.failed" || err.status === 400)) {
@@ -96,47 +130,63 @@ app.use((err, _req, res, next) => {
 // Allow browser-based and cross-origin MCP clients.
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS, HEAD, PATCH, PUT");
     res.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-aura-signature, x-steadfast-signature, x-pathao-signature, x-redx-signature, x-paperfly-signature, x-webhook-secret, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url, x-redx-api-token, x-redx-base-url, x-redx-pickup-store-id, x-paperfly-api-key, x-paperfly-username, x-paperfly-password, x-paperfly-store-name, x-google-maps-key");
-    res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.header("Access-Control-Expose-Headers", "mcp-session-id");
     if (req.method === "OPTIONS") {
-        res.sendStatus(204);
-        return;
+        return res.sendStatus(204);
     }
     next();
 });
-// Enterprise Sliding-Window Rate Limiters
-const generalLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "General Gateway" });
-const mcpLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 60, name: "MCP Protocol Gateway" });
-const trackingLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 30, name: "Live Tracking Hub" });
-const webhookLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "Courier Webhook Gateway" });
-app.use(generalLimiter);
 app.use(optionalAuthMiddleware);
-// Static brand assets (app icons, favicons, logos)
-app.use("/assets", express.static(path.join(APP_DIR, "assets")));
+const mcpLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 60, name: "MCP Protocol Gateway" });
+const trackingLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "Tracking Gateway" });
 const sessions = new Map();
-const SESSION_TTL_MS = 60 * 60 * 1000; // 1-hour idle expiration
+const sseSessions = new Map();
+const SESSION_TTL_MS = 30 * 60 * 1000;
 setInterval(() => {
     const now = Date.now();
     for (const [sid, entry] of sessions.entries()) {
         if (now - entry.lastActiveAt > SESSION_TTL_MS) {
-            try {
-                entry.transport.close?.();
-            }
-            catch { }
             sessions.delete(sid);
         }
     }
-}, 15 * 60 * 1000).unref();
+    for (const [sid, entry] of sseSessions.entries()) {
+        if (now - entry.lastActiveAt > SESSION_TTL_MS) {
+            sseSessions.delete(sid);
+        }
+    }
+}, 60 * 1000).unref();
 /**
- * Task T1: POST /mcp requires Authorization: Bearer <key>.
+ * AI Agent Connector Accept Normalizer:
+ * Ensures clients sending Accept: application/json or wildcard do not get HTTP 406 from StreamableHTTPServerTransport.
+ */
+app.use("/mcp", (req, _res, next) => {
+    const accept = req.headers["accept"] || "";
+    if (!accept.includes("text/event-stream")) {
+        req.headers["accept"] = accept ? `${accept}, text/event-stream` : "application/json, text/event-stream";
+    }
+    next();
+});
+/**
+ * POST /mcp - MCP Protocol Gateway
  */
 app.post("/mcp", mcpLimiter, requireMcpAuth, async (req, res) => {
     const sessionId = req.headers["mcp-session-id"];
     const tenantId = req.auraAuth?.tenantId || "default";
     let transport;
+    // F05: Verify MCP Session belongs strictly to caller's tenant
     if (sessionId && sessions.has(sessionId)) {
         const entry = sessions.get(sessionId);
+        if (entry.tenantId !== tenantId && req.auraAuth?.tenantId !== "master") {
+            res.status(403).json(wrapError(new McpToolError({
+                code: "UNAUTHORIZED",
+                message: "MCP Session belongs to another tenant.",
+                retryable: false,
+                source: "validator",
+            }), "validator"));
+            return;
+        }
         entry.lastActiveAt = Date.now();
         transport = entry.transport;
     }
@@ -147,7 +197,7 @@ app.post("/mcp", mcpLimiter, requireMcpAuth, async (req, res) => {
             sessionIdGenerator: () => randomUUID(),
             enableJsonResponse: true,
             onsessioninitialized: (sid) => {
-                sessions.set(sid, { transport, lastActiveAt: Date.now() });
+                sessions.set(sid, { transport, lastActiveAt: Date.now(), tenantId });
             },
         });
         transport.onclose = () => {
@@ -160,6 +210,7 @@ app.post("/mcp", mcpLimiter, requireMcpAuth, async (req, res) => {
         // Stateless JSON-RPC 2.0 Direct Execution Mode
         const rpcId = req.body.id ?? 1;
         const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
+        // F14: Allow unauthenticated tools/list discovery
         if (req.body.method === "tools/list") {
             res.status(200).json({ jsonrpc: "2.0", id: rpcId, result: { tools: TOOLS } });
             return;
@@ -236,13 +287,15 @@ app.get("/mcp", mcpLimiter, async (req, res) => {
         res.status(400).send("Invalid or missing session ID");
         return;
     }
-    if (!req.auraAuth?.authenticated) {
-        return res.status(401).json(wrapError(new McpToolError({
+    const entry = sessions.get(sessionId);
+    const callerTenant = req.auraAuth?.tenantId || "default";
+    if (entry.tenantId !== callerTenant && callerTenant !== "master") {
+        return res.status(403).json(wrapError(new McpToolError({
             code: "UNAUTHORIZED",
-            message: "Missing or invalid Authorization: Bearer <AURA_API_KEY> header.",
+            message: "MCP Session belongs to another tenant.",
+            retryable: false,
         }), "validator"));
     }
-    const entry = sessions.get(sessionId);
     entry.lastActiveAt = Date.now();
     await entry.transport.handleRequest(req, res);
 });
@@ -254,8 +307,52 @@ app.delete("/mcp", requireMcpAuth, async (req, res) => {
         return;
     }
     const entry = sessions.get(sessionId);
+    const callerTenant = req.auraAuth?.tenantId || "default";
+    if (entry.tenantId !== callerTenant && callerTenant !== "master") {
+        res.status(403).json(wrapError(new McpToolError({
+            code: "UNAUTHORIZED",
+            message: "MCP Session belongs to another tenant.",
+            retryable: false,
+        }), "validator"));
+        return;
+    }
     entry.lastActiveAt = Date.now();
     await entry.transport.handleRequest(req, res);
+});
+/**
+ * GET /sse - Standard MCP Server-Sent Events Endpoint for AI Agent Connectors (Claude Desktop, Cursor, Glama, LibreChat, Smithery)
+ */
+app.get("/sse", mcpLimiter, async (req, res) => {
+    const tenantId = req.auraAuth?.tenantId || "default";
+    const transport = new SSEServerTransport("/messages", res);
+    const sid = transport.sessionId;
+    sseSessions.set(sid, { transport, tenantId, lastActiveAt: Date.now() });
+    transport.onclose = () => {
+        sseSessions.delete(sid);
+    };
+    const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
+    const server = buildMcpServer(registry, (toolName) => isActionPermitted(req, toolName), tenantId);
+    await server.connect(transport);
+});
+/**
+ * POST /messages - Standard MCP JSON-RPC Message Ingestion Endpoint for SSE Transports
+ */
+app.post("/messages", mcpLimiter, async (req, res) => {
+    const sessionId = (req.query.sessionId || req.headers["mcp-session-id"]);
+    if (!sessionId || !sseSessions.has(sessionId)) {
+        return res.status(400).send("Invalid or missing sessionId");
+    }
+    const entry = sseSessions.get(sessionId);
+    const callerTenant = req.auraAuth?.tenantId || "default";
+    if (entry.tenantId !== callerTenant && callerTenant !== "master") {
+        return res.status(403).json(wrapError(new McpToolError({
+            code: "UNAUTHORIZED",
+            message: "SSE Session belongs to another tenant.",
+            retryable: false,
+        }), "validator"));
+    }
+    entry.lastActiveAt = Date.now();
+    await entry.transport.handlePostMessage(req, res, req.body);
 });
 /**
  * Task T1 & T8 — Unified Authenticated Webhook Handler for Steadfast, Pathao, RedX, and Paperfly
@@ -287,6 +384,7 @@ function handleCourierWebhook(provider) {
         const status = String(payload.status || payload.order_status || payload.event || "received");
         const eventType = String(payload.notification_type || payload.event || "delivery_status");
         const invoice = payload.invoice || payload.merchant_order_id;
+        const tenantId = String(req.query.tenant || req.headers["x-tenant-id"] || "default");
         const record = {
             id: randomUUID(),
             courier: provider,
@@ -297,7 +395,8 @@ function handleCourierWebhook(provider) {
             received_at: new Date().toISOString(),
             payload,
         };
-        recordWebhookEvent(record);
+        // F06: Record webhook event scoped by tenantId
+        recordWebhookEvent(record, tenantId);
         return res.status(200).json(wrapSuccess({
             status: "success",
             courier: provider,
@@ -307,17 +406,20 @@ function handleCourierWebhook(provider) {
         }, "live_api"));
     };
 }
-app.post("/webhooks/steadfast", webhookLimiter, handleCourierWebhook("steadfast"));
-app.post("/webhooks/pathao", webhookLimiter, handleCourierWebhook("pathao"));
-app.post("/webhooks/redx", webhookLimiter, handleCourierWebhook("redx"));
-app.post("/webhooks/paperfly", webhookLimiter, handleCourierWebhook("paperfly"));
+app.post("/webhooks/steadfast", handleCourierWebhook("steadfast"));
+app.post("/webhooks/pathao", handleCourierWebhook("pathao"));
+app.post("/webhooks/redx", handleCourierWebhook("redx"));
+app.post("/webhooks/paperfly", handleCourierWebhook("paperfly"));
 /**
- * Live Consumer & Merchant Cyber-Dark Tracking Hub
- * GET /track/:code
+ * GET /track/:code - Hardened Public & Authenticated Tracking Gateway
+ * F03: PII Masking for unauthenticated callers.
+ * F04: HTML entity escaping for XSS prevention.
  */
 app.get("/track/:code", trackingLimiter, async (req, res) => {
     const code = req.params.code;
     const format = req.query.format;
+    const isAuth = Boolean(req.auraAuth?.authenticated);
+    const callerTenant = req.auraAuth?.tenantId;
     let courier = (req.query.courier || "").toLowerCase();
     if (!courier) {
         if (code.toUpperCase().startsWith("DS") || code.toUpperCase().startsWith("DB"))
@@ -341,7 +443,7 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
         }
         catch (_) { }
     }
-    const registry = new CourierRegistry(loadConfig());
+    const registry = new CourierRegistry(loadConfig(keysFromRequest(req)));
     let trackResult = null;
     let errorObj = null;
     try {
@@ -350,18 +452,44 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
     catch (err) {
         errorObj = err;
     }
+    // F03: If caller is unauthenticated or not owner, sanitize/redact PII
+    const isOwner = isAuth && (callerTenant === "master" || callerTenant === dbParcel?.tenant_id || callerTenant === dbParcel?.tenant);
     if (format === "json" || (!req.headers.accept?.includes("text/html") && format !== "html")) {
         if (trackResult) {
-            return res.json(wrapSuccess(trackResult, "live_api"));
+            let sanitized = trackResult;
+            if (!isOwner) {
+                sanitized = {
+                    ...trackResult,
+                    recipient_phone: trackResult.recipient_phone ? maskPhone(trackResult.recipient_phone) : undefined,
+                    recipient_address: trackResult.recipient_address ? redactAddressToDistrict(trackResult.recipient_address) : undefined,
+                };
+            }
+            return res.json(wrapSuccess(sanitized, "live_api"));
         }
         if (dbParcel) {
-            return res.json(wrapSuccess({ success: true, parcel: dbParcel }, "cache"));
+            let safeParcel = dbParcel;
+            if (!isOwner) {
+                safeParcel = {
+                    ...dbParcel,
+                    recipient_phone: maskPhone(dbParcel.recipient_phone || dbParcel.phone || ""),
+                    recipient_address: redactAddressToDistrict(dbParcel.recipient_address || dbParcel.address || ""),
+                    customer_name: dbParcel.customer_name ? dbParcel.customer_name.charAt(0) + "***" : "Customer",
+                };
+            }
+            return res.json(wrapSuccess({ success: true, parcel: safeParcel }, "cache"));
         }
         return res.status(404).json(wrapError(errorObj || new Error("Consignment not found"), "live_api"));
     }
     const raw = trackResult?.raw_response?.data || trackResult?.raw_response || (dbParcel?.raw?.data || dbParcel?.raw) || {};
-    const recipientName = dbParcel?.customer_name || raw.recipient_name || raw.customer_name || raw.name || "Verified Customer";
-    const recipientAddress = dbParcel?.address || raw.recipient_address || raw.address || "Bangladesh";
+    let recipientName = dbParcel?.customer_name || raw.recipient_name || raw.customer_name || raw.name || "Verified Customer";
+    let recipientAddress = dbParcel?.address || raw.recipient_address || raw.address || "Bangladesh";
+    // F03: Mask PII for public web tracker view
+    if (!isOwner) {
+        recipientAddress = redactAddressToDistrict(recipientAddress);
+        if (recipientName && recipientName.length > 2) {
+            recipientName = recipientName.charAt(0) + "*** " + (recipientName.split(" ")[1] || "");
+        }
+    }
     const codAmount = dbParcel?.cod_amount || raw.order_amount || raw.amount_to_collect || raw.cod_amount || raw.collectable_amount || 0;
     const statusText = trackResult?.status || raw.order_status || (dbParcel?.status ? dbParcel.status.charAt(0).toUpperCase() + dbParcel.status.slice(1) : "Not Found");
     const resolvedCourier = (dbParcel?.courier || courier || "pathao").toLowerCase();
@@ -372,12 +500,13 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
     const isAtHub = String(statusText).toLowerCase().includes("hub");
     const isTransit = String(statusText).toLowerCase().includes("way") || String(statusText).toLowerCase().includes("transit") || String(statusText).toLowerCase().includes("progress");
     const isPickedUp = isDelivered || isAtHub || isTransit || String(statusText).toLowerCase().includes("pick");
+    // F04: All interpolated variables are strictly escaped via escapeHtml()
     res.type("html").send(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Aura Live Tracking — ${code}</title>
+  <title>Aura Live Tracking — ${escapeHtml(code)}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -419,27 +548,27 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
         <div class="brand-icon"><i class="fa-solid fa-truck-fast"></i></div>
         <div class="brand-text">
           <h1>Aura Live Tracking</h1>
-          <p>${carrierName} • Direct Live Telemetry</p>
+          <p>${escapeHtml(carrierName)} • Direct Live Telemetry</p>
         </div>
       </div>
-      <div class="status-badge"><span>${statusText}</span></div>
+      <div class="status-badge"><span>${escapeHtml(statusText)}</span></div>
     </div>
     <div class="tracking-code-box">
-      <div><div class="code-label">Consignment Tracking ID</div><div class="code-val">${code}</div></div>
-      <div style="text-align: right;"><div class="code-label">Carrier</div><div style="font-weight: 700; color: var(--cyan); font-size: 13px;">${carrierName}</div></div>
+      <div><div class="code-label">Consignment Tracking ID</div><div class="code-val">${escapeHtml(code)}</div></div>
+      <div style="text-align: right;"><div class="code-label">Carrier</div><div style="font-weight: 700; color: var(--cyan); font-size: 13px;">${escapeHtml(carrierName)}</div></div>
     </div>
     <div class="timeline">
       <div class="timeline-step"><div class="step-dot done"><i class="fa-solid fa-check"></i></div><div class="step-title">Order Booked & Confirmed</div><div class="step-sub">Aura Dispatch Engine initialized booking.</div></div>
       <div class="timeline-step"><div class="step-dot ${isPickedUp ? "done" : ""}"><i class="fa-solid fa-check"></i></div><div class="step-title">Picked Up by Rider</div><div class="step-sub">Central Merchant Fulfillment Hub</div></div>
-      <div class="timeline-step"><div class="step-dot ${isDelivered ? "done" : ""}"><i class="fa-solid fa-arrow-right"></i></div><div class="step-title">${statusText}</div><div class="step-sub">Live Telemetry: ${updatedAt}</div></div>
-      <div class="timeline-step"><div class="step-dot ${isDelivered ? "done" : ""}"><i class="fa-solid fa-house"></i></div><div class="step-title">Destination Delivery</div><div class="step-sub">Destination: ${recipientAddress}</div></div>
+      <div class="timeline-step"><div class="step-dot ${isDelivered ? "done" : ""}"><i class="fa-solid fa-arrow-right"></i></div><div class="step-title">${escapeHtml(statusText)}</div><div class="step-sub">Live Telemetry: ${escapeHtml(updatedAt)}</div></div>
+      <div class="timeline-step"><div class="step-dot ${isDelivered ? "done" : ""}"><i class="fa-solid fa-house"></i></div><div class="step-title">Destination Delivery</div><div class="step-sub">Destination: ${escapeHtml(recipientAddress)}</div></div>
     </div>
     <div class="info-grid">
-      <div class="info-item"><div class="info-item-label">Customer</div><div class="info-item-val">${recipientName}</div></div>
+      <div class="info-item"><div class="info-item-label">Customer</div><div class="info-item-val">${escapeHtml(recipientName)}</div></div>
       <div class="info-item"><div class="info-item-label">Cash on Delivery (COD)</div><div class="info-item-val">৳ ${Number(codAmount).toLocaleString()}</div></div>
     </div>
     <div class="actions">
-      ${shortLink ? `<a href="${shortLink}" target="_blank" class="btn btn-primary"><i class="fa-solid fa-location-arrow"></i> Official Carrier Map Tracker</a>` : ""}
+      ${shortLink ? `<a href="${escapeHtml(shortLink)}" target="_blank" class="btn btn-primary"><i class="fa-solid fa-location-arrow"></i> Official Carrier Map Tracker</a>` : ""}
       <button onclick="window.location.reload()" class="btn btn-secondary"><i class="fa-solid fa-rotate-right"></i> Refresh Live Status</button>
     </div>
   </div>
@@ -448,8 +577,6 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
 });
 /**
  * Task T9 — Health & Live Telemetry Endpoint
- * Unauthenticated GET /health returns { ok: true, version: "2.6.0" } ONLY.
- * Requests with a valid admin Bearer token receive full telemetry.
  */
 app.get("/health", (req, res) => {
     const auth = req.auraAuth || resolveAuthContext(req);

@@ -3,8 +3,8 @@ import { GoogleMapsAdapter } from "./adapters/google_maps.js";
 import { CourierConfig } from "./config.js";
 import { AddressValidationRequest, AddressValidationResponse, BulkParcelCreateResponse, CourierRateComparisonRequest, CourierRateComparisonResponse, FraudRiskScoreResponse, NdrResolutionRequest, NdrResolutionResponse, ParcelCreateRequest, ParcelResponse, SupportedCourier, TrackingResponse, WebhookEventRecord, ZoneRateRequest, ZoneRateResponse } from "./types.js";
 export declare function clearIdempotencyStore(): void;
-export declare function recordWebhookEvent(event: WebhookEventRecord): void;
-export declare function clearWebhookEvents(): void;
+export declare function recordWebhookEvent(event: WebhookEventRecord, tenantId?: string): void;
+export declare function clearWebhookEvents(tenantId?: string): void;
 export declare class CourierRegistry {
     private adapters;
     private googleMaps;
@@ -43,7 +43,7 @@ export declare class CourierRegistry {
     /**
      * Task T8 — get_webhook_events(consignment_id?, since?)
      */
-    getWebhookEvents(consignmentId?: string, since?: string): {
+    getWebhookEvents(consignmentId?: string, since?: string, tenantId?: string): {
         success: boolean;
         count: number;
         events: WebhookEventRecord[];

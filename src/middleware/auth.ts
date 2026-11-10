@@ -80,6 +80,14 @@ export function extractBearerToken(req: Request): string | undefined {
   if (typeof customKey === "string" && customKey.trim()) {
     return customKey.trim();
   }
+  // Support query parameter tokens for remote AI agent connectors (Claude Desktop, Cursor, Glama, Zapier, Custom GPTs)
+  const q = req.query as Record<string, any> | undefined;
+  if (q) {
+    const candidate = q.token || q.key || q.apiKey || q.api_key;
+    if (typeof candidate === "string" && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
   return undefined;
 }
 
@@ -206,6 +214,13 @@ export function optionalAuthMiddleware(req: Request, _res: Response, next: NextF
  * F14: Allows unauthenticated read-only discovery on tools/list.
  */
 export function requireMcpAuth(req: Request, res: Response, next: NextFunction): void {
+  // Allow unauthenticated MCP initialize handshake for AI agent connector negotiation
+  const body = req.body || {};
+  const isInit = body && typeof body === "object" && body.method === "initialize";
+  if (isInit) {
+    return next();
+  }
+
   const ctx = req.auraAuth || resolveAuthContext(req);
   req.auraAuth = ctx;
 

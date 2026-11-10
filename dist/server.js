@@ -304,7 +304,7 @@ export async function executeToolCall(registry, name, args = {}, tenantId = "def
                 return { isError: false, envelope: wrapSuccess(result, isDryRun ? "validator" : "live_api") };
             }
             case "get_webhook_events": {
-                const result = registry.getWebhookEvents(args?.consignment_id ? String(args?.consignment_id) : undefined, args?.since ? String(args?.since) : undefined);
+                const result = registry.getWebhookEvents(args?.consignment_id ? String(args?.consignment_id) : undefined, args?.since ? String(args?.since) : undefined, tenantId);
                 return { isError: false, envelope: wrapSuccess(result, "cache") };
             }
             default:
