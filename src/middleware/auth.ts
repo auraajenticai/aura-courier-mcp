@@ -242,7 +242,13 @@ export function requireMcpAuth(req: Request, res: Response, next: NextFunction):
     method === "tools/list" ||
     method === "ping";
 
-  if (isDiscovery) {
+  const isReadTool =
+    method === "tools/call" &&
+    body.params &&
+    typeof body.params.name === "string" &&
+    (READ_TOOLS.has(body.params.name) || body.params.name === "list_couriers");
+
+  if (isDiscovery || isReadTool) {
     return next();
   }
 
@@ -310,8 +316,8 @@ export function isActionPermitted(
     };
   }
 
-  // F14: list_couriers is allowed for discovery
-  if (toolName === "list_couriers") {
+  // F14: All READ_TOOLS are permitted for unauthenticated discovery
+  if (READ_TOOLS.has(toolName) || toolName === "list_couriers") {
     return { permitted: true };
   }
 

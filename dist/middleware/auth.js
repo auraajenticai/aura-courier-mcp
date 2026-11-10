@@ -184,7 +184,11 @@ export function requireMcpAuth(req, res, next) {
         method === "notifications/initialized" ||
         method === "tools/list" ||
         method === "ping";
-    if (isDiscovery) {
+    const isReadTool = method === "tools/call" &&
+        body.params &&
+        typeof body.params.name === "string" &&
+        (READ_TOOLS.has(body.params.name) || body.params.name === "list_couriers");
+    if (isDiscovery || isReadTool) {
         return next();
     }
     // BYOK headers (x-steadfast-api-key, etc.) allow tool execution with caller's carrier credentials
@@ -234,8 +238,8 @@ export function isActionPermitted(req, toolName, args) {
             reason: "Unauthorized: invalid or forged Authorization token.",
         };
     }
-    // F14: list_couriers is allowed for discovery
-    if (toolName === "list_couriers") {
+    // F14: All READ_TOOLS are permitted for unauthenticated discovery
+    if (READ_TOOLS.has(toolName) || toolName === "list_couriers") {
         return { permitted: true };
     }
     // BYOK mode: caller provided specific courier credentials in headers
