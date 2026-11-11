@@ -1955,7 +1955,8 @@
   </nav>
 
   <!-- ===== Background Animation Canvas Script ===== -->
-  <script src="/assets/courier-canvas.js">
+  <script src="/assets/courier-canvas.js"></script>
+  <script>
     const agentConfigs = {
       antigravity: {
         path: '%USERPROFILE%\\.gemini\\antigravity\\mcp\\aura-courier\\server.json',
@@ -2035,163 +2036,35 @@
       }
     };
 
-    function switchAgentTab(key, btn) {
+    window.switchAgentTab = function switchAgentTab(key, btn) {
       document.querySelectorAll('.agent-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      if (btn) btn.classList.add('active');
       const item = agentConfigs[key];
       if (item) {
-        document.getElementById('agent-path-hint').innerText = 'Path: ' + item.path;
-        document.getElementById('agent-json-code').innerText = item.json;
-        document.getElementById('agent-download-link').href = item.file;
-        document.getElementById('agent-download-link').innerText = item.file + ' ↗';
+        const hintEl = document.getElementById('agent-path-hint');
+        const codeEl = document.getElementById('agent-json-code');
+        const linkEl = document.getElementById('agent-download-link');
+        if (hintEl) hintEl.innerText = 'Path: ' + item.path;
+        if (codeEl) codeEl.innerText = item.json;
+        if (linkEl) {
+          linkEl.href = item.file;
+          linkEl.innerText = item.file + ' ↗';
+        }
       }
-    }
+    };
 
-    function copyAgentJson() {
-      const code = document.getElementById('agent-json-code').innerText;
+    window.copyAgentJson = function copyAgentJson() {
+      const codeEl = document.getElementById('agent-json-code');
+      const code = codeEl ? codeEl.innerText : '';
       navigator.clipboard.writeText(code).then(() => {
         const txt = document.getElementById('copy-btn-text');
-        txt.innerText = 'Copied!';
-        setTimeout(() => txt.innerText = 'Copy JSON', 2000);
+        if (txt) {
+          txt.innerText = 'Copied!';
+          setTimeout(() => txt.innerText = 'Copy JSON', 2000);
+        }
+      }).catch(() => {
+        alert('Copied to clipboard!');
       });
-    }
-
-</script>
-  <script>
-    if (typeof initCourierCanvas === 'function') {
-      initCourierCanvas('hubmap');
-    }
-
-    // ===== Bilingual Dictionary =====
-    const translations = {
-      bn: {
-        nav_couriers: "🚚 কুরিয়ার",
-        nav_tools: "⊞ টুলস",
-        nav_sandbox: "⚡ লাইভ স্যান্ডবক্স",
-        nav_guide: "📖 গাইড",
-        nav_mcp: "⌨ MCP প্লেগ্রাউন্ড",
-        nav_login: "লগইন",
-        nav_portal: "লগইন",
-        hero_badge: "MCP for Bangladesh E-commerce",
-        hero_heading: "এক কানেক্টরেই ৪ কুরিয়ার + Google Maps",
-        hero_desc: "WooCommerce, Shopify, n8n বা যেকোনো সিস্টেমে সহজেই পার্সেল ডেলিভারি, ট্র্যাকিং, রেট ক্যালকুলেশন, ফ্রড রিস্ক চেক ও NDR ম্যানেজ করুন — একটিই MCP দিয়ে।",
-        cta_try_sandbox: "▶ Try Live Sandbox →",
-        cta_explore_tools: "⊞ Explore All Tools",
-        trust_dev: "Developer Ready",
-        trust_protocol: "API + MCP Protocol",
-        trust_bd: "Bangladesh Focused",
-        stat_couriers: "Couriers Integrated",
-        stat_tools: "MCP Tools (JSON-RPC)",
-        stat_protocol: "HTTP MCP Protocol",
-        stat_ready: "REST + Native MCP",
-        sb_tag: "🧪 Live Sandbox",
-        sb_title: "ইন্টারেক্টিভ লাইভ স্যান্ডবক্স",
-        sb_subtitle: "টেস্ট করুন, রেজাল্ট দেখুন, ইন্টিগ্রেশনের আগে সরাসরি ব্রাউজারে যাচাই করুন।",
-        sb_status: "● Sandbox Online",
-        calc_heading: "Delivery Zone & Fee Calculator",
-        lbl_district: "District / জেলা নির্বাচন করুন:",
-        lbl_weight: "Parcel Weight / পার্সেল ওজন:",
-        res_fee_meta: "Estimated Courier Delivery Fee:",
-        calc_sla: "২৪-৪৮ ঘণ্টার মধ্যে ডেলিভারি",
-        fraud_heading: "Fraud Risk Analyzer",
-        lbl_phone: "Customer Phone Number / ফোন নম্বর:",
-        btn_check_risk: "Check Risk →",
-        fraud_desc_safe: "New customer - Safe to proceed · Zero Mock Data",
-        tools_tag: "⬡ Core Protocol",
-        tools_title: "All 9 MCP Tools",
-        tools_subtitle: "Aura Courier MCP-এ থাকা ৯টি শক্তিশালী টুল, যেগুলো সরাসরি আপনার AI এজেন্ট বা অটোমেশন ফ্লোতে কাজ করে।",
-        t1_desc: "নতুন পার্সেল বা ডেলিভারি অর্ডার তৈরি করুন (Steadfast, Pathao, RedX, Paperfly-তে ১-ক্লিকে)।",
-        t2_desc: "পার্সেল ট্র্যাকিং স্ট্যাটাস ও লাইভ ডেলিভারি টাইমলাইন এক ক্লিকে ট্র্যাক করুন।",
-        t3_desc: "সব কুরিয়ার মার্চেন্ট একাউন্টের লাইভ ব্যালেন্স, পেন্ডিং ডিসবার্সমেন্ট ও পেআউট জানুন।",
-        t4_desc: "গ্রাহকের ফোন নম্বর জাতীয় কুরিয়ার ডাটাবেসে স্ক্যান করে রিটার্ন ঝুঁকি স্কোর নির্ণয়।",
-        t5_desc: "সংযুক্ত সকল কুরিয়ারের অ্যাক্টিভ স্ট্যাটাস, মার্চেন্ট কী ও অপারেশনাল হেলথ দেখুন।",
-        t6_desc: "গুগল ম্যাপস জিওকোডিং এপিআই দিয়ে ঠিকানা ভ্যালিডেশন ও রুফটপ কোঅর্ডিনেট রেজল্ট।",
-        t7_desc: "ঠিকানা অনুযায়ী অটোমেটিক জোন ক্লাসিফিকেশন (Dhaka, Sub-Dhaka, Outside) ও রেট ফিক্স।",
-        t8_desc: "একই অর্ডারের জন্য সকল কুরিয়ারের রেট, সিওডি কমিশন ও এসএলএ পাশাপাশি তুলনা করুন।",
-        t9_desc: "নন-ডেলিভারি রিপোর্ট (NDR) সমস্যায় কাস্টমার রি-ডেলিভারি মেসেজ ও ডিসপুট ম্যানেজ।",
-        carriers_tag: "🔗 Carrier Network",
-        carriers_title: "Courier Integrations",
-        carriers_subtitle: "বাংলাদেশের শীর্ষ ৪টি কুরিয়ার সেবা, একই সর্বজনীন এপিআই ও এমসিপিতে সংযুক্ত।",
-        car_sf: "✔ Integrated (64 Districts)",
-        car_pt: "✔ Integrated (Express Dispatch)",
-        car_rx: "✔ Integrated (2,849+ Hubs)",
-        car_pf: "✔ Integrated (Doorstep Union)",
-        spatial_tag: "🗺️ Spatial Engine",
-        spatial_title: "Google Maps Spatial AI Routing",
-        spatial_subtitle: "গুগল ম্যাপের উপর ভিত্তি করে রুট অপটিমাইজেশন, জোন ডিটেকশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।",
-        sp_1: "Address Geocoding & Validation",
-        sp_2: "Delivery Zone & Tariff Detection",
-        sp_3: "Optimized Route & Distance Calculation",
-        sp_4: "Estimated Delivery Cost & SLA Time",
-        end_title: "Integration (MCP Endpoint)",
-        end_status: "Streamable-HTTP Ready",
-        end_desc: "আপনার AI এজেন্ট (Claude, Cursor, Windsurf বা n8n)-এ সরাসরি নিচের এন্ডপয়েন্টটি সংযুক্ত করুন:",
-        btn_copy: "📋 Copy URL"
-      },
-      en: {
-        nav_couriers: "🚚 Couriers",
-        nav_tools: "⊞ Tools",
-        nav_sandbox: "⚡ Live Sandbox",
-        nav_guide: "📖 Guide",
-        nav_mcp: "⌨ MCP Playground",
-        nav_login: "Login",
-        nav_portal: "Login",
-        hero_badge: "MCP for Bangladesh E-commerce",
-        hero_heading: "One Single Connector for 4 Couriers + Google Maps",
-        hero_desc: "Seamless parcel delivery, unified consignment tracking, automated zone tariffs, carrier fraud detection & NDR management across WooCommerce, Shopify, n8n and AI agents.",
-        cta_try_sandbox: "▶ Try Live Sandbox →",
-        cta_explore_tools: "⊞ Explore All Tools",
-        trust_dev: "Developer Ready",
-        trust_protocol: "API + MCP Protocol",
-        trust_bd: "Bangladesh Focused",
-        stat_couriers: "Couriers Integrated",
-        stat_tools: "MCP Tools (JSON-RPC)",
-        stat_protocol: "HTTP MCP Protocol",
-        stat_ready: "REST + Native MCP",
-        sb_tag: "🧪 Live Sandbox",
-        sb_title: "Interactive Live Sandbox",
-        sb_subtitle: "Test delivery tariffs, evaluate real fraud risk, and simulate bookings directly in your browser.",
-        sb_status: "● Sandbox Online",
-        calc_heading: "Delivery Zone & Fee Calculator",
-        lbl_district: "Select District:",
-        lbl_weight: "Select Parcel Weight:",
-        res_fee_meta: "Estimated Courier Delivery Fee:",
-        calc_sla: "24-48 Hours Delivery SLA",
-        fraud_heading: "Fraud Risk Analyzer",
-        lbl_phone: "Customer Phone Number:",
-        btn_check_risk: "Check Risk →",
-        fraud_desc_safe: "New customer - Safe to proceed · Zero Mock Data",
-        tools_tag: "⬡ Core Protocol",
-        tools_title: "All 9 MCP Tools",
-        tools_subtitle: "Production-grade tools available inside Aura Courier MCP for seamless agentic workflows.",
-        t1_desc: "Automated booking across Steadfast, Pathao, RedX, and Paperfly with 1-click fallback.",
-        t2_desc: "Unified parcel tracking timeline and carrier status across all Bangladesh logistics.",
-        t3_desc: "Live COD balance, pending disbursement and payout tracking across all accounts.",
-        t4_desc: "Scans recipient phone number across national carrier records for return risk score.",
-        t5_desc: "Discover active carriers, credential health and API operational status.",
-        t6_desc: "Sub-locality and rooftop precision geocoding powered by Google Maps Platform.",
-        t7_desc: "Automatic tariff zone classification (Dhaka: ৳80, Suburbs: ৳100, Nationwide: ৳150).",
-        t8_desc: "Side-by-side freight rate, COD commission, and delivery timeline quote comparison.",
-        t9_desc: "Automated WhatsApp copy generation and carrier dispute routing for failed deliveries.",
-        carriers_tag: "🔗 Carrier Network",
-        carriers_title: "Courier Integrations",
-        carriers_subtitle: "Bangladesh's top 4 national logistics carriers unified under one single MCP.",
-        car_sf: "✔ Integrated (64 Districts)",
-        car_pt: "✔ Integrated (Express Dispatch)",
-        car_rx: "✔ Integrated (2,849+ Hubs)",
-        car_pf: "✔ Integrated (Doorstep Union)",
-        spatial_tag: "🗺️ Spatial Engine",
-        spatial_title: "Google Maps Spatial AI Routing",
-        spatial_subtitle: "Rooftop geocoding, route optimization, zone detection, and real-time distance matrix.",
-        sp_1: "Address Geocoding & Validation",
-        sp_2: "Delivery Zone & Tariff Detection",
-        sp_3: "Optimized Route & Distance Calculation",
-        sp_4: "Estimated Delivery Cost & SLA Time",
-        end_title: "Integration (MCP Endpoint)",
-        end_status: "Streamable-HTTP Ready",
-        end_desc: "Connect your AI agent (Claude, Cursor, Windsurf, or n8n) directly via this endpoint:",
-        btn_copy: "📋 Copy URL"
-      }
     };
 
     let curLang = 'bn';

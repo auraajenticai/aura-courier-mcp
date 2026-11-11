@@ -1692,7 +1692,8 @@
   </div>
 
   <!-- Background Canvas Script -->
-  <script src="/assets/courier-canvas.js">
+  <script src="/assets/courier-canvas.js"></script>
+  <script>
     const agentConfigs = {
       antigravity: {
         path: '%USERPROFILE%\\.gemini\\antigravity\\mcp\\aura-courier\\server.json',
@@ -1772,268 +1773,35 @@
       }
     };
 
-    function switchAgentTab(key, btn) {
+    window.switchAgentTab = function switchAgentTab(key, btn) {
       document.querySelectorAll('.agent-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      if (btn) btn.classList.add('active');
       const item = agentConfigs[key];
       if (item) {
-        document.getElementById('agent-path-hint').innerText = 'Path: ' + item.path;
-        document.getElementById('agent-json-code').innerText = item.json;
-        document.getElementById('agent-download-link').href = item.file;
-        document.getElementById('agent-download-link').innerText = item.file + ' ↗';
+        const hintEl = document.getElementById('agent-path-hint');
+        const codeEl = document.getElementById('agent-json-code');
+        const linkEl = document.getElementById('agent-download-link');
+        if (hintEl) hintEl.innerText = 'Path: ' + item.path;
+        if (codeEl) codeEl.innerText = item.json;
+        if (linkEl) {
+          linkEl.href = item.file;
+          linkEl.innerText = item.file + ' ↗';
+        }
       }
-    }
-
-    function copyAgentJson() {
-      const code = document.getElementById('agent-json-code').innerText;
-      navigator.clipboard.writeText(code).then(() => {
-        const txt = document.getElementById('copy-btn-text');
-        txt.innerText = 'Copied!';
-        setTimeout(() => txt.innerText = 'Copy JSON', 2000);
-      });
-    }
-
-</script>
-  <script>
-    if (typeof initCourierCanvas === 'function') {
-      initCourierCanvas('hubmap');
-    }
-
-    // ===== Interactive Simulator State =====
-    let currentCarrier = 'sf';
-    const carrierNames = {
-      sf: 'Steadfast Courier',
-      pt: 'Pathao Express',
-      rx: 'RedX Delivery',
-      pf: 'Paperfly Go'
     };
 
-    function selectSimCarrier(key, btn) {
-      currentCarrier = key;
-      document.querySelectorAll('.carrier-chip-btn').forEach(b => b.className = 'carrier-chip-btn ' + b.getAttribute('onclick').match(/'([^']+)'/)[1]);
-      btn.classList.add('active');
-      document.getElementById('btn-book-text').textContent = (curLang === 'bn' ? 'বুক করুন: ' : 'Book with ') + carrierNames[key] + ' →';
-    }
-
-    function switchPlatform(p, tab) {
-      document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-
-      const titleEl = document.getElementById('sim-platform-title');
-      const descEl = document.getElementById('sim-platform-desc');
-
-      if (p === 'woo') {
-        titleEl.innerHTML = '<span>🛒</span> WooCommerce Simulation';
-        descEl.textContent = curLang === 'bn'
-          ? 'WooCommerce প্লাগইন দিয়ে সরাসরি স্টোর চেকআউট থেকে কুরিয়ার ট্র্যাকিং এবং ফ্রড এনালাইসিস যাচাই করুন।'
-          : 'Seamless WooCommerce plugin integration for direct checkout parcel booking and fraud assessment.';
-      } else if (p === 'shopify') {
-        titleEl.innerHTML = '<span>🛍️</span> Shopify App Simulation';
-        descEl.textContent = curLang === 'bn'
-          ? 'Shopify স্টোরে Aura Webhook ইন্টিগ্রেশন দিয়ে আনফুলফিল্ড অর্ডার এক ক্লিকে কুরিয়ারে পুশ করুন।'
-          : 'Shopify automated fulfillment with instant courier consignment generation upon order creation.';
-      } else if (p === 'custom') {
-        titleEl.innerHTML = '<span>&lt;/&gt;</span> Custom Store API';
-        descEl.textContent = curLang === 'bn'
-          ? 'যেকোনো কাস্টম পিএইচপি, নোডজেএস বা পাইথন ব্যাকএন্ড থেকে সরাসরি REST/MCP এন্ডপয়েন্ট ব্যবহার করুন।'
-          : 'Direct JSON-RPC and REST endpoints for custom PHP, Node.js, and Python backend systems.';
-      } else {
-        titleEl.innerHTML = '<span>🖥️</span> Aura Client Dashboard';
-        descEl.textContent = curLang === 'bn'
-          ? 'কোনো কোডিং ছাড়া সেন্ট্রালাইজড ড্যাশবোর্ড থেকে বাল্ক পার্সেল বুকিং এবং রিস্ক ফিল্টারিং।'
-          : 'No-code centralized merchant dashboard with bulk order dispatch and live COD reconciliations.';
-      }
-    }
-
-    function loadSampleOrder(type) {
-      document.querySelectorAll('.sample-pill').forEach(p => p.classList.remove('active'));
-      const rBox = document.getElementById('risk-box');
-      const rTitle = document.getElementById('risk-title');
-      const rDesc = document.getElementById('risk-desc');
-
-      if (type === 'safe') {
-        document.querySelector('.sample-pill.safe').classList.add('active');
-        document.getElementById('ord-cust').textContent = 'Md. Rahim';
-        document.getElementById('ord-phone').textContent = '+880 1712-345678';
-        document.getElementById('ord-amount').textContent = '৳ 2,890';
-        document.getElementById('ord-items').textContent = 'K-Beauty Skincare (2 items)';
-
-        rBox.className = 'risk-banner safe';
-        rTitle.innerHTML = '<span>✔</span> <span>SAFE RISK 26%</span>';
-        rDesc.textContent = curLang === 'bn' ? 'নিয়মিত গ্রাহক - নিরাপদ ডেলিভারি রেট ৯২%+' : 'Frequent buyer - Delivery success 92%+';
-      } else {
-        document.querySelector('.sample-pill.risk').classList.add('active');
-        document.getElementById('ord-cust').textContent = 'Tanvir Ahmed';
-        document.getElementById('ord-phone').textContent = '+880 1999-887766';
-        document.getElementById('ord-amount').textContent = '৳ 6,400';
-        document.getElementById('ord-items').textContent = 'High-Value Electronics (1 item)';
-
-        rBox.className = 'risk-banner high';
-        rTitle.innerHTML = '<span>⚠️</span> <span>HIGH RISK 84%</span>';
-        rDesc.textContent = curLang === 'bn' ? 'সতর্কতা: অতীতে একাধিক পার্সেল রিজেকশনের রেকর্ড রয়েছে!' : 'Caution: High return/cancellation rate in carrier DB!';
-      }
-    }
-
-    function executeSimBooking() {
-      const code = 'AC-' + Math.floor(100000 + Math.random() * 900000);
-      const toast = document.getElementById('toast');
-      const title = document.getElementById('toast-title');
-      const desc = document.getElementById('toast-desc');
-
-      title.textContent = (curLang === 'bn' ? 'পার্সেল বুক সফল! ' : 'Parcel Dispatched: ') + carrierNames[currentCarrier];
-      desc.textContent = (curLang === 'bn' ? 'কনসাইনমেন্ট ট্র্যাকিং কোড: ' : 'Consignment Code: ') + code;
-      
-      toast.style.display = 'flex';
-      setTimeout(() => { toast.style.display = 'none'; }, 4000);
-    }
-
-    function startFreeTrial(plan) {
-      alert((curLang === 'bn' ? 'ধন্যবাদ! আপনার ১৫ দিন ফ্রি ট্রায়াল শুরু করতে ক্লায়েন্ট পোর্টালে লগইন করুন। নির্বাচিত প্ল্যান: ' : 'Welcome! Log in to client portal to activate your 15-day trial for: ') + plan);
-      window.open('https://client.auraajenticai.cloud', '_blank');
-    }
-
-    // ===== Bilingual Engine =====
-    const translations = {
-      bn: {
-        nav_home: "হোম",
-        nav_guide: "গাইড",
-        nav_pricing: "প্রাইসিং",
-        nav_playground: "প্লেগ্রাউন্ড",
-        nav_docs: "ডকুমেন্টেশন",
-        nav_login: "লগইন",
-        badge_guide: "অফিসিয়াল ব্যবহারবিধি",
-        hero_h2: "ব্যবহার নির্দেশিকা, স্টোর সিমুলেটর ও ১৫ দিন ফ্রি ট্রায়াল",
-        hero_desc: "বাংলাদেশের ই-কমার্সের জন্য মাল্টি-কুরিয়ার ইন্টিগ্রেশন সমাধান — আপনার স্টোর (WooCommerce/Shopify/Custom) থেকে সরাসরি Steadfast, Pathao, RedX ও Paperfly-তে অর্ডার বুকিং।",
-        cta_simulator: "▶ Try Live Simulator →",
-        cta_read_guide: "📖 Read Full Guide",
-        val1_title: "Fraud-Risk Screening",
-        val1_desc: "ভুয়া বা ঝুঁকিপূর্ণ অর্ডার আগে শনাক্ত",
-        val2_title: "Four-Courier Booking",
-        val2_desc: "৪টি কুরিয়ারে এক ক্লিকে বুকিং",
-        val3_title: "Encrypted API Key Vault",
-        val3_desc: "কুরিয়ার কী নিরাপদে সংরক্ষণ",
-        comp_title: "দুটি ব্যবহারের ধরন — আপনার জন্য কোনটি উপযোগী?",
-        comp_sub: "আপনার প্রযুক্তিগত সক্ষমতা অনুযায়ী সেরা উপায়টি বেছে নিন।",
-        for_dev: "ডেভেলপার ও টেকনিক্যাল টিমের জন্য",
-        for_business: "ব্যবসার জন্য রেডি-টু-ইউজ সমাধান",
-        mcp_f1: "নিজের অ্যাপ বা সিস্টেমে সরাসরি MCP ইন্টিগ্রেশন",
-        mcp_f2: "API বা MCP প্রটোকল দিয়ে কুরিয়ার বুকিং",
-        mcp_f3: "WooCommerce, Shopify বা কাস্টম স্টোরে সংযোগ",
-        mcp_f4: "সম্পূর্ণ ফ্লেক্সিবল ও ডেভেলপার-ফ্রেন্ডলি",
-        dash_f1: "কোনো কোড ছাড়া সহজে ব্যবহারযোগ্য রেডি ইন্টারফেস",
-        dash_f2: "অর্ডার দেখা, ঝুঁকি যাচাই ও কুরিয়ার বুকিং",
-        dash_f3: "৪টি কুরিয়ারের হিসাব ও ব্যালেন্স এক জায়গায় সমন্বয়",
-        dash_f4: "ছোট ও মাঝারি ই-কমার্সের জন্য আদর্শ সমাধান",
-        sim_title: "Live Store Simulator — নিজের চোখেই দেখুন",
-        sim_sub: "আপনার স্টোরের মতো করে অর্ডার, ঝুঁকি যাচাই এবং চারটি কুরিয়ারে বুকিং প্রক্রিয়া টেস্ট করুন।",
-        sim_brand_desc: "উদাহরণ অর্ডার নিয়ে দেখুন কীভাবে Aura Courier MCP আপনার স্টোর থেকে অর্ডার নিয়ে স্বয়ংক্রিয়ভাবে জাতীয় ফ্রড ডাটাবেসে ঝুঁকি যাচাই করে এবং ১-ক্লিকে কুরিয়ার বুকিং সম্পন্ন করে।",
-        sim_order_label: "স্টোর অর্ডার",
-        sel_courier: "কুরিয়ার নির্বাচন করুন (১-ক্লিক বুকিং):",
-        btn_book: "বুক করুন সিলেক্টেড কুরিয়ারে →",
-        price_title: "সাবস্ক্রিপশন প্ল্যান — আপনার ব্যবসার জন্য সঠিক প্ল্যান",
-        price_sub: "শুধু Courier MCP ব্যবহার করুন, অথবা আরও শক্তিশালী AI ফিচারসহ Aura AI ব্যবহার করুন।",
-        trial_pill: "15-Day Free Trial (সব প্ল্যানে ১৫ দিন ফ্রি)",
-        btn_trial: "Start Free Trial →",
-        p1_f1: "৪টি কুরিয়ার ইন্টিগ্রেশন",
-        p1_f2: "মাসিক নির্দিষ্ট ব্যবহার সীমা",
-        p1_f3: "স্ট্যান্ডার্ড ইমেইল সাপোর্ট",
-        p2_f1: "আনলিমিটেড অর্ডার বুকিং",
-        p2_f2: "অগ্রাধিকার টেকনিক্যাল সাপোর্ট",
-        p2_f3: "গুগল ম্যাপস স্পেশিয়াল রাউটিং",
-        p3_f1: "Courier MCP সব ফিচার",
-        p3_f2: "AI ঝুঁকি ও ফ্রড বিশ্লেষণ",
-        p3_f3: "অর্ডার অটোমেশন (বেসিক)",
-        p4_f1: "উন্নত AI অটোমেশন ও অমনিচ্যানেল",
-        p4_f2: "বৃহৎ ব্যবহার ও হাই-ভলিউম স্কেল",
-        p4_f3: "২৪/৭ প্রায়োরিটি ডেডিকেটেড সাপোর্ট",
-        setup_title: "Setup Guide — ৫ ধাপে শুরু করুন",
-        setup_sub: "খুব সহজে আপনার স্টোর বা ড্যাশবোর্ডে Aura Courier MCP সেটআপ করুন।",
-        s1_t: "API Key সংগ্রহ",
-        s1_d: "চারটি কুরিয়ার থেকেই আপনার মার্চেন্ট এপিআই কী ও সিক্রেট সংগ্রহ করুন।",
-        s2_t: "স্টোরে সংযোগ",
-        s2_d: "WooCommerce / Shopify / কাস্টম সিস্টেমে MCP প্লাগইন ইনস্টল করুন।",
-        s3_t: "সেটিংস কনফিগার",
-        s3_d: "ডিফল্ট কুরিয়ার রুলস, জোন ক্যালকুলেশন ও ফ্রড থ্রেশহোল্ড সেট করুন।",
-        s4_t: "সিমুলেট করে দেখুন",
-        s4_d: "লাইভ সিমুলেটরে টেস্ট অর্ডার পাঠিয়ে রিয়েল ডিসপ্যাচ যাচাই করুন।",
-        s5_t: "লাইভে শুরু করুন",
-        s5_d: "সরাসরি অর্ডার আসার সাথে সাথে অটোমেটিক কুরিয়ার বুকিং নিশ্চিত করুন।",
-        res_title: "আরো সহায়তা ও রিসোর্স",
-        res_1: "Full Guide (Step by Step)",
-        res_2: "API & MCP Docs",
-        res_3: "Store Integration Guide",
-        res_4: "Support & FAQ"
-      },
-      en: {
-        nav_home: "Home",
-        nav_guide: "Guide",
-        nav_pricing: "Pricing",
-        nav_playground: "Playground",
-        nav_docs: "Docs",
-        nav_login: "Login",
-        badge_guide: "Official Guide",
-        hero_h2: "Complete User Guide, Store Simulator & 15-Day Free Trial",
-        hero_desc: "The all-in-one multi-carrier logistics integration for Bangladesh e-commerce — book parcels directly with Steadfast, Pathao, RedX, and Paperfly from WooCommerce, Shopify, or Custom Stores.",
-        cta_simulator: "▶ Try Live Simulator →",
-        cta_read_guide: "📖 Read Full Guide",
-        val1_title: "Fraud-Risk Screening",
-        val1_desc: "Early detection of fake or high-risk orders",
-        val2_title: "Four-Courier Booking",
-        val2_desc: "1-Click automated dispatch across 4 carriers",
-        val3_title: "Encrypted API Key Vault",
-        val3_desc: "Zero-Knowledge AES-256 courier key storage",
-        comp_title: "Two Implementation Models — Which Fits You Best?",
-        comp_sub: "Choose the optimal setup based on your engineering requirements.",
-        for_dev: "For Developers & Technical Teams",
-        for_business: "Ready-to-Use Business Solution",
-        mcp_f1: "Direct MCP protocol connection to your internal stack",
-        mcp_f2: "Programmatic courier booking via JSON-RPC/REST",
-        mcp_f3: "Fast integration with WooCommerce, Shopify, or custom apps",
-        mcp_f4: "Full architectural flexibility and developer control",
-        dash_f1: "No-code turnkey visual management interface",
-        dash_f2: "View orders, fraud score, and 1-click booking",
-        dash_f3: "Centralized multi-carrier balances and tracking",
-        dash_f4: "Ideal for growing e-commerce businesses",
-        sim_title: "Live Store Simulator — Experience It Live",
-        sim_sub: "Simulate orders, test fraud detection, and preview automated bookings across 4 carriers.",
-        sim_brand_desc: "Experience how Aura Courier MCP automatically ingests store orders, evaluates buyer fraud probability against national databases, and books shipments in 1 click.",
-        sim_order_label: "Store Order",
-        sel_courier: "Select Courier (One Click Booking):",
-        btn_book: "Book with Selected Courier →",
-        price_title: "Subscription Plans — Choose the Perfect Plan",
-        price_sub: "Use standalone Courier MCP, or unlock advanced automated sales with Aura AI.",
-        trial_pill: "15-Day Free Trial on all plans",
-        btn_trial: "Start Free Trial →",
-        p1_f1: "4 Courier Integrations",
-        p1_f2: "Fixed monthly booking quota",
-        p1_f3: "Standard email support",
-        p2_f1: "Unlimited parcel bookings",
-        p2_f2: "Priority technical support",
-        p2_f3: "Google Maps spatial intelligence",
-        p3_f1: "All Courier MCP features",
-        p3_f2: "AI-powered fraud risk scoring",
-        p3_f3: "Basic order automation",
-        p4_f1: "Advanced omnichannel AI automation",
-        p4_f2: "High-volume scale and custom SLAs",
-        p4_f3: "24/7 dedicated support team",
-        setup_title: "Setup Guide — Get Started in 5 Steps",
-        setup_sub: "Quickly set up Aura Courier MCP in your e-commerce store or dashboard.",
-        s1_t: "Obtain API Keys",
-        s1_d: "Gather API credentials from Steadfast, Pathao, RedX, and Paperfly.",
-        s2_t: "Connect Store",
-        s2_d: "Install our plugin or hook webhooks to your WooCommerce/Shopify store.",
-        s3_t: "Configure Rules",
-        s3_d: "Set default fallback rules, address zones, and fraud limits.",
-        s4_t: "Simulate Deliveries",
-        s4_d: "Dispatch test parcels in sandbox mode to verify consignment codes.",
-        s5_t: "Go Live",
-        s5_d: "Enable automated booking for all incoming customer orders.",
-        res_title: "More Support & Resources",
-        res_1: "Full Guide (Step by Step)",
-        res_2: "API & MCP Docs",
-        res_3: "Store Integration Guide",
-        res_4: "Support & FAQ"
-      }
+    window.copyAgentJson = function copyAgentJson() {
+      const codeEl = document.getElementById('agent-json-code');
+      const code = codeEl ? codeEl.innerText : '';
+      navigator.clipboard.writeText(code).then(() => {
+        const txt = document.getElementById('copy-btn-text');
+        if (txt) {
+          txt.innerText = 'Copied!';
+          setTimeout(() => txt.innerText = 'Copy JSON', 2000);
+        }
+      }).catch(() => {
+        alert('Copied to clipboard!');
+      });
     };
 
     let curLang = 'bn';
