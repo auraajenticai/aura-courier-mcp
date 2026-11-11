@@ -14,5 +14,4 @@ export interface CourierAdapter {
   trackParcel(trackingCode: string): Promise<TrackingResponse>;
   getBalance(): Promise<BalanceResponse>;
   getLocations?(cityName?: string, zoneName?: string): Promise<LocationResolutionResponse>;
-  cancelParcel?(consignmentId: string, reason?: string): Promise<any>;
 }

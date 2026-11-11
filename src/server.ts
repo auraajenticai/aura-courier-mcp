@@ -167,13 +167,12 @@ export const TOOLS: Tool[] = [
   {
     name: "cancel_parcel",
     description:
-      "Cancel an existing parcel consignment across Steadfast, Pathao, RedX, or Paperfly. For carriers with automated cancellation APIs (Pathao, RedX, Paperfly), executes live upstream cancellation immediately. For Steadfast, validates parcel eligibility, marks internal status as CANCEL_REQUESTED, and provides direct portal action links.",
+      "Request cancellation for an existing parcel consignment on Steadfast, Pathao, RedX, or Paperfly. Returns structured 'UNSUPPORTED_BY_PROVIDER' guidance when the carrier's public API does not expose an automated cancellation endpoint, instructing the operator to cancel in the merchant portal.",
     inputSchema: {
       type: "object",
       properties: {
         courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly"], description: "Courier provider name" },
         consignment_id: { type: "string", description: "Consignment ID or tracking code to cancel" },
-        reason: { type: "string", description: "Optional cancellation reason (e.g. 'Customer cancelled', 'Address incorrect')" },
       },
       required: ["courier", "consignment_id"],
     },
@@ -335,8 +334,7 @@ export async function executeToolCall(
       case "cancel_parcel": {
         const result = await registry.cancelParcel(
           args?.courier as SupportedCourier,
-          String(args?.consignment_id ?? ""),
-          args?.reason ? String(args.reason) : undefined
+          String(args?.consignment_id ?? "")
         );
         return { isError: false, envelope: wrapSuccess(result, "live_api") };
       }
@@ -354,8 +352,7 @@ export async function executeToolCall(
       case "get_webhook_events": {
         const result = registry.getWebhookEvents(
           args?.consignment_id ? String(args?.consignment_id) : undefined,
-          args?.since ? String(args?.since) : undefined,
-          tenantId
+          args?.since ? String(args?.since) : undefined
         );
         return { isError: false, envelope: wrapSuccess(result, "cache") };
       }

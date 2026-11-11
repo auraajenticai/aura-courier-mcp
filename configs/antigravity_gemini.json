@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Aura Courier MCP - Google Antigravity & Gemini CLI Config",
+  "mcpServers": {
+    "aura-courier": {
+      "url": "https://courier.auraajenticai.cloud/mcp",
+      "type": "http",
+      "description": "Enterprise Bangladesh Courier MCP & Google Maps Spatial Hub"
+    },
+    "aura-courier-local": {
+      "command": "npx",
+      "args": ["-y", "@auraajenticai/aura-courier-mcp@2.6.0"],
+      "env": {
+        "PORT": "8080"
+      }
+    }
+  }
+}

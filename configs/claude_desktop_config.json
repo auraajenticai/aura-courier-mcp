@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "aura-courier": {
+      "url": "https://courier.auraajenticai.cloud/sse",
+      "transport": "sse"
+    },
+    "aura-courier-stdio": {
+      "command": "npx",
+      "args": ["-y", "@auraajenticai/aura-courier-mcp@2.6.0"]
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "aura-courier": {
+      "serverUrl": "https://courier.auraajenticai.cloud/mcp"
+    }
+  }
+}

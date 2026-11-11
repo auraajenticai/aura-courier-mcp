@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "aura-courier": {
+      "url": "https://courier.auraajenticai.cloud/mcp",
+      "autoApprove": [
+        "list_couriers",
+        "calculate_delivery_zone_and_fee",
+        "compare_courier_rates",
+        "validate_and_geocode_address",
+        "check_fraud_risk",
+        "track_parcel"
+      ]
+    }
+  }
+}

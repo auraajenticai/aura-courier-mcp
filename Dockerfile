@@ -6,10 +6,9 @@ WORKDIR /app
 COPY package*.json tsconfig.json ./
 RUN npm install --no-audit --no-fund
 
-# Source + web, static assets and simulator
+# Source + the marketing landing page (served at /)
 COPY src ./src
-COPY assets ./assets
-COPY README.md index.html guide.html health.html privacy.html mcp_explorer.html simulator.html ./
+COPY README.md index.html ./
 RUN npm run build
 
 ENV NODE_ENV=production

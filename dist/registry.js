@@ -7,10 +7,6 @@ import { GoogleMapsAdapter } from "./adapters/google_maps.js";
 import { loadConfig } from "./config.js";
 import { McpToolError } from "./envelope.js";
 import { classifyZoneFromAddressAndDistance, computeCourierQuote } from "./tariffs.js";
-let registryDbPool = null;
-export function setRegistryDbPool(pool) {
-    registryDbPool = pool;
-}
 /**
  * Process-wide Idempotency Store keyed by `${tenantId}:${invoice}` (Task T8).
  */
@@ -22,40 +18,15 @@ export function clearIdempotencyStore() {
  * Process-wide Verified Webhook Event Ring Buffer (Task T1 & T8).
  */
 const MAX_WEBHOOK_EVENTS = 1000;
-const webhookEventsByTenant = new Map();
-export function recordWebhookEvent(event, tenantId = "default") {
-    const tKey = tenantId || "default";
-    if (!webhookEventsByTenant.has(tKey)) {
-        webhookEventsByTenant.set(tKey, []);
-    }
-    const store = webhookEventsByTenant.get(tKey);
-    store.push(event);
-    if (store.length > MAX_WEBHOOK_EVENTS) {
-        store.shift();
+const webhookEventsStore = [];
+export function recordWebhookEvent(event) {
+    webhookEventsStore.push(event);
+    if (webhookEventsStore.length > MAX_WEBHOOK_EVENTS) {
+        webhookEventsStore.shift();
     }
 }
-export function clearWebhookEvents(tenantId) {
-    if (tenantId) {
-        webhookEventsByTenant.delete(tenantId);
-    }
-    else {
-        webhookEventsByTenant.clear();
-    }
-}
-function isNetworkTimeout(err) {
-    if (!err)
-        return false;
-    const msg = String(err.message || "").toLowerCase();
-    const code = String(err.code || "").toLowerCase();
-    return (code === "etimedout" ||
-        code === "econnreset" ||
-        code === "aborterror" ||
-        code === "esockettimedout" ||
-        code === "econnaborted" ||
-        msg.includes("timeout") ||
-        msg.includes("aborted") ||
-        msg.includes("network error") ||
-        msg.includes("socket hang up"));
+export function clearWebhookEvents() {
+    webhookEventsStore.length = 0;
 }
 export class CourierRegistry {
     adapters = new Map();
@@ -237,20 +208,6 @@ export class CourierRegistry {
             }
             catch (err) {
                 lastErr = err;
-                if (isNetworkTimeout(err)) {
-                    throw new McpToolError({
-                        code: "COURIER_UPSTREAM_ERROR",
-                        message: "Carrier " + courierName + " timed out during parcel creation. The parcel may have been booked upstream. Halting cascade to prevent duplicate parcel creation. State is UNKNOWN_PENDING_RECONCILIATION.",
-                        courier: courierName,
-                        retryable: true,
-                        extraFields: {
-                            status: "UNKNOWN_PENDING_RECONCILIATION",
-                            timeout_uncertain: true,
-                            courier_attempted: courierName,
-                            invoice,
-                        },
-                    });
-                }
             }
         }
         if (lastErr instanceof McpToolError) {
@@ -494,9 +451,9 @@ export class CourierRegistry {
         };
     }
     /**
-     * Task T8 — cancel_parcel(courier, consignment_id, reason?)
+     * Task T8 — cancel_parcel(courier, consignment_id)
      */
-    async cancelParcel(courier, consignmentId, reason) {
+    async cancelParcel(courier, consignmentId) {
         const cid = String(consignmentId || "").trim();
         if (!cid) {
             throw new McpToolError({
@@ -504,32 +461,18 @@ export class CourierRegistry {
                 message: "consignment_id is required to request cancellation.",
             });
         }
-        const adapter = this.getAdapter(courier);
-        if (typeof adapter.cancelParcel !== "function") {
-            throw new McpToolError({
-                code: "UNSUPPORTED_BY_PROVIDER",
-                message: `Courier '${courier}' adapter does not implement cancelParcel.`,
-                courier,
-            });
-        }
-        const result = await adapter.cancelParcel(cid, reason);
-        if (registryDbPool) {
-            try {
-                await registryDbPool.query(`UPDATE courier_parcels 
-           SET status = 'cancelled', updated_at = NOW() 
-           WHERE consignment_id = $1 OR tracking_code = $1`, [cid]);
-            }
-            catch (_) { }
-        }
-        recordWebhookEvent({
-            id: "cancel_" + cid,
-            consignment_id: cid,
+        this.getAdapter(courier); // Validates supported courier name
+        throw new McpToolError({
+            code: "UNSUPPORTED_BY_PROVIDER",
+            message: `${courier} does not expose an automated parcel cancellation endpoint in its public merchant API; please cancel consignment '${cid}' in the ${courier} merchant portal.`,
             courier,
-            status: result.status || "cancelled",
-            received_at: new Date().toISOString(),
-            payload: result,
+            retryable: false,
+            extraFields: {
+                consignment_id: cid,
+                cancellable_via_api: false,
+                hint: `Use ${courier} merchant portal`,
+            },
         });
-        return result;
     }
     /**
      * Task T8 — bulk_create_parcels(items[], dry_run?)
@@ -588,17 +531,8 @@ export class CourierRegistry {
     /**
      * Task T8 — get_webhook_events(consignment_id?, since?)
      */
-    getWebhookEvents(consignmentId, since, tenantId = "default") {
-        let events = [];
-        if (tenantId === "master") {
-            for (const tEvents of webhookEventsByTenant.values()) {
-                events.push(...tEvents);
-            }
-        }
-        else {
-            events = [...(webhookEventsByTenant.get(tenantId || "default") || [])];
-        }
-        let filtered = events;
+    getWebhookEvents(consignmentId, since) {
+        let filtered = [...webhookEventsStore];
         if (consignmentId) {
             const target = String(consignmentId).trim().toLowerCase();
             filtered = filtered.filter((e) => String(e.consignment_id).toLowerCase() === target);

@@ -959,7 +959,29 @@
       transform: translateY(-1px);
     }
 
-  </style>
+  
+    .agent-tab {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-dim);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .agent-tab:hover {
+      color: #fff;
+      border-color: rgba(6,182,212,0.3);
+    }
+    .agent-tab.active {
+      background: rgba(6,182,212,0.14);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+</style>
 </head>
 <body>
 
@@ -971,7 +993,7 @@
   <header>
     <div class="hbar">
       <a href="/" class="logo-group">
-        <img class="logo-img" src="/assets/courier-logo.jpg" onerror="this.onerror=null; this.src='/assets/courier-logo.png';" alt="Aura Courier MCP Logo" />
+        <img class="logo-img" src="/assets/courier-logo.png" onerror="this.onerror=null; this.src='/assets/courier-logo.jpg';" alt="Aura Courier MCP Logo" />
         <div>
           <div class="logo-title">
             <span>Aura Courier MCP</span>
@@ -1053,22 +1075,34 @@
       <div class="hero-visual">
         <div class="hero-map-box">
           <div class="hero-carrier-pill sf">
-            <span>●</span> Steadfast
+            <svg viewBox="0 0 36 36" width="14" height="14" fill="none">
+              <path d="M24 11c-1.3-1.3-3.3-1.8-5.2-1.3-2.6.6-4.3 2.9-3.9 5.5.4 2.2 2.2 3.7 4.4 4.1l1.8.3c1.7.3 2.6 1.3 2.4 2.6-.3 1.6-1.7 2.6-3.7 2.4-1.9-.2-3.5-1.3-4.2-2.8" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <span>Steadfast</span>
           </div>
           <div class="hero-carrier-pill pt">
-            <span>●</span> Pathao
+            <svg viewBox="0 0 36 36" width="14" height="14" fill="none">
+              <circle cx="18" cy="18" r="14" fill="#ef4444"/>
+              <path d="M14 11h5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5h-5v5h-2.5V11h2.5zm0 5h4.5a1.5 1.5 0 0 0 1.5-1.5A1.5 1.5 0 0 0 18.5 13H14v3z" fill="#ffffff"/>
+            </svg>
+            <span>Pathao</span>
           </div>
           <div class="hero-carrier-pill rx">
-            <span>●</span> RedX
+            <svg viewBox="0 0 36 36" width="14" height="14" fill="none">
+              <circle cx="18" cy="18" r="13" stroke="#dc2626" stroke-width="2.2"/>
+              <path d="M13 13l10 10M23 13l-10 10" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round"/>
+            </svg>
+            <span>RedX</span>
           </div>
           <div class="hero-carrier-pill pf">
-            <span>●</span> Paperfly
+            <svg viewBox="0 0 36 36" width="14" height="14" fill="none">
+              <path d="M9 18l18-7-7 16-3-6-8-3z" fill="#0284c7" stroke="#38bdf8" stroke-width="1.2" stroke-linejoin="round"/>
+              <path d="M17 20l10-9" stroke="#ffffff" stroke-width="1.2"/>
+            </svg>
+            <span>Paperfly</span>
           </div>
-
-          <div class="hero-center-truck">
-            <div class="truck-glow-icon">🚚</div>
-            <div class="hub-label">Dhaka Central Hub</div>
-          </div>
+        </div>
+      </div>
         </div>
       </div>
     </section>
@@ -1227,16 +1261,31 @@
           <div class="carrier-selector-title" data-i18n="sel_courier">Select Courier (One Click Booking):</div>
           <div class="carrier-chips-row">
             <button class="carrier-chip-btn sf active" onclick="selectSimCarrier('sf', this)">
-              <span>🟢</span> Steadfast
+              <svg viewBox="0 0 36 36" width="18" height="18" fill="none">
+                <path d="M24 11c-1.3-1.3-3.3-1.8-5.2-1.3-2.6.6-4.3 2.9-3.9 5.5.4 2.2 2.2 3.7 4.4 4.1l1.8.3c1.7.3 2.6 1.3 2.4 2.6-.3 1.6-1.7 2.6-3.7 2.4-1.9-.2-3.5-1.3-4.2-2.8" stroke="#10b981" stroke-width="2.8" stroke-linecap="round"/>
+              </svg>
+              <span>Steadfast</span>
             </button>
             <button class="carrier-chip-btn pt" onclick="selectSimCarrier('pt', this)">
-              <span>🔴</span> Pathao
+              <svg viewBox="0 0 36 36" width="18" height="18" fill="none">
+                <circle cx="18" cy="18" r="14" fill="#ef4444"/>
+                <path d="M14 11h5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5h-5v5h-2.5V11h2.5zm0 5h4.5a1.5 1.5 0 0 0 1.5-1.5A1.5 1.5 0 0 0 18.5 13H14v3z" fill="#ffffff"/>
+              </svg>
+              <span>Pathao</span>
             </button>
             <button class="carrier-chip-btn rx" onclick="selectSimCarrier('rx', this)">
-              <span>🔴</span> RedX
+              <svg viewBox="0 0 36 36" width="18" height="18" fill="none">
+                <circle cx="18" cy="18" r="13" stroke="#dc2626" stroke-width="2.2"/>
+                <path d="M13 13l10 10M23 13l-10 10" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+              <span>RedX</span>
             </button>
             <button class="carrier-chip-btn pf" onclick="selectSimCarrier('pf', this)">
-              <span>🔵</span> Paperfly
+              <svg viewBox="0 0 36 36" width="18" height="18" fill="none">
+                <path d="M9 18l18-7-7 16-3-6-8-3z" fill="#0284c7" stroke="#38bdf8" stroke-width="1.2" stroke-linejoin="round"/>
+                <path d="M17 20l10-9" stroke="#ffffff" stroke-width="1.2"/>
+              </svg>
+              <span>Paperfly</span>
             </button>
           </div>
 
@@ -1298,86 +1347,6 @@
           <button class="btn-trial cyan" onclick="startFreeTrial('MCP Pro')" data-i18n="btn_trial">Start Free Trial →</button>
         </div>
 
-        <!-- Plan 3 -->
-        <div class="price-card">
-          <div>
-            <div class="price-track-label ai">Track 2: Aura AI</div>
-            <div class="price-plan-name">Aura AI Starter</div>
-            <div class="price-amount-box">
-              <span class="price-val">৳ ১,৯৯৯</span>
-              <span class="price-period">/ মাস</span>
-            </div>
-            <ul class="price-features">
-              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p3_f1">Courier MCP সব ফিচার</span></li>
-              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p3_f2">AI ঝুঁকি ও ফ্রড বিশ্লেষণ</span></li>
-              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p3_f3">অর্ডার অটোমেশন (বেসিক)</span></li>
-            </ul>
-          </div>
-          <button class="btn-trial purple" onclick="startFreeTrial('Aura AI Starter')" data-i18n="btn_trial">Start Free Trial →</button>
-        </div>
-
-        <!-- Plan 4 -->
-        <div class="price-card" style="border-color:var(--purple); box-shadow:0 0 20px rgba(139,92,246,0.15);">
-          <div>
-            <div class="price-track-label ai">Track 2: Aura AI</div>
-            <div class="price-plan-name">Aura AI Growth 👑</div>
-            <div class="price-amount-box">
-              <span class="price-val">৳ ৪,৯৯৯</span>
-              <span class="price-period">/ মাস</span>
-            </div>
-            <ul class="price-features">
-              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p4_f1">উন্নত AI অটোমেশন ও অমনিচ্যানেল</span></li>
-              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p4_f2">বৃহৎ ব্যবহার ও হাই-ভলিউম স্কেল</span></li>
-              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p4_f3">২৪/৭ প্রায়োরিটি ডেডিকেটেড সাপোর্ট</span></li>
-            </ul>
-          </div>
-          <button class="btn-trial purple" onclick="startFreeTrial('Aura AI Growth')" data-i18n="btn_trial">Start Free Trial →</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== Section 5: Setup Guide 5-Step Flow ===== -->
-    <section id="setup" class="setup-section">
-      <div class="sec-heading-row" style="margin-bottom:0">
-        <div class="sec-tag">⚙️ Step-by-Step Onboarding</div>
-        <h2 class="sec-title" data-i18n="setup_title">Setup Guide — ৫ ধাপে শুরু করুন</h2>
-        <p class="sec-sub" data-i18n="setup_sub">খুব সহজে আপনার স্টোর বা ড্যাশবোর্ডে Aura Courier MCP সেটআপ করুন।</p>
-      </div>
-
-      <div class="steps-row">
-        <!-- Step 1 -->
-        <div class="step-card">
-          <div class="step-num">1</div>
-          <div class="step-title" data-i18n="s1_t">API Key সংগ্রহ</div>
-          <div class="step-desc" data-i18n="s1_d">চারটি কুরিয়ার থেকেই আপনার মার্চেন্ট এপিআই কী ও সিক্রেট সংগ্রহ করুন।</div>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="step-card">
-          <div class="step-num">2</div>
-          <div class="step-title" data-i18n="s2_t">স্টোরে সংযোগ</div>
-          <div class="step-desc" data-i18n="s2_d">WooCommerce / Shopify / কাস্টম সিস্টেমে MCP প্লাগইন ইনস্টল করুন।</div>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="step-card">
-          <div class="step-num">3</div>
-          <div class="step-title" data-i18n="s3_t">সেটিংস কনফিগার</div>
-          <div class="step-desc" data-i18n="s3_d">ডিফল্ট কুরিয়ার রুলস, জোন ক্যালকুলেশন ও ফ্রড থ্রেশহোল্ড সেট করুন।</div>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="step-card">
-          <div class="step-num">4</div>
-          <div class="step-title" data-i18n="s4_t">সিমুলেট করে দেখুন</div>
-          <div class="step-desc" data-i18n="s4_d">লাইভ সিমুলেটরে টেস্ট অর্ডার পাঠিয়ে রিয়েল ডিসপ্যাচ যাচাই করুন।</div>
-        </div>
-
-        <!-- Step 5 -->
-        <div class="step-card">
-          <div class="step-num">5</div>
-          <div class="step-title" data-i18n="s5_t">লাইভে শুরু করুন</div>
-          <div class="step-desc" data-i18n="s5_d">সরাসরি অর্ডার আসার সাথে সাথে অটোমেটিক কুরিয়ার বুকিং নিশ্চিত করুন।</div>
         </div>
       </div>
     </section>
@@ -1409,7 +1378,58 @@
       </div>
     </section>
 
-  </main>
+  
+    <!-- ===== AI Agent & IDE Configurations Vault ===== -->
+    <section id="agent-configs" style="margin-bottom: 48px;">
+      <div class="section-header">
+        <div class="section-tag" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
+          <span>AI Agent Connectors</span>
+        </div>
+        <h2 class="section-title">AI Agents & IDE Ready JSON Configs</h2>
+        <p class="section-subtitle">Google Antigravity, Claude Desktop, Cursor, Windsurf বা Cline-এ ১-ক্লিকে কুরিয়ার MCP ইন্টিগ্রেশন।</p>
+      </div>
+
+      <div style="background:var(--bg-panel); border:1px solid var(--border); border-radius:18px; padding:24px; box-shadow:0 12px 36px rgba(0,0,0,0.4);">
+        <!-- Tabs -->
+        <div style="display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:18px;">
+          <button class="agent-tab active" onclick="switchAgentTab('antigravity', this)">Google Antigravity / Gemini</button>
+          <button class="agent-tab" onclick="switchAgentTab('claude', this)">Claude Desktop</button>
+          <button class="agent-tab" onclick="switchAgentTab('cursor', this)">Cursor IDE</button>
+          <button class="agent-tab" onclick="switchAgentTab('windsurf', this)">Windsurf IDE</button>
+          <button class="agent-tab" onclick="switchAgentTab('cline', this)">Cline / VS Code</button>
+        </div>
+
+        <!-- File Path Hint -->
+        <div id="agent-path-hint" style="font-size:12px; font-family:var(--font-mono); color:var(--cyan); margin-bottom:12px; background:rgba(6,182,212,0.08); padding:8px 12px; border-radius:8px; border:1px solid rgba(6,182,212,0.2);">
+          Path: %USERPROFILE%\.gemini\antigravity\mcp\aura-courier\server.json
+        </div>
+
+        <!-- Code Box -->
+        <div style="position:relative;">
+          <pre id="agent-json-code" style="background:#090d16; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:18px; font-family:var(--font-mono); font-size:13px; color:#38bdf8; overflow-x:auto; margin:0; line-height:1.5;">{
+  "mcpServers": {
+    "aura-courier": {
+      "url": "https://courier.auraajenticai.cloud/mcp",
+      "type": "http",
+      "description": "Enterprise Bangladesh Courier MCP & Google Maps Spatial Hub"
+    }
+  }
+}</pre>
+          <button onclick="copyAgentJson()" style="position:absolute; top:12px; right:12px; background:var(--cyan); color:#040914; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copy-btn-text">Copy JSON</span>
+          </button>
+        </div>
+
+        <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--text-dim);">
+          <span>Direct Config URL: <a id="agent-download-link" href="/configs/antigravity_gemini.json" target="_blank" style="color:var(--cyan); text-decoration:none;">/configs/antigravity_gemini.json ↗</a></span>
+          <span>Protocol: Streamable-HTTP & SSE (Zero 401 Blocker)</span>
+        </div>
+      </div>
+    </section>
+
+</main>
 
   <!-- Toast Notification -->
   <div id="toast" class="toast-modal">
@@ -1421,7 +1441,108 @@
   </div>
 
   <!-- Background Canvas Script -->
-  <script src="/assets/courier-canvas.js"></script>
+  <script src="/assets/courier-canvas.js">
+    const agentConfigs = {
+      antigravity: {
+        path: '%USERPROFILE%\\.gemini\\antigravity\\mcp\\aura-courier\\server.json',
+        file: '/configs/antigravity_gemini.json',
+        json: JSON.stringify({
+          "mcpServers": {
+            "aura-courier": {
+              "url": "https://courier.auraajenticai.cloud/mcp",
+              "type": "http",
+              "description": "Enterprise Bangladesh Courier MCP & Google Maps Spatial Hub"
+            },
+            "aura-courier-local": {
+              "command": "npx",
+              "args": ["-y", "@auraajenticai/aura-courier-mcp@2.6.0"],
+              "env": { "PORT": "8080" }
+            }
+          }
+        }, null, 2)
+      },
+      claude: {
+        path: '%APPDATA%\\Claude\\claude_desktop_config.json',
+        file: '/configs/claude_desktop_config.json',
+        json: JSON.stringify({
+          "mcpServers": {
+            "aura-courier": {
+              "url": "https://courier.auraajenticai.cloud/sse",
+              "transport": "sse"
+            },
+            "aura-courier-stdio": {
+              "command": "npx",
+              "args": ["-y", "@auraajenticai/aura-courier-mcp@2.6.0"]
+            }
+          }
+        }, null, 2)
+      },
+      cursor: {
+        path: 'Cursor Settings -> Features -> MCP -> Add new MCP server (Type: http)',
+        file: '/configs/cursor_mcp.json',
+        json: JSON.stringify({
+          "mcpServers": {
+            "aura-courier": {
+              "url": "https://courier.auraajenticai.cloud/mcp",
+              "transport": "http"
+            }
+          }
+        }, null, 2)
+      },
+      windsurf: {
+        path: '~/.codeium/windsurf/mcp_config.json',
+        file: '/configs/windsurf_mcp_config.json',
+        json: JSON.stringify({
+          "mcpServers": {
+            "aura-courier": {
+              "serverUrl": "https://courier.auraajenticai.cloud/mcp"
+            }
+          }
+        }, null, 2)
+      },
+      cline: {
+        path: 'VS Code -> Cline Settings -> MCP Servers -> Add Server',
+        file: '/configs/cline_mcp_settings.json',
+        json: JSON.stringify({
+          "mcpServers": {
+            "aura-courier": {
+              "url": "https://courier.auraajenticai.cloud/mcp",
+              "autoApprove": [
+                "list_couriers",
+                "calculate_delivery_zone_and_fee",
+                "compare_courier_rates",
+                "validate_and_geocode_address",
+                "check_fraud_risk",
+                "track_parcel"
+              ]
+            }
+          }
+        }, null, 2)
+      }
+    };
+
+    function switchAgentTab(key, btn) {
+      document.querySelectorAll('.agent-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const item = agentConfigs[key];
+      if (item) {
+        document.getElementById('agent-path-hint').innerText = 'Path: ' + item.path;
+        document.getElementById('agent-json-code').innerText = item.json;
+        document.getElementById('agent-download-link').href = item.file;
+        document.getElementById('agent-download-link').innerText = item.file + ' ↗';
+      }
+    }
+
+    function copyAgentJson() {
+      const code = document.getElementById('agent-json-code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const txt = document.getElementById('copy-btn-text');
+        txt.innerText = 'Copied!';
+        setTimeout(() => txt.innerText = 'Copy JSON', 2000);
+      });
+    }
+
+</script>
   <script>
     if (typeof initCourierCanvas === 'function') {
       initCourierCanvas('hubmap');

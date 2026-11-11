@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
-import { CourierRegistry, recordWebhookEvent, setRegistryDbPool } from "./registry.js";
+import { CourierRegistry, recordWebhookEvent } from "./registry.js";
 import { loadConfig, EnvSource } from "./config.js";
 import { buildMcpServer, executeToolCall, TOOLS } from "./server.js";
 import { createRateLimiter } from "./middleware/rate_limit.js";
@@ -30,7 +30,6 @@ let dbPool: any = null;
 if (process.env.NODE_ENV !== "test" && dbUrl) {
   try {
     dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
-    setRegistryDbPool(dbPool);
   } catch (err: any) {
     console.warn("[PostgreSQL] Connection initialization skipped:", err?.message);
   }
@@ -61,6 +60,7 @@ const MCP_EXPLORER_HTML = path.join(APP_DIR, "mcp_explorer.html");
 const GUIDE_HTML = path.join(APP_DIR, "guide.html");
 const SIMULATOR_HTML = path.join(APP_DIR, "simulator.html");
 const ASSETS_DIR = path.join(APP_DIR, "assets");
+const CONFIGS_DIR = path.join(APP_DIR, "configs");
 
 /**
  * F04 Helper: HTML entity escaping to prevent stored/reflected XSS.
@@ -167,14 +167,6 @@ app.use((req, res, next) => {
     return res.sendStatus(204);
   }
   next();
-});
-
-// Static assets (official logo, favicons, branding)
-app.use("/assets", express.static(ASSETS_DIR, { maxAge: "7d" }));
-app.get("/favicon.ico", (_req, res) => {
-  res.sendFile(path.join(ASSETS_DIR, "courier-logo.jpg"), (err) => {
-    if (err && !res.headersSent) res.status(204).end();
-  });
 });
 
 app.use(optionalAuthMiddleware);
@@ -367,8 +359,8 @@ app.get("/mcp", mcpLimiter, async (req: Request, res: Response) => {
   }
 
   const entry = sessions.get(sessionId)!;
-  const callerTenant = req.auraAuth?.authenticated ? req.auraAuth.tenantId : entry.tenantId;
-  if (entry.tenantId !== callerTenant && callerTenant !== "master" && entry.tenantId !== "default" && entry.tenantId !== "anonymous") {
+  const callerTenant = req.auraAuth?.tenantId || "default";
+  if (entry.tenantId !== callerTenant && callerTenant !== "master") {
     return res.status(403).json(
       wrapError(
         new McpToolError({
@@ -417,11 +409,7 @@ app.delete("/mcp", requireMcpAuth, async (req: Request, res: Response) => {
  */
 app.get("/sse", mcpLimiter, async (req: Request, res: Response) => {
   const tenantId = req.auraAuth?.tenantId || "default";
-  const token = req.query.token || req.query.key || req.query.apiKey || req.query.api_key;
-  const endpointUrl = token 
-    ? `/messages?token=${encodeURIComponent(String(token))}` 
-    : "/messages";
-  const transport = new SSEServerTransport(endpointUrl, res);
+  const transport = new SSEServerTransport("/messages", res);
   const sid = transport.sessionId;
   sseSessions.set(sid, { transport, tenantId, lastActiveAt: Date.now() });
 
@@ -448,8 +436,8 @@ app.post("/messages", mcpLimiter, async (req: Request, res: Response) => {
     return res.status(400).send("Invalid or missing sessionId");
   }
   const entry = sseSessions.get(sessionId)!;
-  const callerTenant = req.auraAuth?.authenticated ? req.auraAuth.tenantId : entry.tenantId;
-  if (entry.tenantId !== callerTenant && callerTenant !== "master" && entry.tenantId !== "default" && entry.tenantId !== "anonymous") {
+  const callerTenant = req.auraAuth?.tenantId || "default";
+  if (entry.tenantId !== callerTenant && callerTenant !== "master") {
     return res.status(403).json(
       wrapError(
         new McpToolError({
@@ -775,18 +763,21 @@ app.get("/privacy", (_req, res) => {
   });
 });
 
-app.get("/guide", (_req, res) => {
-  res.sendFile(GUIDE_HTML, (err) => {
-    if (err && !res.headersSent) {
-      res.redirect("/");
-    }
-  });
-});
+app.use("/assets", express.static(ASSETS_DIR, { maxAge: "7d" }));
+app.use("/configs", express.static(CONFIGS_DIR, { maxAge: "1d" }));
 
 app.get("/simulator", (_req, res) => {
   res.sendFile(SIMULATOR_HTML, (err) => {
     if (err && !res.headersSent) {
       res.redirect("/guide");
+    }
+  });
+});
+
+app.get("/guide", (_req, res) => {
+  res.sendFile(GUIDE_HTML, (err) => {
+    if (err && !res.headersSent) {
+      res.redirect("/");
     }
   });
 });

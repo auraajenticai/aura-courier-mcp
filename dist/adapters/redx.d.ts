@@ -14,15 +14,4 @@ export declare class RedxAdapter implements CourierAdapter {
      * RedX does not expose a live wallet balance API endpoint (T3).
      */
     getBalance(): Promise<BalanceResponse>;
-    /**
-     * Authentic Upstream RedX Cancellation
-     * Endpoint: PATCH /parcels
-     */
-    cancelParcel(trackingId: string, reason?: string): Promise<{
-        success: boolean;
-        courier: SupportedCourier;
-        consignment_id: string;
-        message: string;
-        raw_response?: any;
-    }>;
 }
