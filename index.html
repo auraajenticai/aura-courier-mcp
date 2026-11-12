@@ -145,10 +145,11 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 14px;
     }
     .nav-item {
       color: var(--text-muted);
+      white-space: nowrap;
       text-decoration: none;
       font-size: 13.5px;
       font-weight: 600;
@@ -167,6 +168,7 @@
     }
     .health-pill {
       display: inline-flex;
+      white-space: nowrap;
       align-items: center;
       gap: 6px;
       font-family: var(--font-mono);
@@ -1252,7 +1254,7 @@
             <svg viewBox="0 0 36 36" width="18" height="18" fill="none" aria-hidden="true" style="flex-shrink:0;"><circle cx="18" cy="18" r="16" fill="#ef4444"/><path d="M13 10.5h5.8a4.2 4.2 0 0 1 4.2 4.2 4.2 4.2 0 0 1-4.2 4.2h-3.1v6.6H13v-15zm2.7 6h2.9a1.8 1.8 0 0 0 1.8-1.8 1.8 1.8 0 0 0-1.8-1.8h-2.9v3.6z" fill="#ffffff"/></svg><span>Pathao Express</span>
           </div>
           <div class="carrier-node-badge redx">
-            <svg viewBox="0 0 36 36" width="18" height="18" fill="none" aria-hidden="true" style="flex-shrink:0;"><circle cx="18" cy="18" r="16" fill="#dc2626"/><path d="M12.5 12.5l11 11M23.5 12.5l-11 11" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/></svg><span>RedX Network</span>
+            <svg viewBox="0 0 36 36" width="18" height="18" fill="none" aria-hidden="true" style="flex-shrink:0;"><defs><linearGradient id="rxG18" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#f43f5e"/><stop offset="100%" stop-color="#be123c"/></linearGradient></defs><rect x="2" y="2" width="32" height="32" rx="8" fill="url(#rxG18)"/><path d="M8 24.5V11.5h4.8a3.2 3.2 0 0 1 0 6.4H8m4.4 0l3.6 6.6M19.5 11.5l8.5 13M28 11.5l-8.5 13" stroke="#ffffff" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>RedX Network</span>
           </div>
           <div class="carrier-node-badge paperfly">
             <svg viewBox="0 0 36 36" width="18" height="18" fill="none" aria-hidden="true" style="flex-shrink:0;"><defs><linearGradient id="pfGrad18" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient></defs><rect x="2" y="2" width="32" height="32" rx="8" fill="url(#pfGrad18)"/><path d="M9.5 18.2l17.5-7.2-6.8 16-3.2-5.8-7.5-3z" fill="#ffffff"/><path d="M17 21.2l10-10.2" stroke="#0284c7" stroke-width="1.6" stroke-linecap="round"/></svg><span>Paperfly Union</span>
@@ -1660,7 +1662,7 @@
         </div>
 
         <div class="carrier-card">
-          <svg viewBox="0 0 36 36" width="36" height="36" fill="none" aria-hidden="true" style="flex-shrink:0;"><circle cx="18" cy="18" r="16" fill="#dc2626"/><path d="M12.5 12.5l11 11M23.5 12.5l-11 11" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 36 36" width="36" height="36" fill="none" aria-hidden="true" style="flex-shrink:0;"><defs><linearGradient id="rxG36" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#f43f5e"/><stop offset="100%" stop-color="#be123c"/></linearGradient></defs><rect x="2" y="2" width="32" height="32" rx="8" fill="url(#rxG36)"/><path d="M8 24.5V11.5h4.8a3.2 3.2 0 0 1 0 6.4H8m4.4 0l3.6 6.6M19.5 11.5l8.5 13M28 11.5l-8.5 13" stroke="#ffffff" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <div class="carrier-info">
             <b>RedX</b>
             <span data-i18n="car_rx">✔ Integrated (2,849+ Hubs)</span>
