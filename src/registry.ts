@@ -27,6 +27,11 @@ import {
   ZoneRateResponse,
 } from "./types.js";
 
+let registryDbPool: any = null;
+export function setRegistryDbPool(pool: any): void {
+  registryDbPool = pool;
+}
+
 /**
  * Process-wide Idempotency Store keyed by `${tenantId}:${invoice}` (Task T8).
  */
@@ -40,17 +45,43 @@ export function clearIdempotencyStore(): void {
  * Process-wide Verified Webhook Event Ring Buffer (Task T1 & T8).
  */
 const MAX_WEBHOOK_EVENTS = 1000;
-const webhookEventsStore: WebhookEventRecord[] = [];
+const webhookEventsByTenant = new Map<string, WebhookEventRecord[]>();
 
-export function recordWebhookEvent(event: WebhookEventRecord): void {
-  webhookEventsStore.push(event);
-  if (webhookEventsStore.length > MAX_WEBHOOK_EVENTS) {
-    webhookEventsStore.shift();
+export function recordWebhookEvent(event: WebhookEventRecord, tenantId: string = "default"): void {
+  const tKey = tenantId || "default";
+  if (!webhookEventsByTenant.has(tKey)) {
+    webhookEventsByTenant.set(tKey, []);
+  }
+  const store = webhookEventsByTenant.get(tKey)!;
+  store.push(event);
+  if (store.length > MAX_WEBHOOK_EVENTS) {
+    store.shift();
   }
 }
 
-export function clearWebhookEvents(): void {
-  webhookEventsStore.length = 0;
+export function clearWebhookEvents(tenantId?: string): void {
+  if (tenantId) {
+    webhookEventsByTenant.delete(tenantId);
+  } else {
+    webhookEventsByTenant.clear();
+  }
+}
+
+function isNetworkTimeout(err: any): boolean {
+  if (!err) return false;
+  const msg = String(err.message || "").toLowerCase();
+  const code = String(err.code || "").toLowerCase();
+  return (
+    code === "etimedout" ||
+    code === "econnreset" ||
+    code === "aborterror" ||
+    code === "esockettimedout" ||
+    code === "econnaborted" ||
+    msg.includes("timeout") ||
+    msg.includes("aborted") ||
+    msg.includes("network error") ||
+    msg.includes("socket hang up")
+  );
 }
 
 export class CourierRegistry {
@@ -271,6 +302,20 @@ export class CourierRegistry {
         });
       } catch (err: any) {
         lastErr = err;
+        if (isNetworkTimeout(err)) {
+          throw new McpToolError({
+            code: "COURIER_UPSTREAM_ERROR",
+            message: "Carrier " + courierName + " timed out during parcel creation. The parcel may have been booked upstream. Halting cascade to prevent duplicate parcel creation. State is UNKNOWN_PENDING_RECONCILIATION.",
+            courier: courierName,
+            retryable: true,
+            extraFields: {
+              status: "UNKNOWN_PENDING_RECONCILIATION",
+              timeout_uncertain: true,
+              courier_attempted: courierName,
+              invoice,
+            },
+          });
+        }
       }
     }
 
@@ -533,9 +578,9 @@ export class CourierRegistry {
   }
 
   /**
-   * Task T8 — cancel_parcel(courier, consignment_id)
+   * Task T8 — cancel_parcel(courier, consignment_id, reason?)
    */
-  async cancelParcel(courier: SupportedCourier, consignmentId: string): Promise<any> {
+  async cancelParcel(courier: SupportedCourier, consignmentId: string, reason?: string): Promise<any> {
     const cid = String(consignmentId || "").trim();
     if (!cid) {
       throw new McpToolError({
@@ -543,19 +588,38 @@ export class CourierRegistry {
         message: "consignment_id is required to request cancellation.",
       });
     }
-    this.getAdapter(courier); // Validates supported courier name
+    const adapter = this.getAdapter(courier);
+    if (typeof (adapter as any).cancelParcel !== "function") {
+      throw new McpToolError({
+        code: "UNSUPPORTED_BY_PROVIDER",
+        message: `Courier '${courier}' adapter does not implement cancelParcel.`,
+        courier,
+      });
+    }
 
-    throw new McpToolError({
-      code: "UNSUPPORTED_BY_PROVIDER",
-      message: `${courier} does not expose an automated parcel cancellation endpoint in its public merchant API; please cancel consignment '${cid}' in the ${courier} merchant portal.`,
+    const result = await (adapter as any).cancelParcel(cid, reason);
+
+    if (registryDbPool) {
+      try {
+        await registryDbPool.query(
+          `UPDATE courier_parcels 
+           SET status = 'cancelled', updated_at = NOW() 
+           WHERE consignment_id = $1 OR tracking_code = $1`,
+          [cid]
+        );
+      } catch (_) {}
+    }
+
+    recordWebhookEvent({
+      id: "cancel_" + cid,
+      consignment_id: cid,
       courier,
-      retryable: false,
-      extraFields: {
-        consignment_id: cid,
-        cancellable_via_api: false,
-        hint: `Use ${courier} merchant portal`,
-      },
+      status: result.status || "cancelled",
+      received_at: new Date().toISOString(),
+      payload: result,
     });
+
+    return result;
   }
 
   /**
@@ -622,8 +686,16 @@ export class CourierRegistry {
   /**
    * Task T8 — get_webhook_events(consignment_id?, since?)
    */
-  getWebhookEvents(consignmentId?: string, since?: string) {
-    let filtered = [...webhookEventsStore];
+  getWebhookEvents(consignmentId?: string, since?: string, tenantId: string = "default") {
+    let events: WebhookEventRecord[] = [];
+    if (tenantId === "master") {
+      for (const tEvents of webhookEventsByTenant.values()) {
+        events.push(...tEvents);
+      }
+    } else {
+      events = [...(webhookEventsByTenant.get(tenantId || "default") || [])];
+    }
+    let filtered = events;
     if (consignmentId) {
       const target = String(consignmentId).trim().toLowerCase();
       filtered = filtered.filter((e) => String(e.consignment_id).toLowerCase() === target);

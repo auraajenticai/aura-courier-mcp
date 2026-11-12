@@ -135,4 +135,42 @@ export class PaperflyAdapter {
             hint: "Use Paperfly merchant portal",
         };
     }
+    /**
+     * Authentic Upstream Paperfly Cancellation
+     * Endpoint: POST /api/v1/cancel-order
+     */
+    async cancelParcel(orderId, reason) {
+        if (!this.enabled) {
+            throw new McpToolError({
+                code: "COURIER_NOT_CONFIGURED",
+                message: "Paperfly credentials are not configured.",
+                courier: "paperfly",
+            });
+        }
+        try {
+            const response = await this.client.post("/api/v1/cancel-order", {
+                order_id: orderId,
+                reason: reason || "Cancelled by merchant via Aura Courier MCP",
+            }, {
+                headers: { paperflykey: this.apiKey },
+                auth: { username: this.username, password: this.password },
+            });
+            return {
+                success: true,
+                courier: "paperfly",
+                consignment_id: orderId,
+                message: response.data?.success?.message || response.data?.message || "Parcel successfully cancelled in Paperfly Go.",
+                raw_response: response.data,
+            };
+        }
+        catch (err) {
+            const msg = err.response?.data?.message || err.message;
+            throw new McpToolError({
+                code: "COURIER_UPSTREAM_ERROR",
+                message: `Paperfly cancellation failed: ${msg}`,
+                courier: "paperfly",
+                retryable: false,
+            });
+        }
+    }
 }

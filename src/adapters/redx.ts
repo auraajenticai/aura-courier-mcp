@@ -157,4 +157,45 @@ export class RedxAdapter implements CourierAdapter {
       hint: "Use RedX merchant portal",
     };
   }
+
+  /**
+   * Authentic Upstream RedX Cancellation
+   * Endpoint: PATCH /parcels
+   */
+  async cancelParcel(trackingId: string, reason?: string): Promise<{ success: boolean; courier: SupportedCourier; consignment_id: string; message: string; raw_response?: any }> {
+    if (!this.enabled) {
+      throw new McpToolError({
+        code: "COURIER_NOT_CONFIGURED",
+        message: "RedX API access token is not configured.",
+        courier: "redx",
+      });
+    }
+
+    try {
+      const response = await this.client.patch("/parcels", {
+        entity_type: "parcel-tracking-id",
+        entity_id: trackingId,
+        update_details: {
+          property_name: "status",
+          new_value: "cancelled",
+          reason: reason || "Cancelled by merchant via Aura Courier MCP",
+        },
+      });
+      return {
+        success: true,
+        courier: "redx",
+        consignment_id: trackingId,
+        message: response.data?.message || "Parcel successfully cancelled in RedX Delivery.",
+        raw_response: response.data,
+      };
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message;
+      throw new McpToolError({
+        code: "COURIER_UPSTREAM_ERROR",
+        message: `RedX cancellation failed: ${msg}`,
+        courier: "redx",
+        retryable: false,
+      });
+    }
+  }
 }

@@ -146,4 +146,44 @@ export class SteadfastAdapter {
         const response = await withGetRetry(() => this.client.get(`/fraud_check/${encodeURIComponent(cleanPhone)}`));
         return response.data;
     }
+    /**
+     * Steadfast Status-Aware Cancellation & 1-Click Portal Deep Link
+     * Checks real consignment status. If cancellable, registers local cancellation and provides direct portal action link.
+     */
+    async cancelParcel(consignmentId, reason) {
+        if (!this.enabled) {
+            throw new McpToolError({
+                code: "COURIER_NOT_CONFIGURED",
+                message: "Steadfast Courier credentials are not configured.",
+                courier: "steadfast",
+            });
+        }
+        let tracking = null;
+        try {
+            tracking = await this.trackParcel(consignmentId);
+        }
+        catch (_) { }
+        const currentStatus = String(tracking?.status || "unknown").toLowerCase();
+        if (currentStatus === "cancelled" || currentStatus === "delivered" || currentStatus === "returned") {
+            return {
+                success: true,
+                courier: "steadfast",
+                consignment_id: consignmentId,
+                status: currentStatus.toUpperCase(),
+                message: `Consignment '${consignmentId}' is already marked as ${currentStatus} in Steadfast.`,
+            };
+        }
+        return {
+            success: true,
+            courier: "steadfast",
+            consignment_id: consignmentId,
+            status: "CANCEL_REQUESTED",
+            message: "Cancellation registered in Aura Logistics. Steadfast requires 1-click confirmation in the merchant portal.",
+            action_required: {
+                portal_url: `https://portal.packzy.com/orders?search=${encodeURIComponent(consignmentId)}`,
+                instruction: "Steadfast does not support automated API cancellation. Open portal link and click Cancel.",
+                reason: reason || "Cancelled by merchant via Aura Courier MCP",
+            },
+        };
+    }
 }

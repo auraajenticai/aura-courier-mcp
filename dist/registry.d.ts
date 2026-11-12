@@ -2,9 +2,10 @@ import { CourierAdapter } from "./adapters/base.js";
 import { GoogleMapsAdapter } from "./adapters/google_maps.js";
 import { CourierConfig } from "./config.js";
 import { AddressValidationRequest, AddressValidationResponse, BulkParcelCreateResponse, CourierRateComparisonRequest, CourierRateComparisonResponse, FraudRiskScoreResponse, NdrResolutionRequest, NdrResolutionResponse, ParcelCreateRequest, ParcelResponse, SupportedCourier, TrackingResponse, WebhookEventRecord, ZoneRateRequest, ZoneRateResponse } from "./types.js";
+export declare function setRegistryDbPool(pool: any): void;
 export declare function clearIdempotencyStore(): void;
-export declare function recordWebhookEvent(event: WebhookEventRecord): void;
-export declare function clearWebhookEvents(): void;
+export declare function recordWebhookEvent(event: WebhookEventRecord, tenantId?: string): void;
+export declare function clearWebhookEvents(tenantId?: string): void;
 export declare class CourierRegistry {
     private adapters;
     private googleMaps;
@@ -33,9 +34,9 @@ export declare class CourierRegistry {
      */
     resolveNdr(req: NdrResolutionRequest): Promise<NdrResolutionResponse>;
     /**
-     * Task T8 — cancel_parcel(courier, consignment_id)
+     * Task T8 — cancel_parcel(courier, consignment_id, reason?)
      */
-    cancelParcel(courier: SupportedCourier, consignmentId: string): Promise<any>;
+    cancelParcel(courier: SupportedCourier, consignmentId: string, reason?: string): Promise<any>;
     /**
      * Task T8 — bulk_create_parcels(items[], dry_run?)
      */
@@ -43,7 +44,7 @@ export declare class CourierRegistry {
     /**
      * Task T8 — get_webhook_events(consignment_id?, since?)
      */
-    getWebhookEvents(consignmentId?: string, since?: string): {
+    getWebhookEvents(consignmentId?: string, since?: string, tenantId?: string): {
         success: boolean;
         count: number;
         events: WebhookEventRecord[];
