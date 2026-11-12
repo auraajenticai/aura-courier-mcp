@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import http from "node:http";
 import axios from "axios";
 
+import fs from "node:fs";
+
 // Configure test environment before importing app/modules
 process.env.NODE_ENV = "test";
 process.env.AURA_API_KEY = "aura_test_master_key_v260";
@@ -413,6 +415,10 @@ test("10. create_parcel({ ..., dry_run:true }) makes zero upstream booking calls
   assert.equal(envelope.validation.phone_ok, true);
 });
 
+const expectedVersion = JSON.parse(
+  fs.readFileSync(new URL("../package.json", import.meta.url), "utf8")
+).version;
+
 test("11. GET /health unauthenticated returns only { ok, version }; with admin token returns full telemetry", async () => {
   const unauthRes = await fetch(`${baseUrl}/health`, {
     headers: { Accept: "application/json" },
@@ -421,7 +427,7 @@ test("11. GET /health unauthenticated returns only { ok, version }; with admin t
   const unauthBody = await unauthRes.json();
   assert.deepEqual(Object.keys(unauthBody).sort(), ["ok", "version"]);
   assert.equal(unauthBody.ok, true);
-  assert.equal(unauthBody.version, "2.6.0");
+  assert.equal(unauthBody.version, expectedVersion);
 
   const adminRes = await fetch(`${baseUrl}/health?detail=1`, {
     headers: {
@@ -432,7 +438,7 @@ test("11. GET /health unauthenticated returns only { ok, version }; with admin t
   assert.equal(adminRes.status, 200);
   const adminBody = await adminRes.json();
   assert.equal(adminBody.ok, true);
-  assert.equal(adminBody.version, "2.6.0");
+  assert.equal(adminBody.version, expectedVersion);
   assert.equal(adminBody.tools_count, 12);
   assert.ok(adminBody.performance);
 });

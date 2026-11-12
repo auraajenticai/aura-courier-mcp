@@ -6,7 +6,7 @@
     },
     "aura-courier-stdio": {
       "command": "npx",
-      "args": ["-y", "@auraajenticai/aura-courier-mcp@2.6.0"]
+      "args": ["-y", "aura-courier-mcp@2.6.1"]
     }
   }
 }

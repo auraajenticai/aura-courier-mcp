@@ -9,6 +9,7 @@ import { buildMcpServer, executeToolCall, TOOLS } from "./server.js";
 import { createRateLimiter } from "./middleware/rate_limit.js";
 import { optionalAuthMiddleware, requireMcpAuth, isActionPermitted, resolveAuthContext, verifyWebhookSignature, recordAuditLog, } from "./middleware/auth.js";
 import { McpToolError, wrapError, wrapSuccess, maskPhone } from "./envelope.js";
+import { APP_VERSION } from "./version.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
@@ -602,19 +603,19 @@ app.get("/health", (req, res) => {
         if (req.query.ui === "1" && req.headers.accept?.includes("text/html")) {
             return res.sendFile(HEALTH_HTML, (err) => {
                 if (err && !res.headersSent)
-                    res.json({ ok: true, version: "2.6.0" });
+                    res.json({ ok: true, version: APP_VERSION });
             });
         }
         return res.json({
             ok: true,
-            version: "2.6.0",
+            version: APP_VERSION,
         });
     }
     const mem = process.memoryUsage();
     const detailed = {
         ok: true,
         service: "aura-courier-mcp",
-        version: "2.6.0",
+        version: APP_VERSION,
         tools_count: TOOLS.length,
         spatial_engine: "Google Maps Platform (gmp_git_agentskills_v1)",
         fraud_engine: "Pathao Nationwide v2 + Steadfast Nationwide API + BD Prefix Validator",
@@ -637,7 +638,7 @@ app.get("/health", (req, res) => {
 app.get("/health.html", (_req, res) => {
     res.sendFile(HEALTH_HTML, (err) => {
         if (err && !res.headersSent)
-            res.json({ ok: true, version: "2.6.0" });
+            res.json({ ok: true, version: APP_VERSION });
     });
 });
 app.get("/privacy", (_req, res) => {
@@ -668,7 +669,7 @@ app.get("/", (_req, res) => {
                 .type("html")
                 .send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Aura Courier MCP</title>` +
                 `<style>body{font-family:system-ui,sans-serif;background:#07080a;color:#f4f5f7;margin:0;display:grid;place-items:center;min-height:100vh}.b{max-width:640px;padding:40px;text-align:center}h1{font-size:28px;margin:0 0 10px}code{background:#0f1115;padding:2px 8px;border-radius:6px;color:#00d4ff;font-size:13px}a{color:#00d4ff}p{line-height:1.6;color:#a4a8b3}</style></head>` +
-                `<body><div class="b"><h1>🚚 Aura Courier MCP v2.6.0</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
+                `<body><div class="b"><h1>🚚 Aura Courier MCP v${APP_VERSION}</h1><p>Enterprise Bangladesh courier MCP &amp; Google Maps Platform spatial hub.</p>` +
                 `<p>Connect your AI to <code>POST /mcp</code> with Streamable-HTTP.</p>` +
                 `<p>Webhooks: <code>POST /webhooks/steadfast</code> · <code>POST /webhooks/pathao</code></p>` +
                 `<p>By <a href="https://auraajenticai.cloud">Aura Ajentic AI</a> · <a href="https://courier.auraajenticai.cloud">docs &amp; setup</a></p></div></body></html>`);
@@ -677,6 +678,6 @@ app.get("/", (_req, res) => {
 });
 if (process.env.NODE_ENV !== "test") {
     app.listen(PORT, () => {
-        console.log(`Aura Courier MCP v2.6.0 (HTTP) listening on :${PORT} — POST /mcp`);
+        console.log(`Aura Courier MCP v${APP_VERSION} (HTTP) listening on :${PORT} — POST /mcp`);
     });
 }

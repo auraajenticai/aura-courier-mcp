@@ -8,7 +8,7 @@ Connect any AI Agent / IDE to Aura Courier MCP in seconds.
 - **Server-Sent Events / SSE (Claude Desktop, Remote SSE)**:
   `https://courier.auraajenticai.cloud/sse`
 - **NPX Direct CLI**:
-  `npx -y @auraajenticai/aura-courier-mcp@2.6.0`
+  `npx -y aura-courier-mcp@2.6.1`
 
 ---
 

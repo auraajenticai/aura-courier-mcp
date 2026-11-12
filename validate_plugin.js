@@ -1,5 +1,5 @@
 /**
- * Aura Courier MCP — Plugin Validation & Compliance Suite (v2.5.2)
+ * Aura Courier MCP — Plugin Validation & Compliance Suite
  * Corresponds to `agy plugin validate .` standards.
  */
 
@@ -11,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PLUGIN_DIR = __dirname;
+const PKG_VERSION = JSON.parse(fs.readFileSync(path.join(PLUGIN_DIR, 'package.json'), 'utf8')).version;
 let passedChecks = 0;
 let totalChecks = 0;
 
@@ -42,7 +43,7 @@ async function validateManifest() {
 
   assert(json.name === 'aura-courier', `name matches 'aura-courier' (got '${json.name}')`);
   assert(json.displayName === 'Aura Courier MCP', `displayName is 'Aura Courier MCP'`);
-  assert(json.version === '2.5.2', `version is '2.5.2'`);
+  assert(json.version === PKG_VERSION, `version matches package.json ('${PKG_VERSION}', got '${json.version}')`);
   assert(json.category === 'Business / Logistics', `category is 'Business / Logistics'`);
   assert(typeof json.description === 'string' && json.description.length > 20, 'description is informative');
   assert(json.logo === 'assets/logo.svg', `logo points to 'assets/logo.svg'`);
@@ -127,7 +128,7 @@ async function validateRemoteMcpServer() {
         params: {
           protocolVersion: '2024-11-05',
           capabilities: {},
-          clientInfo: { name: 'antigravity-validator', version: '2.5.2' }
+          clientInfo: { name: 'antigravity-validator', version: PKG_VERSION }
         }
       })
     });

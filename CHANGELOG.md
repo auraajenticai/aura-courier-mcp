@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.1] - 2026-11-13
+
+### Fixed & Changed
+- **Single-Source-of-Truth Release Parity (`src/version.ts`)**: Added `APP_VERSION` reading `package.json` dynamically so `src/http.ts`, `src/server.ts`, and `src/index.ts` remain 100% synchronized with `package.json`, `server.json`, `plugin.json`, Glama Releases, GitHub Releases, and the live web UI (`v2.6.1`).
+- **Glama `pnpm` Docker Build Compatibility**: Explicit `Express` type export in `src/http.ts` eliminating `TS2742` under strict `.pnpm/` resolution.
+- **Silicon Valley Iconography & Live Portal Polish**: Replaced legacy glyph badges with crisp inline SVGs, upgraded RedX to its custom `RX` monogram badge, prevented header nav wrap, and restored live `#hubmap` canvas network animation.
+- **Config Identifier Parity**: Aligned all client snippets in `configs/*` and embedded portal drawers to `aura-courier-mcp@2.6.1` matching `package.json` and `server.json`.
+
 ## [2.6.0] - 2026-11-10
 
 ### Added

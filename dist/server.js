@@ -1,6 +1,7 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema, } from "@modelcontextprotocol/sdk/types.js";
 import { McpToolError, wrapError, wrapSuccess } from "./envelope.js";
+import { APP_VERSION } from "./version.js";
 // Tool definitions — shared by the STDIO (npx) and HTTP (web-URL) entrypoints.
 export const TOOLS = [
     {
@@ -329,7 +330,7 @@ export async function executeToolCall(registry, name, args = {}, tenantId = "def
  * for HTTP it is built per-request from that client's keys.
  */
 export function buildMcpServer(registry, authChecker, tenantId = "default") {
-    const server = new Server({ name: "aura-courier-mcp", version: "2.6.0" }, { capabilities: { tools: {} } });
+    const server = new Server({ name: "aura-courier-mcp", version: APP_VERSION }, { capabilities: { tools: {} } });
     server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
     server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { name, arguments: args } = request.params;

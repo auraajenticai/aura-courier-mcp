@@ -1,7 +1,7 @@
 {
   "name": "aura-courier",
   "displayName": "Aura Courier MCP",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "category": "Business / Logistics",
   "description": "Enterprise Bangladesh Courier & Logistics Automation Hub. Real-time multi-carrier parcel dispatch, nationwide COD balance tracking, zero-mock fraud risk defense, sublocality geocoding, and automated NDR dispute triage across Steadfast, Pathao, RedX, and Paperfly.",
   "logo": "assets/logo.svg",

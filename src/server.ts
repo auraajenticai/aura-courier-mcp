@@ -7,6 +7,7 @@ import {
 import { CourierRegistry } from "./registry.js";
 import { SupportedCourier } from "./types.js";
 import { EnvelopeSource, McpToolError, wrapError, wrapSuccess } from "./envelope.js";
+import { APP_VERSION } from "./version.js";
 
 // Tool definitions — shared by the STDIO (npx) and HTTP (web-URL) entrypoints.
 export const TOOLS: Tool[] = [
@@ -386,7 +387,7 @@ export function buildMcpServer(
   tenantId: string = "default"
 ): Server {
   const server = new Server(
-    { name: "aura-courier-mcp", version: "2.6.0" },
+    { name: "aura-courier-mcp", version: APP_VERSION },
     { capabilities: { tools: {} } }
   );
 
