@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { type Express, type Request, type Response } from "express";
 import { randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
@@ -127,7 +127,7 @@ export function keysFromRequest(req: Request): EnvSource {
   };
 }
 
-export const app = express();
+export const app: Express = express();
 app.use(express.json({
   limit: "1mb",
   verify: (req: any, _res, buf) => {
