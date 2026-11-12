@@ -246,3 +246,14 @@ function initCourierCanvas(canvasId = 'hubmap') {
     start();
   }
 }
+
+// Auto-initialize canvas on page load
+if (typeof window !== 'undefined') {
+  window.initCourierCanvas = initCourierCanvas;
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initCourierCanvas('hubmap'));
+  } else {
+    initCourierCanvas('hubmap');
+  }
+}
+
