@@ -1160,7 +1160,7 @@
     <section class="hero">
       <div class="hero-left">
         <div class="badge-chip">
-          <span>📖</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           <span data-i18n="badge_guide">Official Guide</span>
         </div>
 
@@ -1175,30 +1175,32 @@
 
         <div class="btn-row">
           <a href="#simulator" class="btn btn-primary">
-            <span data-i18n="cta_simulator">▶ Try Live Simulator →</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            <span data-i18n="cta_simulator">Try Live Simulator →</span>
           </a>
           <a href="#setup" class="btn btn-secondary">
-            <span data-i18n="cta_read_guide">📖 Read Full Guide</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span data-i18n="cta_read_guide">Read Full Guide</span>
           </a>
         </div>
 
         <div class="value-cards-row">
           <div class="value-card">
-            <div class="value-icon">🛡️</div>
+            <div class="value-icon" style="display:flex;"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true"><defs><linearGradient id="shBg" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs><rect x="2" y="2" width="32" height="32" rx="9" fill="url(#shBg)" fill-opacity="0.22" stroke="#8b5cf6" stroke-width="1.4"/><path d="M18 8l8 3.2v5.4c0 5.1-3.4 9.7-8 11.4-4.6-1.7-8-6.3-8-11.4v-5.4L18 8z" fill="#8b5cf6" fill-opacity="0.3" stroke="#c4b5fd" stroke-width="1.6" stroke-linejoin="round"/><polyline points="14.5 18 17 20.5 22 15.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
             <div>
               <div class="value-title" data-i18n="val1_title">Fraud-Risk Screening</div>
               <div class="value-desc" data-i18n="val1_desc">ভুয়া বা ঝুঁকিপূর্ণ অর্ডার আগে শনাক্ত</div>
             </div>
           </div>
           <div class="value-card">
-            <div class="value-icon">🚚</div>
+            <div class="value-icon" style="display:flex;"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true"><defs><linearGradient id="bkBg" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><rect x="2" y="2" width="32" height="32" rx="9" fill="url(#bkBg)" fill-opacity="0.22" stroke="#06b6d4" stroke-width="1.4"/><rect x="8.5" y="12.5" width="12" height="9.5" rx="1.5" stroke="#67e8f9" stroke-width="1.7"/><path d="M20.5 15h3.8l2.7 2.8v4.2h-6.5V15z" stroke="#67e8f9" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12.5" cy="24" r="2" fill="#22d3ee"/><circle cx="23.5" cy="24" r="2" fill="#22d3ee"/></svg></div>
             <div>
               <div class="value-title" data-i18n="val2_title">Four-Courier Booking</div>
               <div class="value-desc" data-i18n="val2_desc">৪টি কুরিয়ারে এক ক্লিকে বুকিং</div>
             </div>
           </div>
           <div class="value-card">
-            <div class="value-icon">🔒</div>
+            <div class="value-icon" style="display:flex;"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true"><defs><linearGradient id="lkBg" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><rect x="2" y="2" width="32" height="32" rx="9" fill="url(#lkBg)" fill-opacity="0.22" stroke="#10b981" stroke-width="1.4"/><rect x="11" y="16" width="14" height="10" rx="2.5" fill="#10b981" fill-opacity="0.25" stroke="#6ee7b7" stroke-width="1.7"/><path d="M14 16v-3a4 4 0 0 1 8 0v3" stroke="#6ee7b7" stroke-width="1.7" stroke-linecap="round"/><circle cx="18" cy="21" r="1.4" fill="#ffffff"/></svg></div>
             <div>
               <div class="value-title" data-i18n="val3_title">Encrypted API Key Vault</div>
               <div class="value-desc" data-i18n="val3_desc">কুরিয়ার কী নিরাপদে সংরক্ষণ</div>
@@ -1211,34 +1213,26 @@
       <div class="hero-visual">
         <div class="hero-map-box">
           <div class="hero-carrier-pill sf">
-            <svg viewBox="0 0 36 36" width="14" height="14" fill="none">
-              <path d="M24 11c-1.3-1.3-3.3-1.8-5.2-1.3-2.6.6-4.3 2.9-3.9 5.5.4 2.2 2.2 3.7 4.4 4.1l1.8.3c1.7.3 2.6 1.3 2.4 2.6-.3 1.6-1.7 2.6-3.7 2.4-1.9-.2-3.5-1.3-4.2-2.8" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
-            </svg>
+            <svg viewBox="0 0 36 36" width="16" height="16" fill="none" aria-hidden="true" style="flex-shrink:0;"><rect x="2" y="2" width="32" height="32" rx="8" fill="#10b981"/><path d="M23.5 12c-1.3-1.2-3.2-1.7-5.1-1.2-2.5.6-4.1 2.7-3.7 5.1.4 2.1 2.1 3.5 4.2 3.9l1.7.3c1.6.3 2.5 1.2 2.2 2.4-.3 1.5-1.6 2.4-3.5 2.2-1.8-.2-3.3-1.2-4-2.6" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/></svg>
             <span>Steadfast</span>
           </div>
           <div class="hero-carrier-pill pt">
-            <svg viewBox="0 0 36 36" width="14" height="14" fill="none">
-              <circle cx="18" cy="18" r="14" fill="#ef4444"/>
-              <path d="M14 11h5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5h-5v5h-2.5V11h2.5zm0 5h4.5a1.5 1.5 0 0 0 1.5-1.5A1.5 1.5 0 0 0 18.5 13H14v3z" fill="#ffffff"/>
-            </svg>
+            <svg viewBox="0 0 36 36" width="16" height="16" fill="none" aria-hidden="true" style="flex-shrink:0;"><circle cx="18" cy="18" r="16" fill="#ef4444"/><path d="M13 10.5h5.8a4.2 4.2 0 0 1 4.2 4.2 4.2 4.2 0 0 1-4.2 4.2h-3.1v6.6H13v-15zm2.7 6h2.9a1.8 1.8 0 0 0 1.8-1.8 1.8 1.8 0 0 0-1.8-1.8h-2.9v3.6z" fill="#ffffff"/></svg>
             <span>Pathao</span>
           </div>
           <div class="hero-carrier-pill rx">
-            <svg viewBox="0 0 36 36" width="14" height="14" fill="none">
-              <circle cx="18" cy="18" r="13" stroke="#dc2626" stroke-width="2.2"/>
-              <path d="M13 13l10 10M23 13l-10 10" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round"/>
-            </svg>
+            <svg viewBox="0 0 36 36" width="16" height="16" fill="none" aria-hidden="true" style="flex-shrink:0;"><circle cx="18" cy="18" r="16" fill="#dc2626"/><path d="M12.5 12.5l11 11M23.5 12.5l-11 11" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/></svg>
             <span>RedX</span>
           </div>
           <div class="hero-carrier-pill pf">
-            <svg viewBox="0 0 36 36" width="14" height="14" fill="none">
-              <path d="M9 18l18-7-7 16-3-6-8-3z" fill="#0284c7" stroke="#38bdf8" stroke-width="1.2" stroke-linejoin="round"/>
-              <path d="M17 20l10-9" stroke="#ffffff" stroke-width="1.2"/>
-            </svg>
+            <svg viewBox="0 0 36 36" width="16" height="16" fill="none" aria-hidden="true" style="flex-shrink:0;"><defs><linearGradient id="pfGrad16" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient></defs><rect x="2" y="2" width="32" height="32" rx="8" fill="url(#pfGrad16)"/><path d="M9.5 18.2l17.5-7.2-6.8 16-3.2-5.8-7.5-3z" fill="#ffffff"/><path d="M17 21.2l10-10.2" stroke="#0284c7" stroke-width="1.6" stroke-linecap="round"/></svg>
             <span>Paperfly</span>
           </div>
-        </div>
-      </div>
+
+          <div class="hero-center-truck">
+            <div class="truck-glow-icon" style="display:flex;justify-content:center;"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true" style="filter:drop-shadow(0 0 16px rgba(6,182,212,0.55));"><defs><linearGradient id="trBody" x1="8" y1="16" x2="42" y2="44"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient><linearGradient id="trCab" x1="38" y1="22" x2="56" y2="44"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#2563eb"/></linearGradient></defs><rect x="8" y="18" width="31" height="23" rx="4" fill="url(#trBody)" stroke="#bae6fd" stroke-width="1.6"/><path d="M39 23h10.5l6.5 7v11H39V23z" fill="url(#trCab)" stroke="#bae6fd" stroke-width="1.6" stroke-linejoin="round"/><path d="M43 26.5h5.5l3.5 4h-9v-4z" fill="#e0f2fe" fill-opacity="0.85"/><path d="M23.5 23l5.5 3.2v6.4l-5.5 3.2-5.5-3.2v-6.4L23.5 23z" fill="#ffffff" fill-opacity="0.2" stroke="#ffffff" stroke-width="1.4"/><circle cx="18" cy="44" r="5" fill="#0f172a" stroke="#38bdf8" stroke-width="2.5"/><circle cx="18" cy="44" r="1.8" fill="#ffffff"/><circle cx="48" cy="44" r="5" fill="#0f172a" stroke="#38bdf8" stroke-width="2.5"/><circle cx="48" cy="44" r="1.8" fill="#ffffff"/></svg></div>
+            <div class="hub-label">Dhaka Central Hub</div>
+          </div>
         </div>
       </div>
     </section>
@@ -1246,7 +1240,7 @@
     <!-- ===== Section 2: দুটি ব্যবহারের ধরন (Standalone vs Dashboard) ===== -->
     <section class="comparison-section">
       <div class="sec-heading-row">
-        <div class="sec-tag">⚖️ Architecture Choice</div>
+        <div class="sec-tag" style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>Architecture Choice</span></div>
         <h2 class="sec-title" data-i18n="comp_title">দুটি ব্যবহারের ধরন — আপনার জন্য কোনটি উপযোগী?</h2>
         <p class="sec-sub" data-i18n="comp_sub">আপনার প্রযুক্তিগত সক্ষমতা অনুযায়ী সেরা উপায়টি বেছে নিন।</p>
       </div>
@@ -1259,7 +1253,7 @@
               <div class="compare-title">Standalone Courier MCP</div>
               <div class="compare-for" data-i18n="for_dev">ডেভেলপার ও টেকনিক্যাল টিমের জন্য</div>
             </div>
-            <div class="compare-icon-wrap mcp">&lt;/&gt;</div>
+            <div class="compare-icon-wrap mcp"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg></div>
           </div>
           <ul class="check-list">
             <li>
@@ -1288,7 +1282,7 @@
               <div class="compare-title">Aura Client Dashboard</div>
               <div class="compare-for" data-i18n="for_business">ব্যবসার জন্য রেডি-টু-ইউজ সমাধান</div>
             </div>
-            <div class="compare-icon-wrap dashboard">🖥️</div>
+            <div class="compare-icon-wrap dashboard"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
           </div>
           <ul class="check-list">
             <li>
@@ -1315,7 +1309,7 @@
     <!-- ===== Section 3: Live Store Simulator ===== -->
     <section id="simulator" class="simulator-section">
       <div class="sec-heading-row" style="margin-bottom:0">
-        <div class="sec-tag">🏪 Sandbox Experience</div>
+        <div class="sec-tag" style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>Sandbox Experience</span></div>
         <h2 class="sec-title" data-i18n="sim_title">Live Store Simulator — নিজের চোখেই দেখুন</h2>
         <p class="sec-sub" data-i18n="sim_sub">আপনার স্টোরের মতো করে অর্ডার, ঝুঁকি যাচাই এবং চারটি কুরিয়ারে বুকিং প্রক্রিয়া টেস্ট করুন।</p>
       </div>
@@ -1323,16 +1317,16 @@
       <!-- Platform Switcher Tabs -->
       <div class="platform-tabs">
         <button class="platform-tab active" onclick="switchPlatform('woo', this)">
-          <span>🛒</span> WooCommerce
+          <svg viewBox="0 0 28 20" width="21" height="16" fill="none" aria-hidden="true"><rect x="1" y="1" width="26" height="18" rx="5" fill="#7f54b3"/><text x="14" y="13.5" text-anchor="middle" fill="#ffffff" font-family="Inter,sans-serif" font-size="9" font-weight="800">Woo</text></svg><span>WooCommerce</span>
         </button>
         <button class="platform-tab" onclick="switchPlatform('shopify', this)">
-          <span>🛍️</span> Shopify
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M18.5 6.5h-2.1A4.4 4.4 0 0 0 12 2.5a4.4 4.4 0 0 0-4.4 4H5.5L4 21h16l-1.5-14.5z" fill="#10b981"/><path d="M9.5 6.5a2.5 2.5 0 0 1 5 0" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/><text x="12" y="16.8" text-anchor="middle" fill="#ffffff" font-family="Inter,sans-serif" font-size="9.5" font-weight="900">S</text></svg><span>Shopify</span>
         </button>
         <button class="platform-tab" onclick="switchPlatform('custom', this)">
-          <span>&lt;/&gt;</span> Custom Store
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg><span>Custom Store</span>
         </button>
         <button class="platform-tab" onclick="switchPlatform('dashboard', this)">
-          <span>🖥️</span> Aura Client Dashboard
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Aura Client Dashboard</span>
         </button>
       </div>
 
@@ -1342,13 +1336,13 @@
         <div class="sim-brand-box">
           <div>
             <div id="sim-platform-title" class="sim-brand-title">
-              <span>🛒</span> WooCommerce Simulation
+              <svg viewBox="0 0 28 20" width="29" height="22" fill="none" aria-hidden="true"><rect x="1" y="1" width="26" height="18" rx="5" fill="#7f54b3"/><text x="14" y="13.5" text-anchor="middle" fill="#ffffff" font-family="Inter,sans-serif" font-size="9" font-weight="800">Woo</text></svg><span>WooCommerce Simulation</span>
             </div>
             <p id="sim-platform-desc" class="sim-brand-desc" data-i18n="sim_brand_desc">
               উদাহরণ অর্ডার নিয়ে দেখুন কীভাবে Aura Courier MCP আপনার স্টোর থেকে অর্ডার নিয়ে স্বয়ংক্রিয়ভাবে জাতীয় ফ্রড ডাটাবেসে ঝুঁকি যাচাই করে এবং ১-ক্লিকে কুরিয়ার বুকিং সম্পন্ন করে।
             </p>
           </div>
-          <div class="sim-illu-box">🏬</div>
+          <div class="sim-illu-box"><svg width="96" height="84" viewBox="0 0 96 84" fill="none" aria-hidden="true" style="filter:drop-shadow(0 12px 24px rgba(99,102,241,0.35));"><defs><linearGradient id="stRoof" x1="12" y1="12" x2="84" y2="34"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient><linearGradient id="stWall" x1="18" y1="34" x2="78" y2="74"><stop offset="0%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><rect x="18" y="34" width="60" height="38" rx="4" fill="url(#stWall)" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1.5"/><path d="M12 20l6-8h60l6 8v9a6 6 0 0 1-12 0 6 6 0 0 1-12 0 6 6 0 0 1-12 0 6 6 0 0 1-12 0 6 6 0 0 1-12 0 6 6 0 0 1-12 0v-9z" fill="url(#stRoof)" stroke="#bae6fd" stroke-width="1.4"/><rect x="26" y="44" width="22" height="18" rx="2.5" fill="#06b6d4" fill-opacity="0.2" stroke="#38bdf8" stroke-width="1.3"/><rect x="55" y="44" width="15" height="28" rx="2" fill="#8b5cf6" fill-opacity="0.25" stroke="#a78bfa" stroke-width="1.3"/><rect x="10" y="58" width="16" height="14" rx="2" fill="#f59e0b" fill-opacity="0.9" stroke="#fde68a" stroke-width="1.2"/><path d="M18 58v14M10 64h16" stroke="#78350f" stroke-width="1.2"/></svg></div>
         </div>
 
         <!-- Right Simulated Order Card -->
@@ -1358,8 +1352,8 @@
               <span data-i18n="sim_order_label">Store Order</span> <span id="sim-order-badge" class="badge-chip" style="margin-bottom:0; padding:2px 8px; font-size:11px;">#ORD-10493</span>
             </div>
             <div class="sample-pill-group">
-              <button class="sample-pill safe active" onclick="loadSampleOrder('safe')">✔ Safe Order</button>
-              <button class="sample-pill risk" onclick="loadSampleOrder('risk')">❌ High Risk</button>
+              <button class="sample-pill safe active" onclick="loadSampleOrder('safe')" style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg><span>Safe Order</span></button>
+              <button class="sample-pill risk" onclick="loadSampleOrder('risk')" style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><span>High Risk</span></button>
             </div>
           </div>
 
@@ -1385,8 +1379,8 @@
           <!-- Risk Check Result Banner -->
           <div id="risk-box" class="risk-banner safe">
             <div>
-              <div id="risk-title" class="risk-banner-title">
-                <span>✔</span> <span>SAFE RISK 26%</span>
+              <div id="risk-title" class="risk-banner-title" style="display:flex;align-items:center;gap:6px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg><span>SAFE RISK 26%</span>
               </div>
               <div id="risk-desc" class="risk-banner-desc">New customer - Safe to proceed · Zero Mock Data</div>
             </div>
@@ -1397,36 +1391,25 @@
           <div class="carrier-selector-title" data-i18n="sel_courier">Select Courier (One Click Booking):</div>
           <div class="carrier-chips-row">
             <button class="carrier-chip-btn sf active" onclick="selectSimCarrier('sf', this)">
-              <svg viewBox="0 0 36 36" width="18" height="18" fill="none">
-                <path d="M24 11c-1.3-1.3-3.3-1.8-5.2-1.3-2.6.6-4.3 2.9-3.9 5.5.4 2.2 2.2 3.7 4.4 4.1l1.8.3c1.7.3 2.6 1.3 2.4 2.6-.3 1.6-1.7 2.6-3.7 2.4-1.9-.2-3.5-1.3-4.2-2.8" stroke="#10b981" stroke-width="2.8" stroke-linecap="round"/>
-              </svg>
+              <svg viewBox="0 0 36 36" width="18" height="18" fill="none" aria-hidden="true" style="flex-shrink:0;"><rect x="2" y="2" width="32" height="32" rx="8" fill="#10b981"/><path d="M23.5 12c-1.3-1.2-3.2-1.7-5.1-1.2-2.5.6-4.1 2.7-3.7 5.1.4 2.1 2.1 3.5 4.2 3.9l1.7.3c1.6.3 2.5 1.2 2.2 2.4-.3 1.5-1.6 2.4-3.5 2.2-1.8-.2-3.3-1.2-4-2.6" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/></svg>
               <span>Steadfast</span>
             </button>
             <button class="carrier-chip-btn pt" onclick="selectSimCarrier('pt', this)">
-              <svg viewBox="0 0 36 36" width="18" height="18" fill="none">
-                <circle cx="18" cy="18" r="14" fill="#ef4444"/>
-                <path d="M14 11h5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5h-5v5h-2.5V11h2.5zm0 5h4.5a1.5 1.5 0 0 0 1.5-1.5A1.5 1.5 0 0 0 18.5 13H14v3z" fill="#ffffff"/>
-              </svg>
+              <svg viewBox="0 0 36 36" width="18" height="18" fill="none" aria-hidden="true" style="flex-shrink:0;"><circle cx="18" cy="18" r="16" fill="#ef4444"/><path d="M13 10.5h5.8a4.2 4.2 0 0 1 4.2 4.2 4.2 4.2 0 0 1-4.2 4.2h-3.1v6.6H13v-15zm2.7 6h2.9a1.8 1.8 0 0 0 1.8-1.8 1.8 1.8 0 0 0-1.8-1.8h-2.9v3.6z" fill="#ffffff"/></svg>
               <span>Pathao</span>
             </button>
             <button class="carrier-chip-btn rx" onclick="selectSimCarrier('rx', this)">
-              <svg viewBox="0 0 36 36" width="18" height="18" fill="none">
-                <circle cx="18" cy="18" r="13" stroke="#dc2626" stroke-width="2.2"/>
-                <path d="M13 13l10 10M23 13l-10 10" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round"/>
-              </svg>
+              <svg viewBox="0 0 36 36" width="18" height="18" fill="none" aria-hidden="true" style="flex-shrink:0;"><circle cx="18" cy="18" r="16" fill="#dc2626"/><path d="M12.5 12.5l11 11M23.5 12.5l-11 11" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/></svg>
               <span>RedX</span>
             </button>
             <button class="carrier-chip-btn pf" onclick="selectSimCarrier('pf', this)">
-              <svg viewBox="0 0 36 36" width="18" height="18" fill="none">
-                <path d="M9 18l18-7-7 16-3-6-8-3z" fill="#0284c7" stroke="#38bdf8" stroke-width="1.2" stroke-linejoin="round"/>
-                <path d="M17 20l10-9" stroke="#ffffff" stroke-width="1.2"/>
-              </svg>
+              <svg viewBox="0 0 36 36" width="18" height="18" fill="none" aria-hidden="true" style="flex-shrink:0;"><defs><linearGradient id="pfGrad18" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient></defs><rect x="2" y="2" width="32" height="32" rx="8" fill="url(#pfGrad18)"/><path d="M9.5 18.2l17.5-7.2-6.8 16-3.2-5.8-7.5-3z" fill="#ffffff"/><path d="M17 21.2l10-10.2" stroke="#0284c7" stroke-width="1.6" stroke-linecap="round"/></svg>
               <span>Paperfly</span>
             </button>
           </div>
 
           <button class="btn-book" onclick="executeSimBooking()">
-            <span>🚀</span> <span id="btn-book-text" data-i18n="btn_book">Book with Selected Courier →</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> <span id="btn-book-text" data-i18n="btn_book">Book with Selected Courier →</span>
           </button>
         </div>
       </div>
@@ -1436,22 +1419,21 @@
     <section id="pricing" class="pricing-section">
       <div class="pricing-badge-row">
         <div>
-          <div class="sec-tag">💳 Pricing & Plans</div>
+          <div class="sec-tag" style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>Pricing &amp; Plans</span></div>
           <h2 class="sec-title" data-i18n="price_title">সাবস্ক্রিপশন প্ল্যান — আপনার ব্যবসার জন্য সঠিক প্ল্যান</h2>
           <p class="sec-sub" data-i18n="price_sub">শুধু Courier MCP ব্যবহার করুন, অথবা আরও শক্তিশালী AI ফিচারসহ Aura AI ব্যবহার করুন।</p>
         </div>
         <div class="trial-pill">
-          <span>🎁</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
           <span data-i18n="trial_pill">15-Day Free Trial (সব প্ল্যানে ১৫ দিন ফ্রি)</span>
         </div>
       </div>
 
       <div class="pricing-cards-grid">
-        <!-- Plan 1 -->
         <div class="price-card">
           <div>
             <div class="price-track-label mcp">Track 1: Courier MCP</div>
-            <div class="price-plan-name">Courier MCP Starter</div>
+            <div class="price-plan-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>Courier MCP Starter</span></div>
             <div class="price-amount-box">
               <span class="price-val">৳ ৪৯৯</span>
               <span class="price-period">/ মাস</span>
@@ -1465,11 +1447,10 @@
           <button class="btn-trial cyan" onclick="startFreeTrial('Courier MCP Starter')" data-i18n="btn_trial">Start Free Trial →</button>
         </div>
 
-        <!-- Plan 2 -->
         <div class="price-card" style="border-color:var(--cyan); box-shadow:0 0 20px rgba(6,182,212,0.15);">
           <div>
             <div class="price-track-label mcp">Track 1: Courier MCP</div>
-            <div class="price-plan-name">MCP Pro ⭐</div>
+            <div class="price-plan-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>MCP Pro</span><svg width="15" height="15" viewBox="0 0 24 24" fill="#f59e0b" stroke="#fbbf24" stroke-width="1.5" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
             <div class="price-amount-box">
               <span class="price-val">৳ ৯৯৯</span>
               <span class="price-period">/ মাস</span>
@@ -1483,6 +1464,83 @@
           <button class="btn-trial cyan" onclick="startFreeTrial('MCP Pro')" data-i18n="btn_trial">Start Free Trial →</button>
         </div>
 
+        <div class="price-card" style="border-color:rgba(139,92,246,0.45);">
+          <div>
+            <div class="price-track-label ai">Track 2: Aura AI</div>
+            <div class="price-plan-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Aura AI Starter</span></div>
+            <div class="price-amount-box">
+              <span class="price-val">৳ ১,৯৯৯</span>
+              <span class="price-period">/ মাস</span>
+            </div>
+            <ul class="price-features">
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p3_f1">Courier MCP সব ফিচার</span></li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p3_f2">AI ঝুঁকি ও ফ্রড বিশ্লেষণ</span></li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p3_f3">অর্ডার অটোমেশন (বেসিক)</span></li>
+            </ul>
+          </div>
+          <button class="btn-trial purple" onclick="startFreeTrial('Aura AI Starter')" data-i18n="btn_trial">Start Free Trial →</button>
+        </div>
+
+        <div class="price-card" style="border-color:var(--purple); box-shadow:0 0 22px rgba(139,92,246,0.18);">
+          <div>
+            <div class="price-track-label ai">Track 2: Aura AI</div>
+            <div class="price-plan-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg><span>Aura AI Growth</span></div>
+            <div class="price-amount-box">
+              <span class="price-val">৳ ৪,৯৯৯</span>
+              <span class="price-period">/ মাস</span>
+            </div>
+            <ul class="price-features">
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p4_f1">উন্নত AI অটোমেশন</span></li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p4_f2">বৃহৎ ব্যবহার ও স্কেল</span></li>
+              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="p4_f3">২৪/৭ প্রায়োরিটি ডেডিকেটেড সাপোর্ট</span></li>
+            </ul>
+          </div>
+          <button class="btn-trial purple" onclick="startFreeTrial('Aura AI Growth')" data-i18n="btn_trial">Start Free Trial →</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="setup" class="setup-section">
+      <div class="sec-heading-row" style="margin-bottom:0">
+        <div class="sec-tag" style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Step-by-Step Onboarding</span></div>
+        <h2 class="sec-title" data-i18n="setup_title">Setup Guide — ৫ ধাপে শুরু করুন</h2>
+        <p class="sec-sub" data-i18n="setup_sub">খুব সহজে আপনার স্টোর বা ড্যাশবোর্ডে Aura Courier MCP সেটআপ করুন।</p>
+      </div>
+
+      <div class="steps-row">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div style="margin-bottom:8px;color:var(--cyan);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></div>
+          <div class="step-title" data-i18n="s1_t">API Key সংগ্রহ</div>
+          <div class="step-desc" data-i18n="s1_d">চারটি কুরিয়ার থেকেই আপনার মার্চেন্ট এপিআই কী ও সিক্রেট সংগ্রহ করুন।</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div style="margin-bottom:8px;color:var(--cyan);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg></div>
+          <div class="step-title" data-i18n="s2_t">স্টোরে সংযোগ</div>
+          <div class="step-desc" data-i18n="s2_d">WooCommerce / Shopify / কাস্টম সিস্টেমে MCP প্লাগইন ইনস্টল করুন।</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div style="margin-bottom:8px;color:var(--cyan);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></div>
+          <div class="step-title" data-i18n="s3_t">সেটিংস কনফিগার</div>
+          <div class="step-desc" data-i18n="s3_d">ডিফল্ট কুরিয়ার রুলস, জোন ক্যালকুলেশন ও ফ্রড থ্রেশহোল্ড সেট করুন।</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div style="margin-bottom:8px;color:var(--cyan);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.1 19.11A2 2 0 0 0 5.75 22h12.5a2 2 0 0 0 1.65-2.89L14 9.31V2"/><path d="M8.5 2h7"/></svg></div>
+          <div class="step-title" data-i18n="s4_t">সিমুলেট করে দেখুন</div>
+          <div class="step-desc" data-i18n="s4_d">লাইভ সিমুলেটরে টেস্ট অর্ডার পাঠিয়ে রিয়েল ডিসপ্যাচ যাচাই করুন।</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">5</div>
+          <div style="margin-bottom:8px;color:var(--emerald);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
+          <div class="step-title" data-i18n="s5_t">লাইভে শুরু করুন</div>
+          <div class="step-desc" data-i18n="s5_d">সরাসরি অর্ডার আসার সাথে সাথে অটোমেটিক কুরিয়ার বুকিং নিশ্চিত করুন।</div>
         </div>
       </div>
     </section>
@@ -1490,25 +1548,25 @@
     <!-- ===== Section 6: আরো সহায়তা ও রিসোর্স ===== -->
     <section class="resources-section">
       <div class="sec-heading-row">
-        <div class="sec-tag">📚 Developer Resources</div>
+        <div class="sec-tag" style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span>Developer Resources</span></div>
         <h2 class="sec-title" data-i18n="res_title">আরো সহায়তা ও রিসোর্স</h2>
       </div>
 
       <div class="resource-cards-grid">
         <a href="#setup" class="res-card">
-          <span class="res-icon">📖</span>
+          <span class="res-icon" style="display:flex;color:var(--cyan);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
           <span class="res-title" data-i18n="res_1">Full Guide (Step by Step)</span>
         </a>
         <a href="/mcp" class="res-card">
-          <span class="res-icon">&lt;/&gt;</span>
+          <span class="res-icon" style="display:flex;color:var(--cyan);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg></span>
           <span class="res-title" data-i18n="res_2">API & MCP Docs</span>
         </a>
         <a href="#simulator" class="res-card">
-          <span class="res-icon">🏪</span>
+          <span class="res-icon" style="display:flex;color:var(--cyan);"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
           <span class="res-title" data-i18n="res_3">Store Integration Guide</span>
         </a>
         <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener" class="res-card">
-          <span class="res-icon">❓</span>
+          <span class="res-icon" style="display:flex;color:var(--cyan);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
           <span class="res-title" data-i18n="res_4">Support & FAQ</span>
         </a>
       </div>
@@ -1554,7 +1612,7 @@
 }</pre>
           <button onclick="copyAgentJson()" style="position:absolute; top:12px; right:12px; background:var(--cyan); color:#040914; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span id="copy-btn-text">Copy JSON</span>
+            <span id="copy-json-text">Copy JSON</span>
           </button>
         </div>
 
@@ -1623,12 +1681,12 @@
             <ul class="footer-link-list">
               <li>
                 <a href="https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp" target="_blank" rel="noopener">
-                  <span style="color:var(--cyan); font-weight:700;">⚡ Glama.ai Registry</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span style="color:var(--cyan); font-weight:700;">Glama.ai Registry</span>
                 </a>
               </li>
               <li>
                 <a href="https://www.npmjs.com/package/@auraajenticai/aura-courier-mcp" target="_blank" rel="noopener">
-                  <span>📦 npm Package (v2.6.0)</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>npm Package (v2.6.0)</span>
                 </a>
               </li>
             </ul>
@@ -1652,12 +1710,12 @@
               </li>
               <li>
                 <a href="https://auraajenticai.cloud" target="_blank" rel="noopener">
-                  <span>🌐 Aura Agentic AI Cloud</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span>Aura Agentic AI Cloud</span>
                 </a>
               </li>
               <li>
                 <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener">
-                  <span>🚀 Client Dashboard Portal</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg><span>Client Dashboard Portal</span>
                 </a>
               </li>
             </ul>
@@ -1683,7 +1741,7 @@
 
   <!-- Toast Notification -->
   <div id="toast" class="toast-modal">
-    <span style="font-size:20px;">🚀</span>
+    <span style="display:flex;color:var(--cyan);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span>
     <div>
       <div id="toast-title" style="font-weight:800; font-size:13.5px; color:#fff;">Order Booked!</div>
       <div id="toast-desc" style="font-size:12px; color:var(--text-muted);">Consignment ID generated successfully.</div>
@@ -1691,8 +1749,247 @@
   </div>
 
   <!-- Background Canvas Script -->
-  <script src="/assets/courier-canvas.js"></script>
+  <script src="/assets/courier-canvas.js?v=2.6.1"></script>
   <script>
+    if (typeof initCourierCanvas === 'function') {
+      initCourierCanvas('hubmap');
+    }
+
+    // ===== Interactive Simulator State =====
+    let currentCarrier = 'sf';
+    const carrierNames = {
+      sf: 'Steadfast Courier',
+      pt: 'Pathao Express',
+      rx: 'RedX Delivery',
+      pf: 'Paperfly Go'
+    };
+
+    function selectSimCarrier(key, btn) {
+      currentCarrier = key;
+      document.querySelectorAll('.carrier-chip-btn').forEach(b => b.className = 'carrier-chip-btn ' + b.getAttribute('onclick').match(/'([^']+)'/)[1]);
+      btn.classList.add('active');
+      document.getElementById('btn-book-text').textContent = (curLang === 'bn' ? 'বুক করুন: ' : 'Book with ') + carrierNames[key] + ' →';
+    }
+
+    function switchPlatform(p, tab) {
+      document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const titleEl = document.getElementById('sim-platform-title');
+      const descEl = document.getElementById('sim-platform-desc');
+
+      if (p === 'woo') {
+        titleEl.innerHTML = '<svg viewBox="0 0 28 20" width="29" height="22" fill="none" aria-hidden="true"><rect x="1" y="1" width="26" height="18" rx="5" fill="#7f54b3"/><text x="14" y="13.5" text-anchor="middle" fill="#ffffff" font-family="Inter,sans-serif" font-size="9" font-weight="800">Woo</text></svg><span>WooCommerce Simulation</span>';
+        descEl.textContent = curLang === 'bn'
+          ? 'WooCommerce প্লাগইন দিয়ে সরাসরি স্টোর চেকআউট থেকে কুরিয়ার ট্র্যাকিং এবং ফ্রড এনালাইসিস যাচাই করুন।'
+          : 'Seamless WooCommerce plugin integration for direct checkout parcel booking and fraud assessment.';
+      } else if (p === 'shopify') {
+        titleEl.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M18.5 6.5h-2.1A4.4 4.4 0 0 0 12 2.5a4.4 4.4 0 0 0-4.4 4H5.5L4 21h16l-1.5-14.5z" fill="#10b981"/><path d="M9.5 6.5a2.5 2.5 0 0 1 5 0" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/><text x="12" y="16.8" text-anchor="middle" fill="#ffffff" font-family="Inter,sans-serif" font-size="9.5" font-weight="900">S</text></svg><span>Shopify App Simulation</span>';
+        descEl.textContent = curLang === 'bn'
+          ? 'Shopify স্টোরে Aura Webhook ইন্টিগ্রেশন দিয়ে আনফুলফিল্ড অর্ডার এক ক্লিকে কুরিয়ারে পুশ করুন।'
+          : 'Shopify automated fulfillment with instant courier consignment generation upon order creation.';
+      } else if (p === 'custom') {
+        titleEl.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg><span>Custom Store API</span>';
+        descEl.textContent = curLang === 'bn'
+          ? 'যেকোনো কাস্টম পিএইচপি, নোডজেএস বা পাইথন ব্যাকএন্ড থেকে সরাসরি REST/MCP এন্ডপয়েন্ট ব্যবহার করুন।'
+          : 'Direct JSON-RPC and REST endpoints for custom PHP, Node.js, and Python backend systems.';
+      } else {
+        titleEl.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Aura Client Dashboard</span>';
+        descEl.textContent = curLang === 'bn'
+          ? 'কোনো কোডিং ছাড়া সেন্ট্রালাইজড ড্যাশবোর্ড থেকে বাল্ক পার্সেল বুকিং এবং রিস্ক ফিল্টারিং।'
+          : 'No-code centralized merchant dashboard with bulk order dispatch and live COD reconciliations.';
+      }
+    }
+
+    function loadSampleOrder(type) {
+      document.querySelectorAll('.sample-pill').forEach(p => p.classList.remove('active'));
+      const rBox = document.getElementById('risk-box');
+      const rTitle = document.getElementById('risk-title');
+      const rDesc = document.getElementById('risk-desc');
+
+      if (type === 'safe') {
+        document.querySelector('.sample-pill.safe').classList.add('active');
+        document.getElementById('ord-cust').textContent = 'Md. Rahim';
+        document.getElementById('ord-phone').textContent = '+880 1712-345678';
+        document.getElementById('ord-amount').textContent = '৳ 2,890';
+        document.getElementById('ord-items').textContent = 'K-Beauty Skincare (2 items)';
+
+        rBox.className = 'risk-banner safe';
+        rTitle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg><span>SAFE RISK 26%</span>';
+        rDesc.textContent = curLang === 'bn' ? 'নিয়মিত গ্রাহক - নিরাপদ ডেলিভারি রেট ৯২%+' : 'Frequent buyer - Delivery success 92%+';
+      } else {
+        document.querySelector('.sample-pill.risk').classList.add('active');
+        document.getElementById('ord-cust').textContent = 'Tanvir Ahmed';
+        document.getElementById('ord-phone').textContent = '+880 1999-887766';
+        document.getElementById('ord-amount').textContent = '৳ 6,400';
+        document.getElementById('ord-items').textContent = 'High-Value Electronics (1 item)';
+
+        rBox.className = 'risk-banner high';
+        rTitle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>HIGH RISK 84%</span>';
+        rDesc.textContent = curLang === 'bn' ? 'সতর্কতা: অতীতে একাধিক পার্সেল রিজেকশনের রেকর্ড রয়েছে!' : 'Caution: High return/cancellation rate in carrier DB!';
+      }
+    }
+
+    function executeSimBooking() {
+      const code = 'AC-' + Math.floor(100000 + Math.random() * 900000);
+      const toast = document.getElementById('toast');
+      const title = document.getElementById('toast-title');
+      const desc = document.getElementById('toast-desc');
+
+      title.textContent = (curLang === 'bn' ? 'পার্সেল বুক সফল! ' : 'Parcel Dispatched: ') + carrierNames[currentCarrier];
+      desc.textContent = (curLang === 'bn' ? 'কনসাইনমেন্ট ট্র্যাকিং কোড: ' : 'Consignment Code: ') + code;
+      
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
+
+    function startFreeTrial(plan) {
+      alert((curLang === 'bn' ? 'ধন্যবাদ! আপনার ১৫ দিন ফ্রি ট্রায়াল শুরু করতে ক্লায়েন্ট পোর্টালে লগইন করুন। নির্বাচিত প্ল্যান: ' : 'Welcome! Log in to client portal to activate your 15-day trial for: ') + plan);
+      window.open('https://client.auraajenticai.cloud', '_blank');
+    }
+
+    // ===== Bilingual Engine =====
+    const translations = {
+      bn: {
+        nav_home: "হোম",
+        nav_guide: "গাইড",
+        nav_pricing: "প্রাইসিং",
+        nav_playground: "প্লেগ্রাউন্ড",
+        nav_docs: "ডকুমেন্টেশন",
+        badge_guide: "অফিসিয়াল ব্যবহারবিধি",
+        hero_h2: "ব্যবহার নির্দেশিকা, স্টোর সিমুলেটর ও ১৫ দিন ফ্রি ট্রায়াল",
+        hero_desc: "বাংলাদেশের ই-কমার্সের জন্য মাল্টি-কুরিয়ার ইন্টিগ্রেশন সমাধান — আপনার স্টোর (WooCommerce/Shopify/Custom) থেকে সরাসরি Steadfast, Pathao, RedX ও Paperfly-তে অর্ডার বুকিং।",
+        cta_simulator: "Try Live Simulator →",
+        cta_read_guide: "Read Full Guide",
+        val1_title: "Fraud-Risk Screening",
+        val1_desc: "ভুয়া বা ঝুঁকিপূর্ণ অর্ডার আগে শনাক্ত",
+        val2_title: "Four-Courier Booking",
+        val2_desc: "৪টি কুরিয়ারে এক ক্লিকে বুকিং",
+        val3_title: "Encrypted API Key Vault",
+        val3_desc: "কুরিয়ার কী নিরাপদে সংরক্ষণ",
+        comp_title: "দুটি ব্যবহারের ধরন — আপনার জন্য কোনটি উপযোগী?",
+        comp_sub: "আপনার প্রযুক্তিগত সক্ষমতা অনুযায়ী সেরা উপায়টি বেছে নিন।",
+        for_dev: "ডেভেলপার ও টেকনিক্যাল টিমের জন্য",
+        for_business: "ব্যবসার জন্য রেডি-টু-ইউজ সমাধান",
+        mcp_f1: "নিজের অ্যাপ বা সিস্টেমে সরাসরি MCP ইন্টিগ্রেশন",
+        mcp_f2: "API বা MCP প্রটোকল দিয়ে কুরিয়ার বুকিং",
+        mcp_f3: "WooCommerce, Shopify বা কাস্টম স্টোরে সংযোগ",
+        mcp_f4: "সম্পূর্ণ ফ্লেক্সিবল ও ডেভেলপার-ফ্রেন্ডলি",
+        dash_f1: "কোনো কোড ছাড়া সহজে ব্যবহারযোগ্য রেডি ইন্টারফেস",
+        dash_f2: "অর্ডার দেখা, ঝুঁকি যাচাই ও কুরিয়ার বুকিং",
+        dash_f3: "৪টি কুরিয়ারের হিসাব ও ব্যালেন্স এক জায়গায় সমন্বয়",
+        dash_f4: "ছোট ও মাঝারি ই-কমার্সের জন্য আদর্শ সমাধান",
+        sim_title: "Live Store Simulator — নিজের চোখেই দেখুন",
+        sim_sub: "আপনার স্টোরের মতো করে অর্ডার, ঝুঁকি যাচাই এবং চারটি কুরিয়ারে বুকিং প্রক্রিয়া টেস্ট করুন।",
+        sim_brand_desc: "উদাহরণ অর্ডার নিয়ে দেখুন কীভাবে Aura Courier MCP আপনার স্টোর থেকে অর্ডার নিয়ে স্বয়ংক্রিয়ভাবে জাতীয় ফ্রড ডাটাবেসে ঝুঁকি যাচাই করে এবং ১-ক্লিকে কুরিয়ার বুকিং সম্পন্ন করে।",
+        sim_order_label: "স্টোর অর্ডার",
+        sel_courier: "কুরিয়ার নির্বাচন করুন (১-ক্লিক বুকিং):",
+        btn_book: "বুক করুন সিলেক্টেড কুরিয়ারে →",
+        price_title: "সাবস্ক্রিপশন প্ল্যান — আপনার ব্যবসার জন্য সঠিক প্ল্যান",
+        price_sub: "শুধু Courier MCP ব্যবহার করুন, অথবা আরও শক্তিশালী AI ফিচারসহ Aura AI ব্যবহার করুন।",
+        trial_pill: "15-Day Free Trial (সব প্ল্যানে ১৫ দিন ফ্রি)",
+        btn_trial: "Start Free Trial →",
+        p1_f1: "৪টি কুরিয়ার ইন্টিগ্রেশন",
+        p1_f2: "মাসিক নির্দিষ্ট ব্যবহার সীমা",
+        p1_f3: "স্ট্যান্ডার্ড ইমেইল সাপোর্ট",
+        p2_f1: "আনলিমিটেড অর্ডার বুকিং",
+        p2_f2: "অগ্রাধিকার টেকনিক্যাল সাপোর্ট",
+        p2_f3: "গুগল ম্যাপস স্পেশিয়াল রাউটিং",
+        p3_f1: "Courier MCP সব ফিচার",
+        p3_f2: "AI ঝুঁকি ও ফ্রড বিশ্লেষণ",
+        p3_f3: "অর্ডার অটোমেশন (বেসিক)",
+        p4_f1: "উন্নত AI অটোমেশন ও অমনিচ্যানেল",
+        p4_f2: "বৃহৎ ব্যবহার ও হাই-ভলিউম স্কেল",
+        p4_f3: "২৪/৭ প্রায়োরিটি ডেডিকেটেড সাপোর্ট",
+        setup_title: "Setup Guide — ৫ ধাপে শুরু করুন",
+        setup_sub: "খুব সহজে আপনার স্টোর বা ড্যাশবোর্ডে Aura Courier MCP সেটআপ করুন।",
+        s1_t: "API Key সংগ্রহ",
+        s1_d: "চারটি কুরিয়ার থেকেই আপনার মার্চেন্ট এপিআই কী ও সিক্রেট সংগ্রহ করুন।",
+        s2_t: "স্টোরে সংযোগ",
+        s2_d: "WooCommerce / Shopify / কাস্টম সিস্টেমে MCP প্লাগইন ইনস্টল করুন।",
+        s3_t: "সেটিংস কনফিগার",
+        s3_d: "ডিফল্ট কুরিয়ার রুলস, জোন ক্যালকুলেশন ও ফ্রড থ্রেশহোল্ড সেট করুন।",
+        s4_t: "সিমুলেট করে দেখুন",
+        s4_d: "লাইভ সিমুলেটরে টেস্ট অর্ডার পাঠিয়ে রিয়েল ডিসপ্যাচ যাচাই করুন।",
+        s5_t: "লাইভে শুরু করুন",
+        s5_d: "সরাসরি অর্ডার আসার সাথে সাথে অটোমেটিক কুরিয়ার বুকিং নিশ্চিত করুন।",
+        res_title: "আরো সহায়তা ও রিসোর্স",
+        res_1: "Full Guide (Step by Step)",
+        res_2: "API & MCP Docs",
+        res_3: "Store Integration Guide",
+        res_4: "Support & FAQ"
+      },
+      en: {
+        nav_home: "Home",
+        nav_guide: "Guide",
+        nav_pricing: "Pricing",
+        nav_playground: "Playground",
+        nav_docs: "Docs",
+        badge_guide: "Official Guide",
+        hero_h2: "Complete User Guide, Store Simulator & 15-Day Free Trial",
+        hero_desc: "The all-in-one multi-carrier logistics integration for Bangladesh e-commerce — book parcels directly with Steadfast, Pathao, RedX, and Paperfly from WooCommerce, Shopify, or Custom Stores.",
+        cta_simulator: "Try Live Simulator →",
+        cta_read_guide: "Read Full Guide",
+        val1_title: "Fraud-Risk Screening",
+        val1_desc: "Early detection of fake or high-risk orders",
+        val2_title: "Four-Courier Booking",
+        val2_desc: "1-Click automated dispatch across 4 carriers",
+        val3_title: "Encrypted API Key Vault",
+        val3_desc: "Zero-Knowledge AES-256 courier key storage",
+        comp_title: "Two Implementation Models — Which Fits You Best?",
+        comp_sub: "Choose the optimal setup based on your engineering requirements.",
+        for_dev: "For Developers & Technical Teams",
+        for_business: "Ready-to-Use Business Solution",
+        mcp_f1: "Direct MCP protocol connection to your internal stack",
+        mcp_f2: "Programmatic courier booking via JSON-RPC/REST",
+        mcp_f3: "Fast integration with WooCommerce, Shopify, or custom apps",
+        mcp_f4: "Full architectural flexibility and developer control",
+        dash_f1: "No-code turnkey visual management interface",
+        dash_f2: "View orders, fraud score, and 1-click booking",
+        dash_f3: "Centralized multi-carrier balances and tracking",
+        dash_f4: "Ideal for growing e-commerce businesses",
+        sim_title: "Live Store Simulator — Experience It Live",
+        sim_sub: "Simulate orders, test fraud detection, and preview automated bookings across 4 carriers.",
+        sim_brand_desc: "Experience how Aura Courier MCP automatically ingests store orders, evaluates buyer fraud probability against national databases, and books shipments in 1 click.",
+        sim_order_label: "Store Order",
+        sel_courier: "Select Courier (One Click Booking):",
+        btn_book: "Book with Selected Courier →",
+        price_title: "Subscription Plans — Choose the Perfect Plan",
+        price_sub: "Use standalone Courier MCP, or unlock advanced automated sales with Aura AI.",
+        trial_pill: "15-Day Free Trial on all plans",
+        btn_trial: "Start Free Trial →",
+        p1_f1: "4 Courier Integrations",
+        p1_f2: "Fixed monthly booking quota",
+        p1_f3: "Standard email support",
+        p2_f1: "Unlimited parcel bookings",
+        p2_f2: "Priority technical support",
+        p2_f3: "Google Maps spatial intelligence",
+        p3_f1: "All Courier MCP features",
+        p3_f2: "AI-powered fraud risk scoring",
+        p3_f3: "Basic order automation",
+        p4_f1: "Advanced omnichannel AI automation",
+        p4_f2: "High-volume scale and custom SLAs",
+        p4_f3: "24/7 dedicated support team",
+        setup_title: "Setup Guide — Get Started in 5 Steps",
+        setup_sub: "Quickly set up Aura Courier MCP in your e-commerce store or dashboard.",
+        s1_t: "Obtain API Keys",
+        s1_d: "Gather API credentials from Steadfast, Pathao, RedX, and Paperfly.",
+        s2_t: "Connect Store",
+        s2_d: "Install our plugin or hook webhooks to your WooCommerce/Shopify store.",
+        s3_t: "Configure Rules",
+        s3_d: "Set default fallback rules, address zones, and fraud limits.",
+        s4_t: "Simulate Deliveries",
+        s4_d: "Dispatch test parcels in sandbox mode to verify consignment codes.",
+        s5_t: "Go Live",
+        s5_d: "Enable automated booking for all incoming customer orders.",
+        res_title: "More Support & Resources",
+        res_1: "Full Guide (Step by Step)",
+        res_2: "API & MCP Docs",
+        res_3: "Store Integration Guide",
+        res_4: "Support & FAQ"
+      }
+    };
+
     const agentConfigs = {
       antigravity: {
         path: '%USERPROFILE%\\.gemini\\antigravity\\mcp\\aura-courier\\server.json',
@@ -1793,7 +2090,7 @@
       const codeEl = document.getElementById('agent-json-code');
       const code = codeEl ? codeEl.innerText : '';
       navigator.clipboard.writeText(code).then(() => {
-        const txt = document.getElementById('copy-btn-text');
+        const txt = document.getElementById('copy-json-text');
         if (txt) {
           txt.innerText = 'Copied!';
           setTimeout(() => txt.innerText = 'Copy JSON', 2000);
