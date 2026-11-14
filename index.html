@@ -3103,7 +3103,8 @@
           const total = Number(d.total_parcels || 0);
           const delivered = Number(d.total_delivered || 0);
           const returned = Number(d.total_cancelled || 0);
-          const successRate = d.delivery_success_rate != null ? Number(d.delivery_success_rate).toFixed(1) : (total > 0 ? ((delivered / total) * 100).toFixed(1) : '100.0');
+          const parsedRate = d.delivery_success_rate != null ? parseFloat(String(d.delivery_success_rate)) : NaN;
+          const successRate = !isNaN(parsedRate) ? parsedRate.toFixed(1) : (total > 0 ? ((delivered / total) * 100).toFixed(1) : '100.0');
           const riskLevel = String(d.risk_level || 'LOW');
           const sources = Array.isArray(d.data_sources) && d.data_sources.length ? d.data_sources.join(' + ') : 'Carrier DB';
 
@@ -3131,7 +3132,7 @@
           if (totalEl) totalEl.textContent = String(total);
           if (deliveredEl) deliveredEl.textContent = String(delivered);
           if (returnedEl) returnedEl.textContent = String(returned);
-          if (rateEl) rateEl.textContent = (d.delivery_success_rate != null ? Number(d.delivery_success_rate).toFixed(1) + '%' : (total > 0 ? successRate + '%' : 'N/A'));
+          if (rateEl) rateEl.textContent = (!isNaN(parsedRate) ? parsedRate.toFixed(1) + '%' : (total > 0 ? successRate + '%' : 'N/A'));
         })
         .catch(() => {
           if (badge) {
