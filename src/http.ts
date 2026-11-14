@@ -95,7 +95,22 @@ function redactAddressToDistrict(addr: string): string {
  */
 export function keysFromRequest(req: Request): EnvSource {
   const h = req.headers;
-  const allowMasterEnvFallback = req.auraAuth?.tenantId === "master";
+  // Strict Multi-Tenant & BYOK Isolation:
+  // If caller explicitly sends any BYOK courier headers (isByok === true), NEVER fall back to
+  // platform master courier env keys so vendor/merchant BYOK credentials never mix with central keys.
+  const isByokRequest = Boolean(
+    req.auraAuth?.isByok ||
+    h["x-steadfast-api-key"] ||
+    h["x-pathao-client-id"] ||
+    h["x-redx-api-token"] ||
+    h["x-paperfly-api-key"]
+  );
+  const isPublicFraudCheck =
+    req.auraAuth?.tenantId === "public_ro" &&
+    req.body?.method === "tools/call" &&
+    req.body?.params?.name === "check_fraud_risk";
+  const allowMasterEnvFallback =
+    (req.auraAuth?.tenantId === "master" || isPublicFraudCheck) && !isByokRequest;
 
   const pick = (header: string, envVar?: string, allowNonMasterEnv = false): string | undefined => {
     const hv = h[header];
@@ -513,7 +528,8 @@ function handleCourierWebhook(provider: SupportedCourier) {
     const status = String(payload.status || payload.order_status || payload.event || "received");
     const eventType = String(payload.notification_type || payload.event || "delivery_status");
     const invoice = payload.invoice || payload.merchant_order_id;
-    const tenantId = String(req.query.tenant || req.headers["x-tenant-id"] || "default");
+    const paramMerchantToken = req.params?.merchant_token ? String(req.params.merchant_token).trim() : "";
+    const tenantId = String(paramMerchantToken || req.query.tenant || req.headers["x-tenant-id"] || "default");
 
     const record = {
       id: randomUUID(),
@@ -534,9 +550,10 @@ function handleCourierWebhook(provider: SupportedCourier) {
         {
           status: "success",
           courier: provider,
+          tenant_scope: tenantId,
           consignment_id: record.consignment_id,
           event_id: record.id,
-          message: `${provider} webhook verified and recorded.`,
+          message: `${provider} webhook verified and recorded for tenant '${tenantId}'.`,
         },
         "live_api"
       )

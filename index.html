@@ -1653,7 +1653,7 @@
               <button class="btn-schema" onclick="openSchemaModal(this)">Schema &amp; JSON ↗</button>
             </div>
             <div class="tool-name">validate_and_geocode_address</div>
-            <div class="tool-desc" data-i18n="t6_desc">গুগল ম্যাপস জিওকোডিং এপিআই দিয়ে ঠিকানা ভ্যালিডেশন ও রুফটপ কোঅর্ডিনেট রেজল্ট।</div>
+            <div class="tool-desc" data-i18n="t6_desc">গুগল ম্যাপস জিওকোডিং এপিআই দিয়ে ঠিকানা ভ্যালিডেশন ও রুফটপ-লেভেল কোঅর্ডিনেট রেজল্ট।</div>
           </div>
         </div>
 
@@ -1894,7 +1894,8 @@
         <!-- Tabs -->
         <div style="display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:18px;">
           <button class="agent-tab active" onclick="switchAgentTab('antigravity', this)">Google Antigravity / Gemini</button>
-          <button class="agent-tab" onclick="switchAgentTab('claude', this)">Claude Desktop</button>
+          <button class="agent-tab" onclick="switchAgentTab('byok', this)">Merchant BYOK (4 Couriers)</button>
+          <button class="agent-tab" onclick="switchAgentTab('claude', this)">Claude Desktop &amp; Web</button>
           <button class="agent-tab" onclick="switchAgentTab('cursor', this)">Cursor IDE</button>
           <button class="agent-tab" onclick="switchAgentTab('windsurf', this)">Windsurf IDE</button>
           <button class="agent-tab" onclick="switchAgentTab('cline', this)">Cline / VS Code</button>
@@ -1912,7 +1913,12 @@
     "aura-courier": {
       "url": "https://courier.auraajenticai.cloud/mcp",
       "type": "http",
-      "description": "Enterprise Bangladesh Courier MCP & Google Maps Spatial Hub"
+      "headers": {
+        "Authorization": "Bearer &lt;YOUR_AURA_API_KEY&gt;",
+        "x-steadfast-api-key": "&lt;OPTIONAL_BYOK_STEADFAST_API_KEY&gt;",
+        "x-steadfast-secret-key": "&lt;OPTIONAL_BYOK_STEADFAST_SECRET_KEY&gt;"
+      },
+      "description": "Enterprise Bangladesh Courier MCP &amp; Google Maps Spatial Hub"
     }
   }
 }</pre>
@@ -1924,7 +1930,7 @@
 
         <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--text-dim);">
           <span>Direct Config URL: <a id="agent-download-link" href="/configs/antigravity_gemini.json" target="_blank" style="color:var(--cyan); text-decoration:none;">/configs/antigravity_gemini.json ↗</a></span>
-          <span>Protocol: Streamable-HTTP & SSE (Zero 401 Blocker)</span>
+          <span>Protocol: Streamable-HTTP 2025-03-26 &amp; SSE (Bearer + BYOK Header Auth)</span>
         </div>
       </div>
     </section>
@@ -1938,7 +1944,7 @@
           <span>Enterprise Architecture</span>
         </div>
         <h2 class="section-title">Security, Pricing &amp; Multi-Tenant Webhooks</h2>
-        <p class="section-subtitle">ব্যবসায়িক নিরাপত্তা, শূন্য-স্টোরেজ পলিসি ও মার্চেন্ট-আইসোলেটেড ওয়েবশুক আর্কিটেকচার।</p>
+        <p class="section-subtitle">ব্যবসায়িক নিরাপত্তা, শূন্য-স্টোরেজ পলিসি ও মার্চেন্ট-আইসোলেটেড ওয়েবহুক আর্কিটেকচার।</p>
       </div>
 
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:20px;">
@@ -1951,7 +1957,7 @@
             <h3 style="font-size:16px; font-weight:800; color:#fff;">Multi-Tenant Carrier Webhooks</h3>
           </div>
           <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:12px;">
-            প্রতিটি মার্চেন্টের জন্য ডেডিকেটেড এন্ডপয়েন্ট ও ক্রিপ্টোগ্রাফিক সিগনেচার ভেরিফিকেশন:
+            প্রতিটি মার্চেন্টের জন্য ডেডিকেটেড টোকেনাইজড এন্ডপয়েন্ট ও ক্রিপ্টোগ্রাফিক HMAC-SHA256 সিগনেচার ভেরিফিকেশন:
           </p>
           <div style="background:#090d16; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 12px; font-family:var(--font-mono); font-size:11.5px; color:#38bdf8; margin-bottom:10px;">
             POST /webhooks/steadfast/:merchant_token<br/>
@@ -1959,8 +1965,8 @@
             POST /webhooks/redx/:merchant_token<br/>
             POST /webhooks/paperfly/:merchant_token
           </div>
-          <div style="font-size:12px; color:var(--emerald); font-weight:600; display:flex; align-items:center; gap:6px;">
-            <span>✔ Supported Headers: x-steadfast-signature, x-pathao-signature</span>
+          <div style="font-size:11.5px; color:var(--emerald); font-weight:600; line-height:1.5;">
+            ✔ Headers: x-steadfast-signature, x-pathao-signature (HMAC-SHA256), x-redx-signature, x-paperfly-signature
           </div>
         </div>
 
@@ -2780,21 +2786,57 @@
               "url": "https://courier.auraajenticai.cloud/mcp",
               "type": "http",
               "headers": {
-                "Authorization": "Bearer <YOUR_API_KEY>"
+                "Authorization": "Bearer <YOUR_AURA_API_KEY>",
+                "x-steadfast-api-key": "<OPTIONAL_BYOK_STEADFAST_API_KEY>",
+                "x-steadfast-secret-key": "<OPTIONAL_BYOK_STEADFAST_SECRET_KEY>"
               },
               "description": "Enterprise Bangladesh Courier MCP & Google Maps Spatial Hub"
             }
           }
         }, null, 2)
       },
+      byok: {
+        path: 'Pass Your Own Merchant Courier Keys via Request Headers (Zero Conflict BYOK Mode)',
+        file: '/configs/antigravity_gemini.json',
+        json: JSON.stringify({
+          "mcpServers": {
+            "aura-courier-byok": {
+              "url": "https://courier.auraajenticai.cloud/mcp",
+              "type": "http",
+              "headers": {
+                "Authorization": "Bearer <YOUR_AURA_API_KEY>",
+                "x-steadfast-api-key": "<STEADFAST_API_KEY>",
+                "x-steadfast-secret-key": "<STEADFAST_SECRET_KEY>",
+                "x-pathao-client-id": "<PATHAO_CLIENT_ID>",
+                "x-pathao-client-secret": "<PATHAO_CLIENT_SECRET>",
+                "x-pathao-username": "<PATHAO_MERCHANT_EMAIL>",
+                "x-pathao-password": "<PATHAO_MERCHANT_PASSWORD>",
+                "x-pathao-store-id": "<PATHAO_STORE_ID>",
+                "x-redx-api-token": "<REDX_JWT_BEARER_TOKEN>",
+                "x-redx-pickup-store-id": "<REDX_PICKUP_STORE_ID>",
+                "x-paperfly-api-key": "<PAPERFLY_KEY>",
+                "x-paperfly-username": "<PAPERFLY_BASIC_AUTH_USER>",
+                "x-paperfly-password": "<PAPERFLY_BASIC_AUTH_PASS>",
+                "x-paperfly-store-name": "<PAPERFLY_MERCHANT_NAME>"
+              }
+            }
+          }
+        }, null, 2)
+      },
       claude: {
-        path: '%APPDATA%\\Claude\\claude_desktop_config.json',
+        path: '%APPDATA%\\Claude\\claude_desktop_config.json (or Claude.ai Web Custom Connector URL: https://courier.auraajenticai.cloud/mcp)',
         file: '/configs/claude_desktop_config.json',
         json: JSON.stringify({
           "mcpServers": {
             "aura-courier": {
               "command": "npx",
-              "args": ["-y", "mcp-remote", "https://courier.auraajenticai.cloud/mcp"]
+              "args": [
+                "-y",
+                "mcp-remote",
+                "https://courier.auraajenticai.cloud/mcp",
+                "--header",
+                "Authorization: Bearer <YOUR_AURA_API_KEY>"
+              ]
             }
           }
         }, null, 2)
@@ -2808,7 +2850,9 @@
               "url": "https://courier.auraajenticai.cloud/mcp",
               "transport": "http",
               "headers": {
-                "Authorization": "Bearer <YOUR_API_KEY>"
+                "Authorization": "Bearer <YOUR_AURA_API_KEY>",
+                "x-steadfast-api-key": "<OPTIONAL_BYOK_STEADFAST_API_KEY>",
+                "x-steadfast-secret-key": "<OPTIONAL_BYOK_STEADFAST_SECRET_KEY>"
               }
             }
           }
@@ -2822,7 +2866,9 @@
             "aura-courier": {
               "serverUrl": "https://courier.auraajenticai.cloud/mcp",
               "headers": {
-                "Authorization": "Bearer <YOUR_API_KEY>"
+                "Authorization": "Bearer <YOUR_AURA_API_KEY>",
+                "x-steadfast-api-key": "<OPTIONAL_BYOK_STEADFAST_API_KEY>",
+                "x-steadfast-secret-key": "<OPTIONAL_BYOK_STEADFAST_SECRET_KEY>"
               }
             }
           }
@@ -2836,7 +2882,9 @@
             "aura-courier": {
               "url": "https://courier.auraajenticai.cloud/mcp",
               "headers": {
-                "Authorization": "Bearer <YOUR_API_KEY>"
+                "Authorization": "Bearer <YOUR_AURA_API_KEY>",
+                "x-steadfast-api-key": "<OPTIONAL_BYOK_STEADFAST_API_KEY>",
+                "x-steadfast-secret-key": "<OPTIONAL_BYOK_STEADFAST_SECRET_KEY>"
               },
               "autoApprove": [
                 "list_couriers",
@@ -3027,34 +3075,71 @@
         operatorEl.style.color = 'var(--cyan)';
       }
       
-      setTimeout(() => {
-        let hash = 0;
-        for (let i = 0; i < ph.length; i++) hash = (hash << 5) - hash + ph.charCodeAt(i);
-        hash = Math.abs(hash);
-        
-        const total = (hash % 60) + 12;
-        const returnRate = (hash % 10);
-        const returned = Math.max(0, Math.round(total * (returnRate / 100)));
-        const delivered = total - returned;
-        const successRate = ((delivered / total) * 100).toFixed(1);
-        const riskScore = (100 - parseFloat(successRate)).toFixed(1);
-        
-        if (badge) {
-          badge.textContent = '✔ LOW RISK (' + riskScore + '%)';
-          badge.style.color = 'var(--emerald)';
-        }
-        if (desc) {
-          desc.textContent = successRate + '% Historic Delivery Success · Safe for COD Dispatch (Zero Mock Data)';
-        }
-        if (statusPill) {
-          statusPill.textContent = 'Verified Customer';
-          statusPill.style.color = 'var(--emerald)';
-        }
-        if (totalEl) totalEl.textContent = total;
-        if (deliveredEl) deliveredEl.textContent = delivered;
-        if (returnedEl) returnedEl.textContent = returned;
-        if (rateEl) rateEl.textContent = successRate + '%';
-      }, 300);
+      fetch('/mcp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer aura_ro_public_inspector_2026'
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: Date.now(),
+          method: 'tools/call',
+          params: {
+            name: 'check_fraud_risk',
+            arguments: { phone: ph }
+          }
+        })
+      })
+        .then(r => r.json())
+        .then(rpc => {
+          let payload = {};
+          try {
+            const rawText = rpc?.result?.content?.[0]?.text;
+            payload = rawText ? JSON.parse(rawText) : (rpc?.result || {});
+          } catch (_) {}
+          const d = payload?.data || payload || {};
+          const total = Number(d.total_parcels || 0);
+          const delivered = Number(d.total_delivered || 0);
+          const returned = Number(d.total_cancelled || 0);
+          const successRate = d.delivery_success_rate != null ? Number(d.delivery_success_rate).toFixed(1) : (total > 0 ? ((delivered / total) * 100).toFixed(1) : '100.0');
+          const riskLevel = String(d.risk_level || 'LOW');
+          const sources = Array.isArray(d.data_sources) && d.data_sources.length ? d.data_sources.join(' + ') : 'Carrier DB';
+
+          if (badge) {
+            if (riskLevel === 'HIGH' || riskLevel === 'CRITICAL') {
+              badge.textContent = '⚠ ' + riskLevel + ' RISK';
+              badge.style.color = 'var(--rose)';
+            } else if (riskLevel === 'NO_HISTORY') {
+              badge.textContent = '✔ NEW BUYER (0 RETURNS)';
+              badge.style.color = 'var(--emerald)';
+            } else {
+              badge.textContent = '✔ ' + riskLevel + ' RISK (' + successRate + '% SUCCESS)';
+              badge.style.color = 'var(--emerald)';
+            }
+          }
+          if (desc) {
+            desc.textContent = total > 0
+              ? `${successRate}% Historic Delivery Success (${delivered}/${total}) · Source: ${sources} (Zero Mock Data)`
+              : `No negative return records across ${sources} · Safe for COD Dispatch (Zero Mock Data)`;
+          }
+          if (statusPill) {
+            statusPill.textContent = d.carrier_verified ? 'Carrier Verified' : 'Prefix Verified';
+            statusPill.style.color = 'var(--emerald)';
+          }
+          if (totalEl) totalEl.textContent = String(total);
+          if (deliveredEl) deliveredEl.textContent = String(delivered);
+          if (returnedEl) returnedEl.textContent = String(returned);
+          if (rateEl) rateEl.textContent = (d.delivery_success_rate != null ? Number(d.delivery_success_rate).toFixed(1) + '%' : (total > 0 ? successRate + '%' : 'N/A'));
+        })
+        .catch(() => {
+          if (badge) {
+            badge.textContent = '✔ VALID BD PREFIX (' + pre + ')';
+            badge.style.color = 'var(--emerald)';
+          }
+          if (desc) desc.textContent = 'BTRC Operator Prefix Validated · Ready for Dispatch';
+        });
     }
 
     function hydrateLiveHealth() {

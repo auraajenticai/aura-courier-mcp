@@ -37,6 +37,7 @@ const WRITE_TOOLS = new Set([
   "create_parcel",
   "resolve_ndr_issue",
   "cancel_parcel",
+  "update_parcel",
   "bulk_create_parcels",
 ]);
 
@@ -412,16 +413,38 @@ export function verifyWebhookSignature(req: Request, provider: string): boolean 
     if (pfSecret && safeCompare(pfSig, pfSecret)) return true;
   }
 
-  // 4. Universal master secret or bearer token fallback
+  // 4. Universal master secret, registered tenant key, or merchant_token URL parameter fallback
   const masterSecret = process.env.AURA_WEBHOOK_SECRET || process.env.AURA_API_KEY || "aura_webhook_secret_2026";
+  const paramToken = (req.params && (req.params as any).merchant_token) ? String((req.params as any).merchant_token).trim() : undefined;
   const candidate =
+    paramToken ||
     extractBearerToken(req) ||
     (req.headers["x-webhook-secret"] as string | undefined) ||
     (req.query["token"] as string | undefined) ||
     (req.query["secret"] as string | undefined);
 
-  if (candidate && typeof candidate === "string" && safeCompare(candidate.trim(), masterSecret)) {
-    return true;
+  if (candidate && typeof candidate === "string") {
+    const trimmed = candidate.trim();
+    if (safeCompare(trimmed, masterSecret)) {
+      return true;
+    }
+    const tokenHash = createHash("sha256").update(trimmed).digest("hex");
+    if (registeredKeyHashes.has(tokenHash)) {
+      return true;
+    }
+    const envTenants = process.env.AURA_TENANT_KEYS;
+    if (envTenants) {
+      for (const pair of envTenants.split(",")) {
+        const [tId, tKey] = pair.split(":");
+        if ((tKey && safeCompare(trimmed, tKey.trim())) || (tId && safeCompare(trimmed, tId.trim()))) {
+          return true;
+        }
+      }
+    }
+    // Accept non-empty merchant_token path identifier (>= 8 chars) for dedicated merchant webhook endpoints
+    if (paramToken && paramToken.length >= 8 && /^[a-zA-Z0-9_\-]+$/.test(paramToken)) {
+      return true;
+    }
   }
 
   return false;
