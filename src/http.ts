@@ -544,10 +544,10 @@ function handleCourierWebhook(provider: SupportedCourier) {
   };
 }
 
-app.post("/webhooks/steadfast", handleCourierWebhook("steadfast"));
-app.post("/webhooks/pathao", handleCourierWebhook("pathao"));
-app.post("/webhooks/redx", handleCourierWebhook("redx"));
-app.post("/webhooks/paperfly", handleCourierWebhook("paperfly"));
+app.post(["/webhooks/steadfast", "/webhooks/steadfast/:merchant_token"], handleCourierWebhook("steadfast"));
+app.post(["/webhooks/pathao", "/webhooks/pathao/:merchant_token"], handleCourierWebhook("pathao"));
+app.post(["/webhooks/redx", "/webhooks/redx/:merchant_token"], handleCourierWebhook("redx"));
+app.post(["/webhooks/paperfly", "/webhooks/paperfly/:merchant_token"], handleCourierWebhook("paperfly"));
 
 /**
  * GET /track/:code - Hardened Public & Authenticated Tracking Gateway
