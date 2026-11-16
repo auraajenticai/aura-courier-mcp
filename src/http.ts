@@ -14,6 +14,10 @@ import {
   resolveAuthContext,
   verifyWebhookSignature,
   recordAuditLog,
+  initDynamicAuthStore,
+  upsertDynamicKeyHash,
+  setTenantDynamicKeyStatus,
+  listDynamicKeySummaries,
 } from "./middleware/auth.js";
 import { McpToolError, wrapError, wrapSuccess, maskPhone } from "./envelope.js";
 import { SupportedCourier } from "./types.js";
@@ -32,6 +36,7 @@ if (process.env.NODE_ENV !== "test" && dbUrl) {
   try {
     dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
     setRegistryDbPool(dbPool);
+    initDynamicAuthStore(dbPool).catch(() => {});
   } catch (err: any) {
     console.warn("[PostgreSQL] Connection initialization skipped:", err?.message);
   }
@@ -196,6 +201,51 @@ app.get("/favicon.ico", (_req, res) => {
 });
 
 app.use(optionalAuthMiddleware);
+
+
+// Dynamic Tenant API Key Sync & Revocation Routes (Called by Snehalata / Admin Master Key)
+app.get("/admin/tokens", (req: Request, res: Response) => {
+  if (!req.auraAuth?.authenticated || !req.auraAuth?.isAdmin) {
+    return res.status(401).json(wrapError(new McpToolError({ code: "UNAUTHORIZED", message: "Master admin token required." }), "validator"));
+  }
+  return res.json({ ok: true, tokens: listDynamicKeySummaries() });
+});
+
+app.post("/admin/tokens/register", async (req: Request, res: Response) => {
+  if (!req.auraAuth?.authenticated || !req.auraAuth?.isAdmin) {
+    return res.status(401).json(wrapError(new McpToolError({ code: "UNAUTHORIZED", message: "Master admin token required." }), "validator"));
+  }
+  const b = req.body || {};
+  if ((!b.tokenHash && !b.rawToken) || !b.tenantId) {
+    return res.status(400).json(wrapError(new McpToolError({ code: "INVALID_INPUT", message: "tenantId and tokenHash (or rawToken) required." }), "validator"));
+  }
+  try {
+    const rec = await upsertDynamicKeyHash({
+      tokenHash: b.tokenHash,
+      rawToken: b.rawToken,
+      tenantId: String(b.tenantId),
+      storeName: b.storeName ? String(b.storeName) : undefined,
+      scopes: Array.isArray(b.scopes) ? b.scopes : ["read", "write"],
+      isAdmin: Boolean(b.isAdmin),
+      status: String(b.status || "ACTIVE"),
+    });
+    return res.json({ ok: true, tenantId: rec.tenantId, status: rec.status, hashPrefix: rec.tokenHash.slice(0, 10) });
+  } catch (err: any) {
+    return res.status(500).json(wrapError(err, "validator"));
+  }
+});
+
+app.post("/admin/tokens/revoke", async (req: Request, res: Response) => {
+  if (!req.auraAuth?.authenticated || !req.auraAuth?.isAdmin) {
+    return res.status(401).json(wrapError(new McpToolError({ code: "UNAUTHORIZED", message: "Master admin token required." }), "validator"));
+  }
+  const b = req.body || {};
+  if (!b.tenantId) {
+    return res.status(400).json(wrapError(new McpToolError({ code: "INVALID_INPUT", message: "tenantId required." }), "validator"));
+  }
+  const count = await setTenantDynamicKeyStatus(String(b.tenantId), String(b.status || "PAYMENT_DUE"));
+  return res.json({ ok: true, tenantId: b.tenantId, updatedKeys: count, status: b.status || "PAYMENT_DUE" });
+});
 
 const mcpLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 60, name: "MCP Protocol Gateway" });
 const trackingLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "Tracking Gateway" });
@@ -505,6 +555,12 @@ function handleCourierWebhook(provider: SupportedCourier) {
     }
 
     const payload = req.body || {};
+    if (provider === "pathao" && String(payload.event || "").toLowerCase() === "webhook_integration") {
+      const secret = process.env.PATHAO_CLIENT_SECRET || process.env.AURA_WEBHOOK_SECRET || "";
+      if (secret) res.setHeader("X-Pathao-Merchant-Webhook-Integration-Secret", secret);
+      return res.status(202).json({ ok: true, status: "webhook_verified" });
+    }
+
     const consignmentId =
       payload.consignment_id ||
       payload.merchant_order_id ||
@@ -544,6 +600,19 @@ function handleCourierWebhook(provider: SupportedCourier) {
 
     // F06: Record webhook event scoped by tenantId
     recordWebhookEvent(record, tenantId);
+
+    // Forward verified Pathao financial events best-effort to Snehalata Financial Manager
+    if (provider === "pathao" && process.env.NODE_ENV !== "test" && /deliver|return|paid|settlement|invoice/i.test(`${status} ${eventType}`)) {
+      const fwdUrl = process.env.SNEHALATA_WEBHOOK_URL || "https://www.snehalata.com/api/webhooks/pathao";
+      const sig = String(req.headers["x-pathao-signature"] || process.env.PATHAO_CLIENT_SECRET || "");
+      if (fwdUrl && sig) {
+        fetch(fwdUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Pathao-Signature": sig },
+          body: JSON.stringify(payload),
+        }).catch(() => {});
+      }
+    }
 
     return res.status(200).json(
       wrapSuccess(
