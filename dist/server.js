@@ -163,6 +163,22 @@ export const TOOLS = [
         },
     },
     {
+        name: "update_parcel",
+        description: "Update delivery instructions, customer phone number, delivery address landmark, or COD collection amount for an existing in-transit consignment across supported courier partners. STATE-MUTATING ACTION: Propagates updated delivery notes upstream to carrier dispatch centers.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                courier: { type: "string", enum: ["steadfast", "pathao", "redx", "paperfly"], description: "Courier provider name" },
+                consignment_id: { type: "string", description: "Consignment ID or tracking code to update" },
+                recipient_phone: { type: "string", description: "Updated 11-digit phone number if customer requested change" },
+                recipient_address: { type: "string", description: "Updated delivery street address or landmark" },
+                cod_amount: { type: "number", description: "Updated Cash On Delivery amount in BDT" },
+                note: { type: "string", description: "Updated rider delivery instructions or reschedule note" },
+            },
+            required: ["courier", "consignment_id"],
+        },
+    },
+    {
         name: "bulk_create_parcels",
         description: "Validate or book up to 100 parcels in a single batch with per-item error isolation, invoice idempotency, and optional dry_run preview mode. STATE-MUTATING ACTION (unless dry_run=true): Returns total, succeeded, failed, and per-item results.",
         inputSchema: {
@@ -298,6 +314,15 @@ export async function executeToolCall(registry, name, args = {}, tenantId = "def
             }
             case "cancel_parcel": {
                 const result = await registry.cancelParcel(args?.courier, String(args?.consignment_id ?? ""), args?.reason ? String(args.reason) : undefined);
+                return { isError: false, envelope: wrapSuccess(result, "live_api") };
+            }
+            case "update_parcel": {
+                const result = await registry.updateParcel(args?.courier, String(args?.consignment_id ?? ""), {
+                    recipient_phone: args?.recipient_phone ? String(args.recipient_phone) : undefined,
+                    recipient_address: args?.recipient_address ? String(args.recipient_address) : undefined,
+                    cod_amount: args?.cod_amount !== undefined ? Number(args.cod_amount) : undefined,
+                    note: args?.note ? String(args.note) : undefined,
+                });
                 return { isError: false, envelope: wrapSuccess(result, "live_api") };
             }
             case "bulk_create_parcels": {

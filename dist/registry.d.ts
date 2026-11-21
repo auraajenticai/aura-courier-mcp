@@ -36,6 +36,15 @@ export declare class CourierRegistry {
     /**
      * Task T8 — cancel_parcel(courier, consignment_id, reason?)
      */
+    /**
+   * Update delivery instructions, recipient phone, address or COD for consignment
+   */
+    updateParcel(courier: SupportedCourier, consignmentId: string, updates: {
+        recipient_phone?: string;
+        recipient_address?: string;
+        cod_amount?: number;
+        note?: string;
+    }): Promise<any>;
     cancelParcel(courier: SupportedCourier, consignmentId: string, reason?: string): Promise<any>;
     /**
      * Task T8 — bulk_create_parcels(items[], dry_run?)

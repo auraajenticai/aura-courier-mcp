@@ -7,7 +7,7 @@ import { CourierRegistry, recordWebhookEvent, setRegistryDbPool } from "./regist
 import { loadConfig } from "./config.js";
 import { buildMcpServer, executeToolCall, TOOLS } from "./server.js";
 import { createRateLimiter } from "./middleware/rate_limit.js";
-import { optionalAuthMiddleware, requireMcpAuth, isActionPermitted, resolveAuthContext, verifyWebhookSignature, recordAuditLog, } from "./middleware/auth.js";
+import { optionalAuthMiddleware, requireMcpAuth, isActionPermitted, resolveAuthContext, verifyWebhookSignature, recordAuditLog, initDynamicAuthStore, upsertDynamicKeyHash, setTenantDynamicKeyStatus, listDynamicKeySummaries, } from "./middleware/auth.js";
 import { McpToolError, wrapError, wrapSuccess, maskPhone } from "./envelope.js";
 import { APP_VERSION } from "./version.js";
 import path from "node:path";
@@ -23,6 +23,7 @@ if (process.env.NODE_ENV !== "test" && dbUrl) {
     try {
         dbPool = new pg.Pool({ connectionString: dbUrl, max: 4, idleTimeoutMillis: 30000 });
         setRegistryDbPool(dbPool);
+        initDynamicAuthStore(dbPool).catch(() => { });
     }
     catch (err) {
         console.warn("[PostgreSQL] Connection initialization skipped:", err?.message);
@@ -83,7 +84,18 @@ function redactAddressToDistrict(addr) {
  */
 export function keysFromRequest(req) {
     const h = req.headers;
-    const allowMasterEnvFallback = req.auraAuth?.tenantId === "master";
+    // Strict Multi-Tenant & BYOK Isolation:
+    // If caller explicitly sends any BYOK courier headers (isByok === true), NEVER fall back to
+    // platform master courier env keys so vendor/merchant BYOK credentials never mix with central keys.
+    const isByokRequest = Boolean(req.auraAuth?.isByok ||
+        h["x-steadfast-api-key"] ||
+        h["x-pathao-client-id"] ||
+        h["x-redx-api-token"] ||
+        h["x-paperfly-api-key"]);
+    const isPublicFraudCheck = req.auraAuth?.tenantId === "public_ro" &&
+        req.body?.method === "tools/call" &&
+        req.body?.params?.name === "check_fraud_risk";
+    const allowMasterEnvFallback = (req.auraAuth?.tenantId === "master" || isPublicFraudCheck) && !isByokRequest;
     const pick = (header, envVar, allowNonMasterEnv = false) => {
         const hv = h[header];
         const v = Array.isArray(hv) ? hv[0] : hv;
@@ -153,6 +165,48 @@ app.get("/favicon.ico", (_req, res) => {
     });
 });
 app.use(optionalAuthMiddleware);
+// Dynamic Tenant API Key Sync & Revocation Routes (Called by Snehalata / Admin Master Key)
+app.get("/admin/tokens", (req, res) => {
+    if (!req.auraAuth?.authenticated || !req.auraAuth?.isAdmin) {
+        return res.status(401).json(wrapError(new McpToolError({ code: "UNAUTHORIZED", message: "Master admin token required." }), "validator"));
+    }
+    return res.json({ ok: true, tokens: listDynamicKeySummaries() });
+});
+app.post("/admin/tokens/register", async (req, res) => {
+    if (!req.auraAuth?.authenticated || !req.auraAuth?.isAdmin) {
+        return res.status(401).json(wrapError(new McpToolError({ code: "UNAUTHORIZED", message: "Master admin token required." }), "validator"));
+    }
+    const b = req.body || {};
+    if ((!b.tokenHash && !b.rawToken) || !b.tenantId) {
+        return res.status(400).json(wrapError(new McpToolError({ code: "INVALID_INPUT", message: "tenantId and tokenHash (or rawToken) required." }), "validator"));
+    }
+    try {
+        const rec = await upsertDynamicKeyHash({
+            tokenHash: b.tokenHash,
+            rawToken: b.rawToken,
+            tenantId: String(b.tenantId),
+            storeName: b.storeName ? String(b.storeName) : undefined,
+            scopes: Array.isArray(b.scopes) ? b.scopes : ["read", "write"],
+            isAdmin: Boolean(b.isAdmin),
+            status: String(b.status || "ACTIVE"),
+        });
+        return res.json({ ok: true, tenantId: rec.tenantId, status: rec.status, hashPrefix: rec.tokenHash.slice(0, 10) });
+    }
+    catch (err) {
+        return res.status(500).json(wrapError(err, "validator"));
+    }
+});
+app.post("/admin/tokens/revoke", async (req, res) => {
+    if (!req.auraAuth?.authenticated || !req.auraAuth?.isAdmin) {
+        return res.status(401).json(wrapError(new McpToolError({ code: "UNAUTHORIZED", message: "Master admin token required." }), "validator"));
+    }
+    const b = req.body || {};
+    if (!b.tenantId) {
+        return res.status(400).json(wrapError(new McpToolError({ code: "INVALID_INPUT", message: "tenantId required." }), "validator"));
+    }
+    const count = await setTenantDynamicKeyStatus(String(b.tenantId), String(b.status || "PAYMENT_DUE"));
+    return res.json({ ok: true, tenantId: b.tenantId, updatedKeys: count, status: b.status || "PAYMENT_DUE" });
+});
 const mcpLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 60, name: "MCP Protocol Gateway" });
 const trackingLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "Tracking Gateway" });
 const sessions = new Map();
@@ -387,6 +441,12 @@ function handleCourierWebhook(provider) {
             }), "validator"));
         }
         const payload = req.body || {};
+        if (provider === "pathao" && String(payload.event || "").toLowerCase() === "webhook_integration") {
+            const secret = process.env.PATHAO_CLIENT_SECRET || process.env.AURA_WEBHOOK_SECRET || "";
+            if (secret)
+                res.setHeader("X-Pathao-Merchant-Webhook-Integration-Secret", secret);
+            return res.status(202).json({ ok: true, status: "webhook_verified" });
+        }
         const consignmentId = payload.consignment_id ||
             payload.merchant_order_id ||
             payload.tracking_code ||
@@ -402,7 +462,8 @@ function handleCourierWebhook(provider) {
         const status = String(payload.status || payload.order_status || payload.event || "received");
         const eventType = String(payload.notification_type || payload.event || "delivery_status");
         const invoice = payload.invoice || payload.merchant_order_id;
-        const tenantId = String(req.query.tenant || req.headers["x-tenant-id"] || "default");
+        const paramMerchantToken = req.params?.merchant_token ? String(req.params.merchant_token).trim() : "";
+        const tenantId = String(paramMerchantToken || req.query.tenant || req.headers["x-tenant-id"] || "default");
         const record = {
             id: randomUUID(),
             courier: provider,
@@ -415,19 +476,32 @@ function handleCourierWebhook(provider) {
         };
         // F06: Record webhook event scoped by tenantId
         recordWebhookEvent(record, tenantId);
+        // Forward verified Pathao financial events best-effort to Snehalata Financial Manager
+        if (provider === "pathao" && process.env.NODE_ENV !== "test" && /deliver|return|paid|settlement|invoice/i.test(`${status} ${eventType}`)) {
+            const fwdUrl = process.env.SNEHALATA_WEBHOOK_URL || "https://www.snehalata.com/api/webhooks/pathao";
+            const sig = String(req.headers["x-pathao-signature"] || process.env.PATHAO_CLIENT_SECRET || "");
+            if (fwdUrl && sig) {
+                fetch(fwdUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "X-Pathao-Signature": sig },
+                    body: JSON.stringify(payload),
+                }).catch(() => { });
+            }
+        }
         return res.status(200).json(wrapSuccess({
             status: "success",
             courier: provider,
+            tenant_scope: tenantId,
             consignment_id: record.consignment_id,
             event_id: record.id,
-            message: `${provider} webhook verified and recorded.`,
+            message: `${provider} webhook verified and recorded for tenant '${tenantId}'.`,
         }, "live_api"));
     };
 }
-app.post("/webhooks/steadfast", handleCourierWebhook("steadfast"));
-app.post("/webhooks/pathao", handleCourierWebhook("pathao"));
-app.post("/webhooks/redx", handleCourierWebhook("redx"));
-app.post("/webhooks/paperfly", handleCourierWebhook("paperfly"));
+app.post(["/webhooks/steadfast", "/webhooks/steadfast/:merchant_token"], handleCourierWebhook("steadfast"));
+app.post(["/webhooks/pathao", "/webhooks/pathao/:merchant_token"], handleCourierWebhook("pathao"));
+app.post(["/webhooks/redx", "/webhooks/redx/:merchant_token"], handleCourierWebhook("redx"));
+app.post(["/webhooks/paperfly", "/webhooks/paperfly/:merchant_token"], handleCourierWebhook("paperfly"));
 /**
  * GET /track/:code - Hardened Public & Authenticated Tracking Gateway
  * F03: PII Masking for unauthenticated callers.

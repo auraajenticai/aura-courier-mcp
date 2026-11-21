@@ -7,6 +7,8 @@ export interface AuraAuthContext {
     isByok: boolean;
     isAdmin: boolean;
     callerToken?: string;
+    deniedReason?: string;
+    httpStatus?: number;
 }
 declare global {
     namespace Express {
@@ -30,6 +32,38 @@ export declare const auditLogBuffer: AuditEntry[];
  */
 export declare function hasByokCredentials(req: Request): boolean;
 export declare function extractBearerToken(req: Request): string | undefined;
+/**
+ * In-memory / env-configured tenant API keys registry.
+ * Maps sha256(token) -> { tenantId, scopes, isAdmin }
+ */
+export interface DynamicKeyRecord {
+    tokenHash: string;
+    tenantId: string;
+    storeName?: string;
+    scopes: AuthScope[];
+    isAdmin: boolean;
+    status: string;
+    updatedAt: string;
+}
+export declare function initDynamicAuthStore(pool: any): Promise<void>;
+export declare function upsertDynamicKeyHash(opts: {
+    tokenHash?: string;
+    rawToken?: string;
+    tenantId: string;
+    storeName?: string;
+    scopes?: AuthScope[];
+    isAdmin?: boolean;
+    status?: string;
+}): Promise<DynamicKeyRecord>;
+export declare function setTenantDynamicKeyStatus(tenantId: string, status: string): Promise<number>;
+export declare function listDynamicKeySummaries(): {
+    hashPrefix: string;
+    tenantId: string;
+    storeName: string;
+    status: string;
+    scopes: AuthScope[];
+    updatedAt: string;
+}[];
 export declare function registerApiKey(token: string, tenantId: string, scopes?: AuthScope[], isAdmin?: boolean): void;
 /**
  * F01 Fix: Cryptographic Token Resolution without prefix bypass.
@@ -39,7 +73,8 @@ export declare function resolveAuthContext(req: Request): AuraAuthContext;
 /**
  * Middleware: Evaluates auth context for all requests
  */
-export declare function optionalAuthMiddleware(req: Request, _res: Response, next: NextFunction): void;
+export declare function resolveAuthContextAsync(req: Request): Promise<AuraAuthContext>;
+export declare function optionalAuthMiddleware(req: Request, _res: Response, next: NextFunction): Promise<void>;
 /**
  * Strict /mcp Authentication & Per-Key Rate Limit Guard
  * Allows unauthenticated discovery handshakes (initialize, notifications/initialized, tools/list, ping, list_couriers)
