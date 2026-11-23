@@ -19,6 +19,7 @@ import {
   setTenantDynamicKeyStatus,
   listDynamicKeySummaries,
 } from "./middleware/auth.js";
+import { registerOAuthRoutes, buildWwwAuthenticateHeader } from "./middleware/oauth.js";
 import { McpToolError, wrapError, wrapSuccess, maskPhone } from "./envelope.js";
 import { SupportedCourier } from "./types.js";
 import { APP_VERSION } from "./version.js";
@@ -149,12 +150,14 @@ export function keysFromRequest(req: Request): EnvSource {
 }
 
 export const app: Express = express();
+app.set("trust proxy", 1);
 app.use(express.json({
   limit: "1mb",
   verify: (req: any, _res, buf) => {
     req.rawBody = buf;
   },
 }));
+app.use(express.urlencoded({ extended: false, limit: "1mb" }));
 
 // Robust Malformed JSON Syntax Error Guard
 app.use((err: any, _req: Request, res: Response, next: any) => {
@@ -184,7 +187,7 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Headers",
     "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-aura-signature, x-steadfast-signature, x-pathao-signature, x-redx-signature, x-paperfly-signature, x-webhook-secret, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url, x-redx-api-token, x-redx-base-url, x-redx-pickup-store-id, x-paperfly-api-key, x-paperfly-username, x-paperfly-password, x-paperfly-store-name, x-google-maps-key"
   );
-  res.header("Access-Control-Expose-Headers", "mcp-session-id");
+  res.header("Access-Control-Expose-Headers", "mcp-session-id, WWW-Authenticate");
   if (req.method === "OPTIONS") {
     return res.sendStatus(204);
   }
@@ -199,6 +202,9 @@ app.get("/favicon.ico", (_req, res) => {
     if (err && !res.headersSent) res.status(204).end();
   });
 });
+
+// Standard MCP OAuth 2.1 + PKCE (S256) + RFC 9728 + RFC 8414 + RFC 7591 Dynamic Client Registration
+registerOAuthRoutes(app);
 
 app.use(optionalAuthMiddleware);
 
@@ -420,6 +426,7 @@ app.get("/mcp", mcpLimiter, async (req: Request, res: Response) => {
       });
     }
     if (!req.auraAuth?.authenticated) {
+      res.setHeader("WWW-Authenticate", buildWwwAuthenticateHeader(req, req.auraAuth?.tenantId === "invalid"));
       return res.status(401).json(
         wrapError(
           new McpToolError({

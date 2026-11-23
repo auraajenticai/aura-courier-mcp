@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "node --test test/v260.test.mjs",
+    "test": "node --test test/v260.test.mjs test/oauth21.test.mjs",
     "prepublishOnly": "npm run test && npm run build",
     "start": "node dist/index.js",
     "start:http": "node dist/http.js",

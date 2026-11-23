@@ -439,7 +439,7 @@ test("11. GET /health unauthenticated returns only { ok, version }; with admin t
   const adminBody = await adminRes.json();
   assert.equal(adminBody.ok, true);
   assert.equal(adminBody.version, expectedVersion);
-  assert.equal(adminBody.tools_count, 12);
+  assert.equal(adminBody.tools_count, 13);
   assert.ok(adminBody.performance);
 });
 
@@ -811,7 +811,7 @@ test("24. Upstream Cancellation: Steadfast cancelParcel handles already-cancelle
   }
 });
 
-test("25. AI Connector: Unauthenticated tools/list discovery succeeds and lists 12 tools", async () => {
+test("25. AI Connector: Unauthenticated tools/list discovery succeeds and lists 13 tools", async () => {
   const res = await fetch(`${baseUrl}/mcp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -821,5 +821,5 @@ test("25. AI Connector: Unauthenticated tools/list discovery succeeds and lists 
   const body = await res.json();
   assert.equal(body.jsonrpc, "2.0");
   assert.ok(Array.isArray(body.result.tools));
-  assert.equal(body.result.tools.length, 12);
+  assert.equal(body.result.tools.length, 13);
 });

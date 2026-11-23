@@ -1,5 +1,6 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { maskPhone, wrapError, McpToolError } from "../envelope.js";
+import { verifyOAuthAccessToken, buildWwwAuthenticateHeader } from "./oauth.js";
 const READ_TOOLS = new Set([
     "list_couriers",
     "track_parcel",
@@ -82,6 +83,8 @@ export async function initDynamicAuthStore(pool) {
     `);
     }
     catch (ddlErr) {
+        // Least-privilege runtime DB roles (e.g. aura_courier_runtime) intentionally lack schema CREATE;
+        // the table is pre-provisioned, so continue cleanly to load rows below.
         if (!/permission denied/i.test(String(ddlErr?.message || ""))) {
             console.warn("[Auth] Dynamic key table DDL skipped:", ddlErr?.message);
         }
@@ -195,6 +198,20 @@ export function resolveAuthContext(req) {
             isByok,
             isAdmin: false,
         };
+    }
+    // 0. Standard MCP OAuth 2.1 JWT Access Token (Google Gemini, ChatGPT, Claude Web)
+    if (token.startsWith("eyJ") && token.split(".").length === 3) {
+        const oauthClaims = verifyOAuthAccessToken(token);
+        if (oauthClaims) {
+            return {
+                authenticated: true,
+                tenantId: oauthClaims.sub,
+                scopes: Array.isArray(oauthClaims.scp) && oauthClaims.scp.length ? oauthClaims.scp : ["read"],
+                isByok,
+                isAdmin: Boolean(oauthClaims.adm),
+                callerToken: token,
+            };
+        }
     }
     // 1. Master / Admin Key (Full Read + Write across all tenants)
     if (safeCompare(token, masterKey) || safeCompare(token, adminKey)) {
@@ -376,20 +393,19 @@ export function requireMcpAuth(req, res, next) {
         })));
         return;
     }
-    // If a caller explicitly passed an invalid / forged token, always reject with 401
+    // If a caller explicitly passed an invalid / expired / forged token, always reject with 401 + RFC 9728 WWW-Authenticate
     if (ctx.tenantId === "invalid") {
+        res.setHeader("WWW-Authenticate", buildWwwAuthenticateHeader(req, true));
         res.status(401).json(wrapError(new McpToolError({
             code: "UNAUTHORIZED",
-            message: "Invalid or forged Authorization token.",
+            message: "Invalid or expired Authorization token.",
             retryable: false,
             source: "validator",
         })));
         return;
     }
-    // Allow unauthenticated discovery handshakes (initialize, notifications/initialized, tools/list, ping)
-    const isDiscovery = method === "initialize" ||
-        method === "notifications/initialized" ||
-        method === "tools/list" ||
+    // Allow stateless public catalog discovery (tools/list, ping) for MCP directories while requiring auth on initialize/tools/call so OAuth 2.1 clients (Gemini, ChatGPT, Claude Web) trigger automatic OAuth discovery via 401 WWW-Authenticate.
+    const isDiscovery = method === "tools/list" ||
         method === "ping";
     if (isDiscovery) {
         return next();
@@ -399,9 +415,10 @@ export function requireMcpAuth(req, res, next) {
         return next();
     }
     if (!ctx.authenticated) {
+        res.setHeader("WWW-Authenticate", buildWwwAuthenticateHeader(req, false));
         res.status(401).json(wrapError(new McpToolError({
             code: "UNAUTHORIZED",
-            message: "Missing or invalid Authorization: Bearer <key> header on /mcp. Please provide your API key or BYOK carrier keys.",
+            message: "Missing or invalid Authorization: Bearer <key> header on /mcp. Authenticate via MCP OAuth 2.1 or provide your API key / BYOK carrier keys.",
             retryable: false,
             source: "validator",
         })));

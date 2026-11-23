@@ -8,6 +8,7 @@ import { loadConfig } from "./config.js";
 import { buildMcpServer, executeToolCall, TOOLS } from "./server.js";
 import { createRateLimiter } from "./middleware/rate_limit.js";
 import { optionalAuthMiddleware, requireMcpAuth, isActionPermitted, resolveAuthContext, verifyWebhookSignature, recordAuditLog, initDynamicAuthStore, upsertDynamicKeyHash, setTenantDynamicKeyStatus, listDynamicKeySummaries, } from "./middleware/auth.js";
+import { registerOAuthRoutes, buildWwwAuthenticateHeader } from "./middleware/oauth.js";
 import { McpToolError, wrapError, wrapSuccess, maskPhone } from "./envelope.js";
 import { APP_VERSION } from "./version.js";
 import path from "node:path";
@@ -127,12 +128,14 @@ export function keysFromRequest(req) {
     };
 }
 export const app = express();
+app.set("trust proxy", 1);
 app.use(express.json({
     limit: "1mb",
     verify: (req, _res, buf) => {
         req.rawBody = buf;
     },
 }));
+app.use(express.urlencoded({ extended: false, limit: "1mb" }));
 // Robust Malformed JSON Syntax Error Guard
 app.use((err, _req, res, next) => {
     if (err && (err.type === "entity.parse.failed" || err.status === 400)) {
@@ -149,7 +152,7 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS, HEAD, PATCH, PUT");
     res.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-aura-signature, x-steadfast-signature, x-pathao-signature, x-redx-signature, x-paperfly-signature, x-webhook-secret, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url, x-redx-api-token, x-redx-base-url, x-redx-pickup-store-id, x-paperfly-api-key, x-paperfly-username, x-paperfly-password, x-paperfly-store-name, x-google-maps-key");
-    res.header("Access-Control-Expose-Headers", "mcp-session-id");
+    res.header("Access-Control-Expose-Headers", "mcp-session-id, WWW-Authenticate");
     if (req.method === "OPTIONS") {
         return res.sendStatus(204);
     }
@@ -164,6 +167,8 @@ app.get("/favicon.ico", (_req, res) => {
             res.status(204).end();
     });
 });
+// Standard MCP OAuth 2.1 + PKCE (S256) + RFC 9728 + RFC 8414 + RFC 7591 Dynamic Client Registration
+registerOAuthRoutes(app);
 app.use(optionalAuthMiddleware);
 // Dynamic Tenant API Key Sync & Revocation Routes (Called by Snehalata / Admin Master Key)
 app.get("/admin/tokens", (req, res) => {
@@ -347,6 +352,7 @@ app.get("/mcp", mcpLimiter, async (req, res) => {
             });
         }
         if (!req.auraAuth?.authenticated) {
+            res.setHeader("WWW-Authenticate", buildWwwAuthenticateHeader(req, req.auraAuth?.tenantId === "invalid"));
             return res.status(401).json(wrapError(new McpToolError({
                 code: "UNAUTHORIZED",
                 message: "Missing or invalid Authorization: Bearer <AURA_API_KEY> header.",
