@@ -80,6 +80,13 @@ export async function initDynamicAuthStore(pool) {
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
     `);
+    }
+    catch (ddlErr) {
+        if (!/permission denied/i.test(String(ddlErr?.message || ""))) {
+            console.warn("[Auth] Dynamic key table DDL skipped:", ddlErr?.message);
+        }
+    }
+    try {
         const res = await pool.query("SELECT token_hash, tenant_id, store_name, scopes, is_admin, status, updated_at FROM aura_mcp_dynamic_keys");
         for (const row of res.rows || []) {
             dynamicKeyHashes.set(row.token_hash, {
@@ -95,7 +102,7 @@ export async function initDynamicAuthStore(pool) {
         console.log(`[Auth] Loaded ${dynamicKeyHashes.size} dynamic MCP key(s) from PostgreSQL.`);
     }
     catch (err) {
-        console.warn("[Auth] Dynamic key table init skipped:", err?.message);
+        console.warn("[Auth] Dynamic key table load skipped:", err?.message);
     }
 }
 export async function upsertDynamicKeyHash(opts) {

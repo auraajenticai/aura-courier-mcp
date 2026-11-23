@@ -326,7 +326,7 @@
   <main>
     <div class="hero-banner">
       <h1 class="hero-title">Streamable-HTTP MCP Protocol Explorer</h1>
-      <p class="hero-desc">Test MCP JSON-RPC 2.0 initialize handshakes, inspect the 9 registered tool schemas, and connect Gemini, Claude, Cursor &amp; n8n agents directly to this remote endpoint.</p>
+      <p class="hero-desc">Test MCP JSON-RPC 2.0 initialize handshakes, inspect all 13 registered tool schemas, and connect Gemini, Claude, Cursor &amp; n8n agents directly to this remote endpoint.</p>
     </div>
 
     <!-- Endpoint Overview -->
@@ -381,7 +381,7 @@
     </div>
 
     <!-- Registered Tools Catalog -->
-    <h2 class="tools-section-title">Registered MCP Tools (9 Tools)</h2>
+    <h2 class="tools-section-title">Registered MCP Tools (13 Tools)</h2>
     <div class="tools-list">
       <div class="tool-box">
         <div class="tool-name">1. list_couriers</div>
@@ -427,6 +427,26 @@
         <div class="tool-name">9. resolve_ndr_issue</div>
         <div class="tool-desc">Non-Delivery Report triage with automated WhatsApp templates and re-dispatch commands.</div>
         <div class="tool-schema">Input: tracking_code, reason · Returns: triage plan &amp; whatsapp text</div>
+      </div>
+      <div class="tool-box">
+        <div class="tool-name">10. cancel_parcel</div>
+        <div class="tool-desc">Cancel booked parcels or dispatch carrier cancellation requests across Steadfast, Pathao, RedX &amp; Paperfly.</div>
+        <div class="tool-schema">Input: courier, consignment_id, reason? · Returns: cancellation status</div>
+      </div>
+      <div class="tool-box">
+        <div class="tool-name">11. update_parcel</div>
+        <div class="tool-desc">Update in-transit parcel delivery instructions, recipient phone, landmark address, or COD amount.</div>
+        <div class="tool-schema">Input: courier, consignment_id, note?, phone?, cod_amount? · Returns: update result</div>
+      </div>
+      <div class="tool-box">
+        <div class="tool-name">12. bulk_create_parcels</div>
+        <div class="tool-desc">Validate or book up to 100 parcels in a single batch call with isolated error handling and dry-run support.</div>
+        <div class="tool-schema">Input: items[], dry_run? · Returns: per-item booking summary</div>
+      </div>
+      <div class="tool-box">
+        <div class="tool-name">13. get_webhook_events</div>
+        <div class="tool-desc">Retrieve recent real-time carrier webhook events (Pathao, Steadfast, RedX, Paperfly) for parcel status sync.</div>
+        <div class="tool-schema">Input: courier?, limit? · Returns: recent normalized webhook events</div>
       </div>
     </div>
   </main>

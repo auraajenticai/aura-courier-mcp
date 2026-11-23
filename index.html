@@ -90,19 +90,20 @@
       border-bottom: 1px solid var(--border);
     }
     .hbar {
-      max-width: 1200px;
+      max-width: 1260px;
       margin: 0 auto;
-      padding: 12px 20px;
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
     }
     .logo-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
+      flex-shrink: 0;
     }
     .logo-img {
       width: 40px;
@@ -145,18 +146,21 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 10px;
+      min-width: 0;
+      flex-shrink: 1;
     }
     .nav-item {
       color: var(--text-muted);
       white-space: nowrap;
       text-decoration: none;
-      font-size: 13.5px;
+      font-size: 12.5px;
       font-weight: 600;
       transition: color 0.18s;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
+      flex-shrink: 0;
     }
     .nav-item:hover { color: #fff; }
     .nav-item.active {
@@ -808,6 +812,14 @@
     .dock-item svg { width: 19px; height: 19px; }
 
     /* ===== Responsive Breakpoints ===== */
+    @media (max-width: 1220px) {
+      .logo-sub { display: none; }
+      .nav-links { gap: 8px; }
+      .nav-item { font-size: 12px; }
+      .health-pill { padding: 4px 8px; font-size: 11px; }
+      .login-btn { padding: 5px 10px; font-size: 12px; }
+    }
+
     @media (max-width: 960px) {
       .hero { grid-template-columns: 1fr; gap: 32px; }
       .hero-title { font-size: 34px; }
@@ -1327,7 +1339,7 @@
           </svg>
         </div>
         <div>
-          <div class="stat-val">12</div>
+          <div class="stat-val">13</div>
           <div class="stat-label" data-i18n="stat_tools">MCP Tools (JSON-RPC)</div>
         </div>
       </div>
@@ -1534,7 +1546,7 @@
       </div>
     </section>
 
-    <!-- ===== All 12 MCP Tools Section ===== -->
+    <!-- ===== All 13 MCP Tools Section ===== -->
     <section id="tools" style="margin-bottom: 48px;">
       <div class="section-header">
         <div class="section-tag" style="display:inline-flex; align-items:center; gap:6px;">
@@ -1545,8 +1557,8 @@
     </svg>
     <span data-i18n="tools_tag">Core Protocol</span>
   </div>
-        <h2 class="section-title" data-i18n="tools_title">All 12 MCP Tools</h2>
-        <p class="section-subtitle" data-i18n="tools_subtitle">Aura Courier MCP-এ থাকা ১২টি শক্তিশালী টুল, যেগুলো সরাসরি আপনার AI এজেন্ট বা অটোমেশন ফ্লোতে কাজ করে।</p>
+        <h2 class="section-title" data-i18n="tools_title">All 13 MCP Tools</h2>
+        <p class="section-subtitle" data-i18n="tools_subtitle">Aura Courier MCP-এ থাকা ১৩টি শক্তিশালী টুল, যেগুলো সরাসরি আপনার AI এজেন্ট বা অটোমেশন ফ্লোতে কাজ করে।</p>
       </div>
 
       <div class="tools-grid">
@@ -1759,6 +1771,24 @@
             </div>
             <div class="tool-name">bulk_create_parcels</div>
             <div class="tool-desc" data-i18n="t12_desc">এক ক্লিকে ১০০টি পর্যন্ত পার্সেল ব্যাচ বুকিং বা ভ্যালিডেশন করুন উইথ আইসোলেটেড এরর হ্যান্ডলিং।</div>
+          </div>
+        </div>
+
+        <!-- Tool 13: get_webhook_events -->
+        <div class="tool-card">
+          <div>
+            <div class="tool-card-top">
+              <div class="tool-icon-wrap ic-purple" style="background:rgba(139,92,246,0.15); border-color:rgba(139,92,246,0.35);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2"/>
+                  <path d="m6 17 3.13-5.78c.53-.97.1-2.18-.5-3.1a4 4 0 1 1 6.89-4.06"/>
+                  <path d="m12 6 3.13 5.73C15.66 12.7 16.9 13 18 13a4 4 0 0 1 0 8"/>
+                </svg>
+              </div>
+              <button class="btn-schema" onclick="openSchemaModal('get_webhook_events')">Schema &amp; JSON ↗</button>
+            </div>
+            <div class="tool-name">get_webhook_events</div>
+            <div class="tool-desc" data-i18n="t13_desc">Pathao, Steadfast, RedX ও Paperfly-এর রিয়েল-টাইম ডেলিভারি ওয়েবহুক ইভেন্ট লগ লাইভ দেখুন।</div>
           </div>
         </div></div>
       </div>
@@ -2188,8 +2218,8 @@
         btn_check_risk: "Check Risk →",
         fraud_desc_safe: "New customer - Safe to proceed · Zero Mock Data",
         tools_tag: "Core Protocol",
-        tools_title: "All 12 MCP Tools",
-        tools_subtitle: "Aura Courier MCP-এ থাকা ১২টি শক্তিশালী টুল, যেগুলো সরাসরি আপনার AI এজেন্ট বা অটোমেশন ফ্লোতে কাজ করে।",
+        tools_title: "All 13 MCP Tools",
+        tools_subtitle: "Aura Courier MCP-এ থাকা ১৩টি শক্তিশালী টুল, যেগুলো সরাসরি আপনার AI এজেন্ট বা অটোমেশন ফ্লোতে কাজ করে।",
         t1_desc: "নতুন পার্সেল বা ডেলিভারি অর্ডার তৈরি করুন (Steadfast, Pathao, RedX, Paperfly-তে ১-ক্লিকে)।",
         t2_desc: "পার্সেল ট্র্যাকিং স্ট্যাটাস ও লাইভ ডেলিভারি টাইমলাইন এক ক্লিকে ট্র্যাক করুন।",
         t3_desc: "সব কুরিয়ার মার্চেন্ট একাউন্টের লাইভ ব্যালেন্স, পেন্ডিং ডিসবার্সমেন্ট ও পেআউট জানুন।",
@@ -2210,6 +2240,7 @@
         t10_desc: "যেকোনো কুরিয়ারে বুক করা পার্সেল ক্যানসেলেশন রিকোয়েস্ট পাঠান বা স্বয়ংক্রিয় বাতিল করুন।",
         t11_desc: "ইন-ট্রানজিট পার্সেলের ডেলিভারি নোট, গ্রাহকের ফোন নম্বর বা সিওডি টাকার পরিমাণ আপডেট করুন।",
         t12_desc: "এক ক্লিকে ১০০টি পর্যন্ত পার্সেল ব্যাচ বুকিং বা ভ্যালিডেশন করুন উইথ আইসোলেটেড এরর হ্যান্ডলিং।",
+        t13_desc: "Pathao, Steadfast, RedX ও Paperfly-এর রিয়েল-টাইম ডেলিভারি ওয়েবহুক ইভেন্ট লগ লাইভ দেখুন।",
         spatial_tag: "Spatial Engine",
         spatial_title: "Google Maps Spatial AI Routing",
         spatial_subtitle: "গুগল ম্যাপের উপর ভিত্তি করে রুট অপটিমাইজেশন, জোন ডিটেকশন ও রিয়েল-টাইম দূরত্ব পরিমাপ।",
@@ -2256,8 +2287,8 @@
         btn_check_risk: "Check Risk →",
         fraud_desc_safe: "New customer - Safe to proceed · Zero Mock Data",
         tools_tag: "Core Protocol",
-        tools_title: "All 12 MCP Tools",
-        tools_subtitle: "Production-grade tools available inside Aura Courier MCP for seamless agentic workflows.",
+        tools_title: "All 13 MCP Tools",
+        tools_subtitle: "13 production-grade tools available inside Aura Courier MCP for seamless agentic workflows.",
         t1_desc: "Automated booking across Steadfast, Pathao, RedX, and Paperfly with 1-click fallback.",
         t2_desc: "Unified parcel tracking timeline and carrier status across all Bangladesh logistics.",
         t3_desc: "Live COD balance, pending disbursement and payout tracking across all accounts.",
@@ -2278,6 +2309,7 @@
         t10_desc: "Cancel live booked parcels across Steadfast, Pathao, RedX, or Paperfly via API or portal action.",
         t11_desc: "Update in-transit parcel delivery instructions, customer phone, address, or COD amount.",
         t12_desc: "Validate or dispatch batches of up to 100 parcels in a single call with isolated error handling.",
+        t13_desc: "Inspect recent real-time carrier webhook events (Pathao, Steadfast, RedX, Paperfly) for parcel status sync.",
         spatial_tag: "Spatial Engine",
         spatial_title: "Google Maps Spatial AI Routing",
         spatial_subtitle: "Rooftop geocoding, route optimization, zone detection, and real-time distance matrix.",
@@ -2770,6 +2802,33 @@
               "cod_amount": 2400
             }
           ]
+        }
+      }
+    }
+  },
+  "get_webhook_events": {
+    "desc": "Retrieve recent real-time carrier webhook events received from Pathao, Steadfast, RedX, and Paperfly.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "courier": {
+          "type": "string",
+          "enum": ["steadfast", "pathao", "redx", "paperfly"],
+          "description": "Optional carrier filter"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Maximum number of recent webhook events to return (default 20)"
+        }
+      }
+    },
+    "sample": {
+      "method": "tools/call",
+      "params": {
+        "name": "get_webhook_events",
+        "arguments": {
+          "courier": "pathao",
+          "limit": 10
         }
       }
     }
