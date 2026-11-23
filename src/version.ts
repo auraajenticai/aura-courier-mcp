@@ -11,7 +11,7 @@ function readPackageVersion(): string {
   } catch {
     // Fallback if package.json is unavailable at runtime
   }
-  return "2.6.1";
+  return "2.7.0";
 }
 
 export const APP_VERSION: string = readPackageVersion();

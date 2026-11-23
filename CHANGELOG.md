@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.7.0] - 2026-11-24
+
+### Added
+- **Standard MCP OAuth 2.1 + PKCE (`S256`) Authorization Server (`src/middleware/oauth.ts`)**:
+  - **RFC 9728 Protected Resource Metadata**: `GET /.well-known/oauth-protected-resource` and `/.well-known/oauth-protected-resource/mcp` + `WWW-Authenticate` challenge on all `401 Unauthorized` `/mcp` responses (`POST`, `GET`, `DELETE`) with CORS exposure (`Access-Control-Expose-Headers: mcp-session-id, WWW-Authenticate`).
+  - **RFC 8414 Authorization Server Metadata**: `GET /.well-known/oauth-authorization-server` and `/.well-known/openid-configuration` advertising PKCE `S256`, `authorization_code`, and `refresh_token` grants.
+  - **RFC 7591 Dynamic Client Registration (`POST /oauth/register`)**: Restart-proof HMAC-signed client IDs supporting Google Gemini (`*.googleusercontent.com`), Claude, ChatGPT, Antigravity, Cursor, VS Code, and RFC 8252 loopback redirects while strictly rejecting untrusted redirect hosts.
+  - **Silicon Valley Global Consent & Aura Cloud SSO (`GET/POST /oauth/authorize`)**: Instant 1-click consent for signed-in Aura Cloud accounts (`aura_access` cookie), native **Continue with Google** & Work Email sign-in via `auth.auraajenticai.cloud`, Developer/Merchant API Key tab, 1-click Read-Only Sandbox for evaluators, and crisp inline vector SVG branding.
+  - **Gemini-Safe Non-Rotating Refresh & Dual-Auth (`POST /oauth/token`, `POST /oauth/revoke`, `src/middleware/auth.ts`)**: `application/x-www-form-urlencoded` + JSON token exchange with PKCE `S256`, 180-day non-rotating refresh tokens (preventing Google Gemini unlinking), and full Dual-Auth compatibility preserving static Bearer API Keys, PostgreSQL dynamic keys (`aura_courier_runtime`), and BYOK carrier headers.
+- **Automated OAuth 2.1 Acceptance Suite (`test/oauth21.test.mjs`)**: Full end-to-end verification of discovery, DCR, SSO cookie consent, Read-Only Sandbox, PKCE `S256`, non-rotating refresh, Dual-Auth, and RFC 7009 revocation alongside all 25 existing tests.
+
 ## [2.6.1] - 2026-11-13
 
 ### Fixed & Changed

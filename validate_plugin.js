@@ -112,10 +112,24 @@ async function validateSkillsAndRules() {
 }
 
 async function validateRemoteMcpServer() {
-  console.log('\n--- 5. Validating Live Remote MCP Handshake & Tools ---');
-  const endpoint = 'https://courier.auraajenticai.cloud/mcp';
+  console.log('\n--- 5. Validating Live Remote MCP OAuth 2.1 Discovery, Handshake & 13 Tools ---');
+  const baseOrigin = 'https://courier.auraajenticai.cloud';
+  const endpoint = `${baseOrigin}/mcp`;
+  const authToken = process.env.AURA_API_KEY || 'aura_ro_public_inspector_2026';
   try {
-    const initRes = await fetch(endpoint, {
+    // 5a. RFC 9728 Protected Resource Metadata & RFC 8414 Authorization Server Metadata
+    const prmRes = await fetch(`${baseOrigin}/.well-known/oauth-protected-resource`);
+    assert(prmRes.status === 200, `RFC 9728 /.well-known/oauth-protected-resource returned HTTP 200 (got ${prmRes.status})`);
+    const prmData = await prmRes.json();
+    assert(prmData.resource === endpoint, `protected resource matches ${endpoint}`);
+
+    const asmRes = await fetch(`${baseOrigin}/.well-known/oauth-authorization-server`);
+    assert(asmRes.status === 200, `RFC 8414 /.well-known/oauth-authorization-server returned HTTP 200 (got ${asmRes.status})`);
+    const asmData = await asmRes.json();
+    assert(Array.isArray(asmData.code_challenge_methods_supported) && asmData.code_challenge_methods_supported.includes('S256'), 'OAuth 2.1 PKCE S256 advertised');
+
+    // 5b. Unauthenticated initialize returns 401 + WWW-Authenticate challenge
+    const unauthRes = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -123,17 +137,40 @@ async function validateRemoteMcpServer() {
       },
       body: JSON.stringify({
         jsonrpc: '2.0',
+        id: 0,
+        method: 'initialize',
+        params: {
+          protocolVersion: '2025-03-26',
+          capabilities: {},
+          clientInfo: { name: 'antigravity-validator', version: PKG_VERSION }
+        }
+      })
+    });
+    assert(unauthRes.status === 401, `unauthenticated initialize returns HTTP 401 OAuth challenge (got ${unauthRes.status})`);
+    const wwwAuth = unauthRes.headers.get('www-authenticate') || '';
+    assert(wwwAuth.includes('resource_metadata='), '401 includes RFC 9728 WWW-Authenticate resource_metadata header');
+
+    // 5c. Authenticated initialize handshake + 13 live tools
+    const initRes = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/event-stream',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
         id: 1,
         method: 'initialize',
         params: {
-          protocolVersion: '2024-11-05',
+          protocolVersion: '2025-03-26',
           capabilities: {},
           clientInfo: { name: 'antigravity-validator', version: PKG_VERSION }
         }
       })
     });
 
-    assert(initRes.status === 200, `initialize endpoint returned HTTP 200 (got ${initRes.status})`);
+    assert(initRes.status === 200, `authenticated initialize endpoint returned HTTP 200 (got ${initRes.status})`);
     const sessionId = initRes.headers.get('mcp-session-id');
     assert(!!sessionId, `mcp-session-id header received: ${sessionId}`);
 
@@ -145,6 +182,7 @@ async function validateRemoteMcpServer() {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json, text/event-stream',
+        'Authorization': `Bearer ${authToken}`,
         'mcp-session-id': sessionId
       },
       body: JSON.stringify({
@@ -158,7 +196,7 @@ async function validateRemoteMcpServer() {
     assert(toolsRes.status === 200, `tools/list returned HTTP 200`);
     const toolsData = await toolsRes.json();
     const liveTools = toolsData.result?.tools || [];
-    assert(liveTools.length === 9, `exactly 9 tools returned by remote server (got ${liveTools.length})`);
+    assert(liveTools.length === 13, `exactly 13 tools returned by remote server (got ${liveTools.length})`);
 
     const liveToolNames = liveTools.map(t => t.name);
     console.log(`  Live tools on server: [ ${liveToolNames.join(', ')} ]`);

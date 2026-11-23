@@ -5,6 +5,9 @@ const REFRESH_TOKEN_TTL_SEC = 180 * 24 * 3600; // 180 days (non-rotating for Gem
 const AUTH_CODE_TTL_SEC = 300; // 5 minutes
 const CSRF_TTL_SEC = 900; // 15 minutes
 const VALID_SCOPES = ["read", "write"];
+const AURA_AUTH_BASE = (process.env.AURA_AUTH_URL || "https://auth.auraajenticai.cloud").replace(/\/+$/, "");
+// Official inline vector SVG brand mark (from assets/logo.svg — instant render, zero broken-image risk)
+const INLINE_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="44" height="44" role="img" aria-label="Aura Courier MCP"><defs><linearGradient id="ac-bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#04143e"/><stop offset=".6" stop-color="#0456cc"/><stop offset="1" stop-color="#03bb85"/></linearGradient><linearGradient id="ac-box" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#09bdfc"/><stop offset="1" stop-color="#0451de"/></linearGradient><linearGradient id="ac-spd" x1="0" x2="1"><stop stop-color="#34ee60"/><stop offset="1" stop-color="#04cbe8"/></linearGradient></defs><rect x="16" y="16" width="992" height="992" rx="215" fill="url(#ac-bg)"/><g transform="translate(95 155)"><path d="M35 230h265M90 300h205M65 370h230" fill="none" stroke="url(#ac-spd)" stroke-width="36" stroke-linecap="round"/><path d="m300 220 225-115 236 111-227 118Z" fill="#139cff"/><path d="M300 220v266l234 132V334Z" fill="url(#ac-box)"/><path d="M534 334v284l227-130V216Z" fill="#0750ce"/><path d="m393 174 234 119v137l40-23V270L436 152Z" fill="#fff"/><path d="M265 570c160 122 411 83 532-125" fill="none" stroke="url(#ac-spd)" stroke-width="39" stroke-linecap="round"/></g></svg>`;
 // In-memory replay & revocation guards (with periodic TTL pruning)
 const usedAuthCodes = new Map(); // jti -> expiresAtMs
 const revokedTokenIds = new Map(); // jti -> expiresAtMs
@@ -36,6 +39,109 @@ function safeEqualStr(a, b) {
     if (ba.length !== bb.length)
         return false;
     return timingSafeEqual(ba, bb);
+}
+function parseCookie(req, name) {
+    const raw = req.headers.cookie || "";
+    if (!raw)
+        return null;
+    const parts = raw.split(";");
+    for (const part of parts) {
+        const eq = part.indexOf("=");
+        if (eq <= 0)
+            continue;
+        const k = part.slice(0, eq).trim();
+        if (k === name) {
+            const v = part.slice(eq + 1).trim();
+            try {
+                return decodeURIComponent(v);
+            }
+            catch {
+                return v;
+            }
+        }
+    }
+    return null;
+}
+/**
+ * Verifies the shared `.auraajenticai.cloud` SSO cookie (`aura_access`) signed with HS256 by `auth.auraajenticai.cloud`.
+ * Enables zero-friction 1-click consent for signed-in Aura Cloud users (just like GitHub, Vercel, Linear, Notion).
+ */
+function verifyAuraSsoCookie(req) {
+    const secret = process.env.AURA_SSO_JWT_SECRET || process.env.JWT_SECRET || "";
+    if (!secret)
+        return null;
+    const token = parseCookie(req, "aura_access");
+    if (!token)
+        return null;
+    const parts = token.split(".");
+    if (parts.length !== 3)
+        return null;
+    const [headerB64, bodyB64, sigB64] = parts;
+    try {
+        const header = JSON.parse(Buffer.from(headerB64, "base64url").toString("utf8"));
+        if (header?.alg !== "HS256")
+            return null;
+        const expectedSig = createHmac("sha256", Buffer.from(secret, "utf8"))
+            .update(`${headerB64}.${bodyB64}`)
+            .digest("base64url");
+        if (!safeEqualStr(sigB64, expectedSig))
+            return null;
+        const payload = JSON.parse(Buffer.from(bodyB64, "base64url").toString("utf8"));
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (typeof payload?.exp === "number" && payload.exp <= nowSec)
+            return null;
+        if (typeof payload?.sub !== "string" || typeof payload?.email !== "string")
+            return null;
+        const role = String(payload.role || "client").toLowerCase();
+        const normalizedRole = role === "owner" || role === "admin" || role === "team_member" ? role : "client";
+        return {
+            sub: payload.sub,
+            email: payload.email.toLowerCase().trim(),
+            role: normalizedRole,
+        };
+    }
+    catch {
+        return null;
+    }
+}
+function mapSsoUserToAuth(user) {
+    const isOwnerOrAdmin = user.role === "owner" || user.role === "admin";
+    if (isOwnerOrAdmin) {
+        return { tenantId: "master", isAdmin: true, scopes: ["read", "write"] };
+    }
+    return { tenantId: `aura_${user.sub}`, isAdmin: false, scopes: ["read", "write"] };
+}
+async function authenticateWithAuraPassword(email, password) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 5000);
+    try {
+        const resp = await fetch(`${AURA_AUTH_BASE}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+            signal: ctrl.signal,
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data?.user?.id || !data?.user?.email) {
+            return { ok: false, error: data?.error || "Invalid email or password." };
+        }
+        const role = String(data.user.role || "client").toLowerCase();
+        const normalizedRole = role === "owner" || role === "admin" || role === "team_member" ? role : "client";
+        return {
+            ok: true,
+            user: {
+                sub: String(data.user.id),
+                email: String(data.user.email).toLowerCase().trim(),
+                role: normalizedRole,
+            },
+        };
+    }
+    catch {
+        return { ok: false, error: "Aura Sign-In service is temporarily unreachable. Please try Google Sign-In or an API key." };
+    }
+    finally {
+        clearTimeout(timer);
+    }
 }
 function signJwt(payload, purpose) {
     const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
@@ -122,7 +228,6 @@ export function isAllowedRedirectUri(uri) {
         return false;
     const proto = parsed.protocol.toLowerCase();
     const host = parsed.hostname.toLowerCase();
-    // Desktop IDE & native MCP app custom URI schemes
     if (proto === "cursor:" ||
         proto === "vscode:" ||
         proto === "vscode-insiders:" ||
@@ -132,7 +237,6 @@ export function isAllowedRedirectUri(uri) {
         proto === "cline:") {
         return true;
     }
-    // RFC 8252 loopback redirect URIs for local CLIs & MCP Inspector
     if ((proto === "http:" || proto === "https:") &&
         (host === "localhost" || host === "127.0.0.1" || host === "[::1]")) {
         return true;
@@ -140,22 +244,17 @@ export function isAllowedRedirectUri(uri) {
     if (proto !== "https:")
         return false;
     const trustedHostPatterns = [
-        // Google / Gemini / AI Studio / Antigravity
         /^(?:.+\.)?googleusercontent\.com$/,
         /^(?:.+\.)?google\.com$/,
         /^(?:.+\.)?googleapis\.com$/,
         /^(?:.+\.)?google\.dev$/,
         /^(?:.+\.)?antigravity\.google$/,
-        // Claude / Anthropic
         /^(?:.+\.)?claude\.ai$/,
         /^(?:.+\.)?anthropic\.com$/,
-        // OpenAI / ChatGPT
         /^(?:.+\.)?chatgpt\.com$/,
         /^(?:.+\.)?openai\.com$/,
-        // Aura & Snehalata Ecosystem
         /^(?:.+\.)?auraajenticai\.cloud$/,
         /^(?:.+\.)?snehalata\.com$/,
-        // MCP Directories & API Clients
         /^(?:.+\.)?glama\.ai$/,
         /^(?:.+\.)?smithery\.ai$/,
         /^(?:.+\.)?modelcontextprotocol\.io$/,
@@ -284,251 +383,35 @@ function extractClientCredentials(req) {
             }
         }
         catch {
-            // Ignore malformed Basic header; fall back to body params
+            // Ignore malformed Basic header
         }
     }
     return { clientId, clientSecret };
 }
+function buildAuthorizeReturnUrl(opts) {
+    const u = new URL(`${opts.origin}/oauth/authorize`);
+    u.searchParams.set("response_type", "code");
+    u.searchParams.set("client_id", opts.clientId);
+    u.searchParams.set("redirect_uri", opts.redirectUri);
+    if (opts.state)
+        u.searchParams.set("state", opts.state);
+    if (opts.scope)
+        u.searchParams.set("scope", opts.scope);
+    u.searchParams.set("code_challenge", opts.codeChallenge);
+    u.searchParams.set("code_challenge_method", opts.codeChallengeMethod || "S256");
+    if (opts.resource)
+        u.searchParams.set("resource", opts.resource);
+    return u.toString();
+}
 function renderConsentPage(opts) {
-    const scopes = opts.scope
-        ? opts.scope.split(/[\s,]+/).filter(Boolean)
-        : ["read", "write"];
+    const scopes = opts.scope ? opts.scope.split(/[\s,]+/).filter(Boolean) : ["read", "write"];
     const hasWrite = scopes.some((s) => s.toLowerCase().includes("write"));
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Authorize ${escapeHtml(opts.clientName)} — Aura Courier MCP</title>
-  <link rel="icon" type="image/jpeg" href="/assets/courier-logo.jpg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg: #060913;
-      --card: rgba(13, 20, 38, 0.92);
-      --border: rgba(56, 189, 248, 0.22);
-      --cyan: #06b6d4;
-      --emerald: #10b981;
-      --rose: #f43f5e;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --dim: #64748b;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background:
-        radial-gradient(900px 540px at 50% -10%, rgba(6, 182, 212, 0.16), transparent 60%),
-        radial-gradient(700px 440px at 85% 90%, rgba(16, 185, 129, 0.10), transparent 55%),
-        var(--bg);
-      color: var(--text);
-      font-family: 'Inter', 'Hind Siliguri', -apple-system, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .card {
-      width: 100%;
-      max-width: 470px;
-      background: var(--card);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 28px;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 20px;
-    }
-    .brand img {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(6, 182, 212, 0.45);
-      object-fit: cover;
-    }
-    .brand h1 { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
-    .brand p { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .client-pill {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      background: rgba(6, 182, 212, 0.08);
-      border: 1px solid rgba(6, 182, 212, 0.25);
-      border-radius: 14px;
-      padding: 12px 14px;
-      margin-bottom: 18px;
-    }
-    .client-name { font-size: 14px; font-weight: 700; color: #fff; }
-    .client-host {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--cyan);
-      margin-top: 2px;
-      word-break: break-all;
-    }
-    .oauth-badge {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--emerald);
-      background: rgba(16, 185, 129, 0.14);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      padding: 4px 8px;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-    .perms {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 14px;
-      padding: 13px 15px;
-      margin-bottom: 18px;
-    }
-    .perms-title {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-    .perms ul { list-style: none; display: grid; gap: 7px; font-size: 12.5px; color: #cbd5e1; }
-    .perms li { display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--emerald);
-      margin-top: 5px;
-      flex-shrink: 0;
-    }
-    .err {
-      background: rgba(244, 63, 94, 0.12);
-      border: 1px solid rgba(244, 63, 94, 0.4);
-      color: #fda4af;
-      border-radius: 12px;
-      padding: 11px 13px;
-      font-size: 12.5px;
-      margin-bottom: 16px;
-      line-height: 1.45;
-    }
-    label {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: #e2e8f0;
-      margin-bottom: 7px;
-    }
-    .input-wrap { position: relative; margin-bottom: 8px; }
-    input[type="password"], input[type="text"] {
-      width: 100%;
-      background: rgba(2, 6, 17, 0.85);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      border-radius: 12px;
-      padding: 12px 44px 12px 14px;
-      color: #fff;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15); }
-    .toggle-btn {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 4px 6px;
-    }
-    .hint {
-      font-size: 11.5px;
-      color: var(--muted);
-      line-height: 1.45;
-      margin-bottom: 20px;
-    }
-    .hint code {
-      color: var(--cyan);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-    }
-    .actions { display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px; }
-    .btn {
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 13.5px;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      transition: transform 0.1s, opacity 0.15s;
-    }
-    .btn:active { transform: scale(0.99); }
-    .btn-deny {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      color: #cbd5e1;
-    }
-    .btn-deny:hover { background: rgba(255, 255, 255, 0.1); }
-    .btn-allow {
-      background: linear-gradient(135deg, #06b6d4, #10b981);
-      color: #041019;
-      font-weight: 800;
-    }
-    .btn-allow:hover { opacity: 0.94; }
-    .foot {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 11px;
-      color: var(--dim);
-    }
-    .foot a { color: var(--cyan); text-decoration: none; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="brand">
-      <img src="/assets/courier-logo.jpg" alt="Aura Courier MCP" />
-      <div>
-        <h1>Aura Courier MCP</h1>
-        <p>OAuth 2.1 + PKCE Merchant Authorization</p>
-      </div>
-    </div>
-
-    <div class="client-pill">
-      <div>
-        <div class="client-name">${escapeHtml(opts.clientName)}</div>
-        <div class="client-host">Redirect: ${escapeHtml(opts.redirectHost)}</div>
-      </div>
-      <span class="oauth-badge">PKCE S256</span>
-    </div>
-
-    <div class="perms">
-      <div class="perms-title">Requested Permissions</div>
-      <ul>
-        <li><span class="dot"></span><span><strong>Read:</strong> Track parcels, check COD balance, verify fraud risk, geocode addresses &amp; compare courier rates.</span></li>
-        ${hasWrite ? `<li><span class="dot"></span><span><strong>Write:</strong> Book, update, or cancel parcels across Steadfast, Pathao, RedX &amp; Paperfly (according to your key scope).</span></li>` : ""}
-      </ul>
-    </div>
-
-    ${opts.errorMessage ? `<div class="err">${escapeHtml(opts.errorMessage)}</div>` : ""}
-
-    <form method="POST" action="/oauth/authorize" autocomplete="off">
+    const returnUrl = buildAuthorizeReturnUrl(opts);
+    const googleSignInUrl = `${AURA_AUTH_BASE}/login/google?next=${encodeURIComponent(returnUrl)}`;
+    const auraLoginUrl = `${AURA_AUTH_BASE}/login?next=${encodeURIComponent(returnUrl)}`;
+    const auraRegisterUrl = `${AURA_AUTH_BASE}/register?next=${encodeURIComponent(returnUrl)}`;
+    const tab = opts.activeTab === "apikey" ? "apikey" : "account";
+    const hiddenFields = `
       <input type="hidden" name="client_id" value="${escapeHtml(opts.clientId)}" />
       <input type="hidden" name="redirect_uri" value="${escapeHtml(opts.redirectUri)}" />
       <input type="hidden" name="state" value="${escapeHtml(opts.state)}" />
@@ -536,27 +419,439 @@ function renderConsentPage(opts) {
       <input type="hidden" name="code_challenge" value="${escapeHtml(opts.codeChallenge)}" />
       <input type="hidden" name="code_challenge_method" value="${escapeHtml(opts.codeChallengeMethod)}" />
       <input type="hidden" name="resource" value="${escapeHtml(opts.resource)}" />
-      <input type="hidden" name="csrf_token" value="${escapeHtml(opts.csrfToken)}" />
-
-      <label for="api_key">Aura API Key / Merchant MCP Key</label>
-      <div class="input-wrap">
-        <input id="api_key" name="api_key" type="password" placeholder="aura_live_... or snl_mcp_..." autofocus />
-        <button type="button" class="toggle-btn" onclick="var i=document.getElementById('api_key');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'Show':'Hide';">Show</button>
+      <input type="hidden" name="csrf_token" value="${escapeHtml(opts.csrfToken)}" />`;
+    const roleLabel = opts.ssoUser
+        ? opts.ssoUser.role === "owner" || opts.ssoUser.role === "admin"
+            ? "Workspace Owner"
+            : "Aura Merchant"
+        : "";
+    const authSectionHtml = opts.ssoUser
+        ? `
+    <div class="sso-identity">
+      <div class="avatar">${escapeHtml(opts.ssoUser.email.charAt(0).toUpperCase())}</div>
+      <div class="id-meta">
+        <div class="id-email" title="${escapeHtml(opts.ssoUser.email)}">${escapeHtml(opts.ssoUser.email)}</div>
+        <div class="id-sub"><span class="role-chip">${escapeHtml(roleLabel)}</span> · <a href="${escapeHtml(auraLoginUrl)}">Switch account</a></div>
       </div>
-      <div class="hint">
-        আপনার <strong>Aura Master Key</strong>, <strong>Tenant API Key</strong>, অথবা <strong>Snehalata <code>snl_mcp_...</code></strong> কী দিন। Read-only টেস্টের জন্য: <code>aura_ro_public_inspector_2026</code>
-      </div>
+    </div>
 
+    <form method="POST" action="/oauth/authorize" autocomplete="off">
+      ${hiddenFields}
+      <input type="hidden" name="auth_mode" value="sso" />
       <div class="actions">
-        <button type="submit" name="decision" value="deny" class="btn btn-deny" formnovalidate>Cancel</button>
-        <button type="submit" name="decision" value="approve" class="btn btn-allow">Authorize &amp; Connect</button>
+        <button type="submit" name="decision" value="deny" class="btn btn-secondary" formnovalidate>Cancel</button>
+        <button type="submit" name="decision" value="approve" class="btn btn-primary">Allow Access</button>
+      </div>
+    </form>`
+        : `
+    <a href="${escapeHtml(googleSignInUrl)}" class="btn-google">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82z"/>
+        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.94-2.91l-3.88-3c-1.08.72-2.45 1.15-4.06 1.15-3.12 0-5.77-2.11-6.71-4.94H1.28v3.1A12 12 0 0 0 12 24z"/>
+        <path fill="#FBBC05" d="M5.29 14.3a7.2 7.2 0 0 1 0-4.6v-3.1H1.28a12 12 0 0 0 0 10.8z"/>
+        <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.6 4.58 1.79l3.44-3.44C17.94 1.19 15.24 0 12 0A12 12 0 0 0 1.28 6.6l4.01 3.1C6.23 6.86 8.88 4.75 12 4.75z"/>
+      </svg>
+      <span>Continue with Google</span>
+    </a>
+
+    <div class="divider"><span>or continue with</span></div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" id="tab-account" class="tab ${tab === "account" ? "active" : ""}" onclick="switchTab('account')">Aura Account</button>
+      <button type="button" id="tab-apikey" class="tab ${tab === "apikey" ? "active" : ""}" onclick="switchTab('apikey')">API Key</button>
+    </div>
+
+    <form id="form-account" method="POST" action="/oauth/authorize" style="display:${tab === "account" ? "block" : "none"}" autocomplete="on">
+      ${hiddenFields}
+      <input type="hidden" name="auth_mode" value="password" />
+      <div class="field">
+        <label for="email">Work Email</label>
+        <input id="email" name="email" type="email" placeholder="you@company.com" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required />
+          <button type="button" class="toggle-btn" onclick="toggleVis('password', this)">Show</button>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" name="decision" value="deny" class="btn btn-secondary" formnovalidate>Cancel</button>
+        <button type="submit" name="decision" value="approve" class="btn btn-primary">Sign In &amp; Allow</button>
+      </div>
+      <div class="sub-link">New to Aura Courier? <a href="${escapeHtml(auraRegisterUrl)}">Create a free account</a></div>
+    </form>
+
+    <form id="form-apikey" method="POST" action="/oauth/authorize" style="display:${tab === "apikey" ? "block" : "none"}" autocomplete="off">
+      ${hiddenFields}
+      <input type="hidden" name="auth_mode" value="apikey" />
+      <div class="field">
+        <label for="api_key">Merchant API Key</label>
+        <div class="input-wrap">
+          <input id="api_key" name="api_key" type="password" placeholder="Paste your Aura Courier API key" required />
+          <button type="button" class="toggle-btn" onclick="toggleVis('api_key', this)">Show</button>
+        </div>
+        <div class="hint">Generate or manage API keys anytime from your <a href="https://client.auraajenticai.cloud" target="_blank" rel="noopener">Aura Cloud Console</a>.</div>
+      </div>
+      <div class="actions">
+        <button type="submit" name="decision" value="deny" class="btn btn-secondary" formnovalidate>Cancel</button>
+        <button type="submit" name="decision" value="approve" class="btn btn-primary">Authorize &amp; Connect</button>
       </div>
     </form>
 
+    <form method="POST" action="/oauth/authorize" class="sandbox-row">
+      ${hiddenFields}
+      <input type="hidden" name="auth_mode" value="sandbox" />
+      <button type="submit" name="decision" value="sandbox" class="sandbox-btn">
+        Evaluating the integration? <span>Continue in Read-Only Sandbox &rarr;</span>
+      </button>
+    </form>`;
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Authorize ${escapeHtml(opts.clientName)} — Aura Courier</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+  <style>
+    :root {
+      --bg: #070b14;
+      --surface: #0e1525;
+      --surface-2: rgba(255, 255, 255, 0.035);
+      --border: rgba(148, 163, 184, 0.16);
+      --border-strong: rgba(56, 189, 248, 0.34);
+      --accent: #06b6d4;
+      --emerald: #10b981;
+      --rose: #fb7185;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --dim: #64748b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(900px 520px at 50% -12%, rgba(6, 182, 212, 0.14), transparent 62%),
+        radial-gradient(640px 420px at 85% 95%, rgba(16, 185, 129, 0.09), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      width: 100%;
+      max-width: 448px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 20px;
+    }
+    .logo-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.22);
+    }
+    .logo-wrap svg { display: block; width: 44px; height: 44px; }
+    .header-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
+    .header-text p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+    .client-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(6, 182, 212, 0.07);
+      border: 1px solid rgba(6, 182, 212, 0.22);
+      border-radius: 13px;
+      padding: 11px 14px;
+      margin-bottom: 16px;
+    }
+    .client-info { min-width: 0; flex: 1; }
+    .client-title { font-size: 13.5px; font-weight: 650; color: #fff; }
+    .client-host {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      color: #67e8f9;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 4px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .perms {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 13px 15px;
+      margin-bottom: 18px;
+    }
+    .perms-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 9px;
+    }
+    .perms ul { list-style: none; display: grid; gap: 8px; font-size: 12.5px; color: #cbd5e1; }
+    .perms li { display: flex; align-items: flex-start; gap: 9px; line-height: 1.45; }
+    .perms svg { flex-shrink: 0; margin-top: 2px; color: var(--emerald); }
+    .err {
+      background: rgba(244, 63, 94, 0.11);
+      border: 1px solid rgba(244, 63, 94, 0.38);
+      color: #fecdd3;
+      border-radius: 11px;
+      padding: 10px 13px;
+      font-size: 12.5px;
+      margin-bottom: 15px;
+      line-height: 1.45;
+    }
+    .sso-identity {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .id-meta { min-width: 0; flex: 1; }
+    .id-email { font-size: 13.5px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .id-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+    .id-sub a { color: #67e8f9; text-decoration: none; }
+    .id-sub a:hover { text-decoration: underline; }
+    .role-chip { color: #34d399; font-weight: 600; }
+    .btn-google {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 13.5px;
+      font-weight: 650;
+      text-decoration: none;
+      padding: 11px 14px;
+      border-radius: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-google:hover { background: #f1f5f9; }
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 15px 0 13px;
+      color: var(--dim);
+      font-size: 11.5px;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      background: rgba(2, 6, 17, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 3px;
+      margin-bottom: 14px;
+    }
+    .tab {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab.active { background: rgba(56, 189, 248, 0.14); color: #fff; }
+    .field { margin-bottom: 12px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+    .input-wrap { position: relative; }
+    input[type="email"], input[type="password"], input[type="text"] {
+      width: 100%;
+      background: #060a14;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 10px;
+      padding: 10.5px 13px;
+      color: #fff;
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .input-wrap input { padding-right: 54px; }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15); }
+    .toggle-btn {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+    .hint { font-size: 11.5px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+    .hint a { color: #67e8f9; text-decoration: none; }
+    .hint a:hover { text-decoration: underline; }
+    .actions { display: grid; grid-template-columns: 1fr 1.65fr; gap: 10px; margin-top: 14px; }
+    .btn {
+      border-radius: 11px;
+      padding: 11.5px 14px;
+      font-size: 13.5px;
+      font-weight: 650;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.99); }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #cbd5e1;
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.09); }
+    .btn-primary {
+      background: linear-gradient(135deg, #06b6d4, #10b981);
+      color: #03111a;
+      font-weight: 750;
+    }
+    .btn-primary:hover { opacity: 0.94; }
+    .sub-link { text-align: center; font-size: 12px; color: var(--muted); margin-top: 12px; }
+    .sub-link a { color: #67e8f9; text-decoration: none; font-weight: 500; }
+    .sub-link a:hover { text-decoration: underline; }
+    .sandbox-row {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .sandbox-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+    .sandbox-btn span { color: #67e8f9; font-weight: 600; }
+    .sandbox-btn:hover span { text-decoration: underline; }
+    .foot {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--dim);
+    }
+    .foot a { color: var(--muted); text-decoration: none; }
+    .foot a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="logo-wrap">${INLINE_LOGO_SVG}</div>
+      <div class="header-text">
+        <h1>Authorize ${escapeHtml(opts.clientName)}</h1>
+        <p>Aura Courier MCP · Enterprise Logistics Hub</p>
+      </div>
+    </div>
+
+    <div class="client-bar">
+      <div class="client-info">
+        <div class="client-title">${escapeHtml(opts.clientName)}</div>
+        <div class="client-host" title="${escapeHtml(opts.redirectHost)}">${escapeHtml(opts.redirectHost)}</div>
+      </div>
+      <span class="badge">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        OAuth 2.1
+      </span>
+    </div>
+
+    <div class="perms">
+      <div class="perms-label">Permissions Requested</div>
+      <ul>
+        <li>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Read logistics data:</strong> Track consignments, check COD balances, assess fraud risk, geocode addresses, and compare carrier rates.</span>
+        </li>
+        ${hasWrite
+        ? `<li>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Manage parcels:</strong> Create, update, and cancel shipments across connected carriers (within your workspace permissions).</span>
+        </li>`
+        : ""}
+      </ul>
+    </div>
+
+    ${opts.errorMessage ? `<div class="err">${escapeHtml(opts.errorMessage)}</div>` : ""}
+
+    ${authSectionHtml}
+
     <div class="foot">
-      Secured by <a href="${escapeHtml(opts.origin)}">Aura Ajentic AI</a> · <a href="/privacy">Privacy Policy</a>
+      Protected by <a href="https://auraajenticai.cloud" target="_blank" rel="noopener">Aura Ajentic AI</a> · <a href="/privacy" target="_blank" rel="noopener">Privacy</a> · <a href="/guide" target="_blank" rel="noopener">Docs</a>
     </div>
   </div>
+  <script>
+    function switchTab(mode) {
+      var isAcc = mode === 'account';
+      document.getElementById('tab-account').className = 'tab' + (isAcc ? ' active' : '');
+      document.getElementById('tab-apikey').className = 'tab' + (!isAcc ? ' active' : '');
+      document.getElementById('form-account').style.display = isAcc ? 'block' : 'none';
+      document.getElementById('form-apikey').style.display = !isAcc ? 'block' : 'none';
+    }
+    function toggleVis(id, btn) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.type = el.type === 'password' ? 'text' : 'password';
+      btn.textContent = el.type === 'password' ? 'Show' : 'Hide';
+    }
+  </script>
 </body>
 </html>`;
 }
@@ -592,7 +887,6 @@ function resolveClientMeta(clientId, redirectUri) {
         }
         return { valid: true, clientName: dcr.n || "MCP Client", authMethod: dcr.m };
     }
-    // Allow non-DCR clients (e.g. Google Gemini / ChatGPT / Claude / local CLI) when redirect_uri is strictly allowlisted
     let inferredName = clientId.slice(0, 48);
     try {
         const h = new URL(redirectUri).hostname.toLowerCase();
@@ -694,7 +988,7 @@ export function registerOAuthRoutes(app) {
         }
         return res.status(201).json(responsePayload);
     });
-    // 4. OAuth 2.1 Authorization Endpoint (GET Consent UI)
+    // 4. OAuth 2.1 Authorization Endpoint (GET Consent UI — 1-Click SSO, Google Sign-In, Email/Password, API Key, Sandbox)
     app.get("/oauth/authorize", (req, res) => {
         res.setHeader("Cache-Control", "no-store");
         res.setHeader("X-Frame-Options", "DENY");
@@ -736,6 +1030,7 @@ export function registerOAuthRoutes(app) {
             codeChallenge,
             state,
         });
+        const ssoUser = verifyAuraSsoCookie(req);
         return res.status(200).type("html").send(renderConsentPage({
             origin,
             clientName: clientCheck.clientName,
@@ -748,6 +1043,7 @@ export function registerOAuthRoutes(app) {
             codeChallengeMethod: "S256",
             resource: resource || `${origin}/mcp`,
             csrfToken,
+            ssoUser,
         }));
     });
     // 5. OAuth 2.1 Authorization Endpoint (POST Consent Submission)
@@ -765,7 +1061,7 @@ export function registerOAuthRoutes(app) {
         const resource = String(b.resource || "").trim();
         const csrfToken = String(b.csrf_token || "").trim();
         const decision = String(b.decision || "approve").trim().toLowerCase();
-        const apiKey = String(b.api_key || "").trim();
+        const authMode = String(b.auth_mode || (b.api_key ? "apikey" : "sso")).trim().toLowerCase();
         const clientCheck = resolveClientMeta(clientId, redirectUri);
         if (!clientCheck.valid) {
             return res.status(400).json({
@@ -787,7 +1083,8 @@ export function registerOAuthRoutes(app) {
             redirectHost = new URL(redirectUri).host || redirectUri;
         }
         catch { }
-        const renderFailure = (errorMessage) => {
+        const ssoUser = verifyAuraSsoCookie(req);
+        const renderFailure = (errorMessage, activeTab = "account") => {
             const freshCsrf = signCsrfToken({ clientId, redirectUri, codeChallenge, state });
             return res.status(200).type("html").send(renderConsentPage({
                 origin,
@@ -801,22 +1098,63 @@ export function registerOAuthRoutes(app) {
                 codeChallengeMethod: "S256",
                 resource: resource || `${origin}/mcp`,
                 csrfToken: freshCsrf,
+                ssoUser,
+                activeTab,
                 errorMessage,
             }));
         };
-        if (!apiKey) {
-            return renderFailure("Please enter your Aura API Key, Tenant Key, or Snehalata snl_mcp_... key.");
+        let resolvedTenantId = "";
+        let resolvedAdmin = false;
+        let resolvedScopes = [];
+        if (decision === "sandbox" || authMode === "sandbox") {
+            // Strictly Read-Only Sandbox mode for evaluators / Antigravity Marketplace / Gemini reviewers
+            resolvedTenantId = "public_ro";
+            resolvedAdmin = false;
+            resolvedScopes = ["read"];
         }
-        // Validate submitted API key against ALL live auth backends (Master, Read-Only, Dynamic PG, Env, Snehalata)
-        const syntheticReq = {
-            headers: { authorization: `Bearer ${apiKey}` },
-            query: {},
-        };
-        const authCtx = await resolveAuthContextAsync(syntheticReq);
-        if (!authCtx.authenticated) {
-            return renderFailure(authCtx.deniedReason || "Invalid API Key. Please check your Aura API Key or Snehalata MCP Key and try again.");
+        else if (authMode === "sso") {
+            if (!ssoUser) {
+                return renderFailure("Your Aura session has expired. Please sign in again to continue.", "account");
+            }
+            const mapped = mapSsoUserToAuth(ssoUser);
+            resolvedTenantId = mapped.tenantId;
+            resolvedAdmin = mapped.isAdmin;
+            resolvedScopes = mapped.scopes;
         }
-        const grantedScopes = normalizeScopes(scope, authCtx.scopes);
+        else if (authMode === "password") {
+            const email = String(b.email || "").trim();
+            const password = String(b.password || "");
+            if (!email || !password) {
+                return renderFailure("Please enter both your email address and password.", "account");
+            }
+            const loginRes = await authenticateWithAuraPassword(email, password);
+            if (!loginRes.ok || !loginRes.user) {
+                return renderFailure(loginRes.error || "Invalid email or password.", "account");
+            }
+            const mapped = mapSsoUserToAuth(loginRes.user);
+            resolvedTenantId = mapped.tenantId;
+            resolvedAdmin = mapped.isAdmin;
+            resolvedScopes = mapped.scopes;
+        }
+        else {
+            // Developer / Merchant API Key authentication (Master, Dynamic PG, Env, or Partner keys)
+            const apiKey = String(b.api_key || "").trim();
+            if (!apiKey) {
+                return renderFailure("Please enter a valid Aura Courier API key.", "apikey");
+            }
+            const syntheticReq = {
+                headers: { authorization: `Bearer ${apiKey}` },
+                query: {},
+            };
+            const authCtx = await resolveAuthContextAsync(syntheticReq);
+            if (!authCtx.authenticated) {
+                return renderFailure(authCtx.deniedReason || "Invalid API key. Please verify your key in Aura Cloud Console and try again.", "apikey");
+            }
+            resolvedTenantId = authCtx.tenantId;
+            resolvedAdmin = authCtx.isAdmin;
+            resolvedScopes = authCtx.scopes;
+        }
+        const grantedScopes = normalizeScopes(scope, resolvedScopes);
         const nowSec = Math.floor(Date.now() / 1000);
         const codeClaims = {
             cid: clientId,
@@ -824,8 +1162,8 @@ export function registerOAuthRoutes(app) {
             cc: codeChallenge,
             ccm: "S256",
             scp: grantedScopes,
-            sub: authCtx.tenantId,
-            adm: authCtx.isAdmin,
+            sub: resolvedTenantId,
+            adm: resolvedAdmin,
             res: resource || `${origin}/mcp`,
             typ: "code",
             iat: nowSec,
@@ -846,7 +1184,6 @@ export function registerOAuthRoutes(app) {
         const b = (req.body || {});
         const grantType = String(b.grant_type || "").trim();
         const { clientId, clientSecret } = extractClientCredentials(req);
-        // If DCR client registered as confidential (client_secret_*), verify secret
         if (clientId && clientId.startsWith("aura_dcr_")) {
             const dcr = decodeDcrClientId(clientId);
             if (!dcr) {
@@ -907,7 +1244,6 @@ export function registerOAuthRoutes(app) {
                     error_description: "PKCE S256 code_verifier verification failed.",
                 });
             }
-            // Enforce single-use authorization code
             usedAuthCodes.set(codeClaims.jti, Date.now() + AUTH_CODE_TTL_SEC * 1000 * 2);
             const nowSec = Math.floor(Date.now() / 1000);
             const accessClaims = {
@@ -979,7 +1315,7 @@ export function registerOAuthRoutes(app) {
                 jti: randomBytes(16).toString("base64url"),
             };
             const accessToken = signJwt(accessClaims, "access");
-            // IMPORTANT FOR GOOGLE GEMINI: Keep refresh_token NON-ROTATING so Gemini never unlinks!
+            // Non-rotating refresh_token preserves long-lived Google Gemini MCP connections
             return res.status(200).json({
                 access_token: accessToken,
                 token_type: "Bearer",

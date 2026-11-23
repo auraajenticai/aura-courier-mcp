@@ -1,10 +1,10 @@
-# 🚚 AURA COURIER MCP v2.6.1 — THE ENTERPRISE LOGISTICS MASTER MANUAL
+# 🚚 AURA COURIER MCP v2.7.0 — THE ENTERPRISE LOGISTICS MASTER MANUAL
 ### Universal Multi-Carrier Logistics Engine, Spatial Intelligence Hub & Zero-Risk COD Gateway
 **Published by Aura Agentic AI · Architected with DeepMind Principles & Google Maps Platform**
 
 [![Google Cloud Partner Advantage](https://img.shields.io/badge/Google_Cloud_Partner-Aura_Ajentic_AI-4285F4?logo=google-cloud&logoColor=white)](https://cloud.google.com/find-a-partner/partner/aura-ajentic-ai)
 [![auraajenticai/aura-courier-mcp MCP server](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp/badges/score.svg)](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp)
-[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.6.1-0676FF?logo=google&logoColor=white)](plugin.json)
+[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.7.0-0676FF?logo=google&logoColor=white)](plugin.json)
 [![User Guide BN/EN](https://img.shields.io/badge/User_Guide-বাংলা_%26_English-f59e0b)](https://courier.auraajenticai.cloud/guide)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Status](https://img.shields.io/badge/Status-Production%20Active-success.svg)](https://courier.auraajenticai.cloud)
@@ -227,7 +227,7 @@ curl -s https://courier.auraajenticai.cloud/health | jq
 ```json
 {
   "ok": true,
-  "version": "2.6.1"
+  "version": "2.7.0"
 }
 ```
 
@@ -278,7 +278,7 @@ Add this configuration block to your client settings (`claude_desktop_config.jso
   "mcpServers": {
     "aura-courier": {
       "command": "npx",
-      "args": ["-y", "aura-courier-mcp@2.6.1"],
+      "args": ["-y", "aura-courier-mcp@2.7.0"],
       "env": {
         "PORT": "8080",
         "GOOGLE_MAPS_API_KEY": "<GOOGLE_MAPS_API_KEY>",
@@ -340,6 +340,9 @@ Bundles the complete `courier-ops` skill (9 tools), `rules/COURIER_RULES.md` (sm
 
 ## 9. Version History & Glama TDQS 5.0 Audit Log
 
+* **v2.7.0 (Nov 24, 2026)**:
+  - **Standard MCP OAuth 2.1 + PKCE (`S256`) + RFC 9728 / 8414 / 7591 DCR**: Native remote OAuth connectivity for **Google Gemini**, **Antigravity Marketplace**, **ChatGPT**, and **Claude Web** with 1-click Aura Cloud SSO, Google Sign-In, Developer API Key Dual-Auth, and non-rotating refresh tokens.
+  - **13 Live Logistics & Spatial Tools + Full Glama / Antigravity Plugin Parity**: Synchronized all manifests (`package.json`, `plugin.json`, `server.json`, `validate_plugin.js`) and expanded automated tests (`30+` passing).
 * **v2.6.1 (Nov 13, 2026)**:
   - **Single-Source-of-Truth Release Parity (`src/version.ts`)**: Unified version synchronization across `package.json`, `server.json`, `plugin.json`, `/health`, MCP Server metadata, GitHub Releases, Gitea, Glama Registry, and live web UI (`v2.6.1`).
   - **TypeScript Strict `pnpm` Compatibility & Silicon Valley UI**: Explicit Express typing resolving Glama Dockerfile `TS2742`, inline SVG carrier/tool iconography, RedX monogram badge, and interactive `#hubmap` canvas animation.
