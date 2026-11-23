@@ -48,6 +48,7 @@ const PORT = Number(process.env.PORT || 8080);
 const APP_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LANDING = path.join(APP_DIR, "index.html");
 const PRIVACY_HTML = path.join(APP_DIR, "privacy.html");
+const TERMS_HTML = path.join(APP_DIR, "terms.html");
 const HEALTH_HTML = path.join(APP_DIR, "health.html");
 const MCP_EXPLORER_HTML = path.join(APP_DIR, "mcp_explorer.html");
 const GUIDE_HTML = path.join(APP_DIR, "guide.html");
@@ -723,6 +724,13 @@ app.get("/health.html", (_req, res) => {
 });
 app.get("/privacy", (_req, res) => {
     res.sendFile(PRIVACY_HTML, (err) => {
+        if (err && !res.headersSent) {
+            res.redirect("/");
+        }
+    });
+});
+app.get("/terms", (_req, res) => {
+    res.sendFile(TERMS_HTML, (err) => {
         if (err && !res.headersSent) {
             res.redirect("/");
         }

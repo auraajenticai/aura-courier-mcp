@@ -7,15 +7,15 @@ description: >-
   carrier rates, or resolving NDR delivery issues across Steadfast, Pathao, RedX, and Paperfly.
 ---
 
-# Bangladesh Courier Operations & Zero-Risk COD Hub (v2.4.2)
+# Bangladesh Courier Operations & Zero-Risk COD Hub (v2.7.1)
 
-This skill provides complete operational runbooks, tool execution patterns, and domain intelligence for managing nationwide e-commerce logistics across Bangladesh via the **Aura Courier MCP** remote server (`https://courier.auraajenticai.cloud/mcp`).
+This skill provides complete operational runbooks, tool execution patterns, and domain intelligence for managing nationwide e-commerce logistics across Bangladesh via the **Aura Courier MCP** remote server (`https://courier.auraajenticai.cloud/mcp`, OAuth 2.1 + PKCE `S256` & Dual-Auth).
 
 ---
 
-## 1. Tool Catalog & Capabilities (9 Live Production Tools)
+## 1. Tool Catalog & Capabilities (13 Live Production Tools)
 
-The remote MCP server exposes 9 specialized logistics tools:
+The remote MCP server exposes 13 specialized logistics and spatial intelligence tools (each annotated with MCP `readOnlyHint`, `destructiveHint`, `idempotentHint`, and `openWorldHint`):
 
 ### 1. `list_couriers`
 * **Purpose**: Inspect currently configured carrier credentials (Steadfast, Pathao, RedX, Paperfly) and verify Google Maps Platform spatial routing readiness.
@@ -134,6 +134,30 @@ The remote MCP server exposes 9 specialized logistics tools:
 * **Sample Prompts**:
   - "Rider reported customer phone off for consignment SF88291. Generate NDR recovery WhatsApp copy and dispute instructions for Steadfast."
   - "Customer requested Sunday delivery for Pathao consignment DS99120. Triage NDR issue with reschedule date 2026-11-08."
+
+---
+
+### 10. `cancel_parcel`
+* **Purpose**: Cancel an existing parcel consignment across Steadfast, Pathao, RedX, or Paperfly (`destructiveHint: true`). Executes live upstream cancellation on Pathao, RedX, and Paperfly; validates eligibility and provides portal guidance on Steadfast.
+* **Input Schema**: `courier` *(required)*, `consignment_id` *(required)*, `reason` *(optional)*.
+
+---
+
+### 11. `update_parcel`
+* **Purpose**: Update delivery instructions, recipient phone, address landmark, or COD amount on an existing in-transit consignment (`readOnlyHint: false`).
+* **Input Schema**: `courier` *(required)*, `consignment_id` *(required)*, `recipient_phone`, `recipient_address`, `cod_amount`, `note`.
+
+---
+
+### 12. `bulk_create_parcels`
+* **Purpose**: Validate (`dry_run: true`) or book up to 100 parcels in one batch with per-item error isolation and per-tenant invoice idempotency (`readOnlyHint: false`).
+* **Input Schema**: `items[]` *(required, 1–100 parcel objects)*, `dry_run` *(optional boolean)*.
+
+---
+
+### 13. `get_webhook_events`
+* **Purpose**: Query verified real-time courier webhook status events recorded from Steadfast, Pathao, RedX, and Paperfly (`readOnlyHint: true`).
+* **Input Schema**: `consignment_id` *(optional)*, `since` *(optional ISO-8601 timestamp)*.
 
 ---
 

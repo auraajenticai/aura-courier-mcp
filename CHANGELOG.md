@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.7.1] - 2026-11-24
+
+### Added & Improved (Global AI Partner Directory Readiness)
+- **MCP 2025-03-26 Tool Annotations (`src/server.ts`)**: Added accurate `title`, `readOnlyHint`, `destructiveHint`, `idempotentHint`, and `openWorldHint` annotations across all 13 tools (required by Anthropic Claude Connectors Directory, OpenAI ChatGPT Apps/Connectors Directory, and Google Antigravity Marketplace).
+- **Expanded Global AI Partner OAuth Redirect Allowlist (`src/middleware/oauth.ts`)**: Added `claude.com` (alongside `claude.ai`), `cursor.com`, `cursor.sh`, `windsurf.com`, `codeium.com`, `perplexity.ai`, `mistral.ai`, `poe.com`, `huggingface.co`, `github.com`, `vscode.dev`, `raycast.com`, `zapier.com`, `make.com`, `n8n.io`, `n8n.cloud`, `pipedream.com`, and `activepieces.com`.
+- **Official Antigravity Marketplace & MCP Registry Schema Parity**: Added `"$schema": "https://antigravity.google/schemas/v1/plugin.json"`, `privacyPolicyUrl`, and `termsOfServiceUrl` to `plugin.json`; aligned `mcp_config.json` to official Antigravity `"serverUrl"` format; updated `skills/courier-ops/SKILL.md` to all 13 live tools; added hosted `"remotes"` Streamable HTTP declaration to `server.json`.
+- **Terms of Service (`terms.html` / `GET /terms`)**: Added official Terms of Service page linked from OAuth Consent UI and `plugin.json`.
+
 ## [2.7.0] - 2026-11-24
 
 ### Added

@@ -511,3 +511,49 @@ test("OAuth 7: 1-Click Read-Only Sandbox strictly limits scope to read without e
   assert.equal(writeBody.result.isError, true);
   assert.ok(writeBody.result.content[0].text.includes("Insufficient scope"));
 });
+
+test("OAuth 8: Global Partner Directory Compliance (13 MCP tool annotations, claude.com/chatgpt/cursor/zapier/n8n DCR, and GET /terms)", async () => {
+  // 1. All 13 tools expose MCP 2025-03-26 annotations (readOnlyHint, destructiveHint, idempotentHint, openWorldHint)
+  const listRes = await fetch(`${baseUrl}/mcp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 80, method: "tools/list", params: {} }),
+  });
+  assert.equal(listRes.status, 200);
+  const tools = (await listRes.json()).result.tools;
+  assert.equal(tools.length, 13);
+  for (const t of tools) {
+    assert.ok(t.annotations && typeof t.annotations.title === "string", `missing title annotation on ${t.name}`);
+    assert.equal(typeof t.annotations.readOnlyHint, "boolean", `missing readOnlyHint on ${t.name}`);
+    assert.equal(typeof t.annotations.destructiveHint, "boolean", `missing destructiveHint on ${t.name}`);
+    assert.equal(typeof t.annotations.idempotentHint, "boolean", `missing idempotentHint on ${t.name}`);
+    assert.equal(typeof t.annotations.openWorldHint, "boolean", `missing openWorldHint on ${t.name}`);
+  }
+  const byName = Object.fromEntries(tools.map((t) => [t.name, t.annotations]));
+  assert.equal(byName.track_parcel.readOnlyHint, true);
+  assert.equal(byName.create_parcel.readOnlyHint, false);
+  assert.equal(byName.cancel_parcel.destructiveHint, true);
+  assert.equal(byName.resolve_ndr_issue.readOnlyHint, true);
+
+  // 2. Major AI partner callback URIs accepted via RFC 7591 DCR
+  const partnerCallbacks = [
+    "https://claude.com/api/mcp/auth_callback",
+    "https://claude.ai/api/mcp/auth_callback",
+    "https://chatgpt.com/connector_platform_oauth_redirect",
+    "https://cursor.com/oauth/callback",
+    "https://zapier.com/dashboard/auth/oauth/return/App123",
+    "https://my.n8n.cloud/rest/oauth2-credential/callback",
+  ];
+  const regRes = await fetch(`${baseUrl}/oauth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ client_name: "Global AI Directory Suite", redirect_uris: partnerCallbacks }),
+  });
+  assert.equal(regRes.status, 201);
+
+  // 3. Legal /terms & /privacy endpoints return 200 HTML
+  const termsRes = await fetch(`${baseUrl}/terms`);
+  assert.equal(termsRes.status, 200);
+  const termsHtml = await termsRes.text();
+  assert.ok(termsHtml.includes("Terms of Service"));
+});

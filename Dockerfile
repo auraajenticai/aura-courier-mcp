@@ -10,7 +10,7 @@ RUN npm install --no-audit --no-fund
 COPY src ./src
 COPY assets ./assets
 COPY configs ./configs
-COPY README.md index.html guide.html health.html privacy.html mcp_explorer.html simulator.html ./
+COPY README.md index.html guide.html health.html privacy.html terms.html mcp_explorer.html simulator.html ./
 RUN npm run build
 
 ENV NODE_ENV=production

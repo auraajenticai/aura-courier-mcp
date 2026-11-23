@@ -41,9 +41,12 @@ async function validateManifest() {
     return;
   }
 
+  assert(json.$schema === 'https://antigravity.google/schemas/v1/plugin.json', 'plugin.json declares official Antigravity $schema');
   assert(json.name === 'aura-courier', `name matches 'aura-courier' (got '${json.name}')`);
   assert(json.displayName === 'Aura Courier MCP', `displayName is 'Aura Courier MCP'`);
   assert(json.version === PKG_VERSION, `version matches package.json ('${PKG_VERSION}', got '${json.version}')`);
+  assert(json.privacyPolicyUrl === 'https://courier.auraajenticai.cloud/privacy', 'privacyPolicyUrl is configured');
+  assert(json.termsOfServiceUrl === 'https://courier.auraajenticai.cloud/terms', 'termsOfServiceUrl is configured');
   assert(json.category === 'Business / Logistics', `category is 'Business / Logistics'`);
   assert(typeof json.description === 'string' && json.description.length > 20, 'description is informative');
   assert(json.logo === 'assets/logo.svg', `logo points to 'assets/logo.svg'`);
@@ -65,8 +68,7 @@ async function validateMcpConfig() {
   const content = fs.readFileSync(mcpConfigPath, 'utf8');
   const json = JSON.parse(content);
   assert(json.mcpServers && json.mcpServers['aura-courier'], 'server aura-courier is declared');
-  assert(json.mcpServers['aura-courier'].url === 'https://courier.auraajenticai.cloud/mcp', 'remote MCP endpoint is https://courier.auraajenticai.cloud/mcp');
-  assert(json.mcpServers['aura-courier'].transport === 'streamable-http', 'transport is streamable-http');
+  assert(json.mcpServers['aura-courier'].serverUrl === 'https://courier.auraajenticai.cloud/mcp', 'remote MCP serverUrl is https://courier.auraajenticai.cloud/mcp');
 }
 
 async function validateAssets() {
@@ -94,7 +96,11 @@ async function validateSkillsAndRules() {
     'validate_and_geocode_address',
     'calculate_delivery_zone_and_fee',
     'compare_courier_rates',
-    'resolve_ndr_issue'
+    'resolve_ndr_issue',
+    'cancel_parcel',
+    'update_parcel',
+    'bulk_create_parcels',
+    'get_webhook_events'
   ];
   for (const tool of expectedTools) {
     assert(skillContent.includes(`\`${tool}\``), `skill documents tool '${tool}'`);
@@ -197,6 +203,13 @@ async function validateRemoteMcpServer() {
     const toolsData = await toolsRes.json();
     const liveTools = toolsData.result?.tools || [];
     assert(liveTools.length === 13, `exactly 13 tools returned by remote server (got ${liveTools.length})`);
+    const allAnnotated = liveTools.every(t => t.annotations && typeof t.annotations.readOnlyHint === 'boolean' && typeof t.annotations.destructiveHint === 'boolean');
+    assert(allAnnotated, 'all 13 live tools expose MCP readOnlyHint & destructiveHint annotations');
+
+    const termsRes = await fetch(`${baseOrigin}/terms`);
+    assert(termsRes.status === 200, `Terms of Service /terms returned HTTP 200 (got ${termsRes.status})`);
+    const privRes = await fetch(`${baseOrigin}/privacy`);
+    assert(privRes.status === 200, `Privacy Policy /privacy returned HTTP 200 (got ${privRes.status})`);
 
     const liveToolNames = liveTools.map(t => t.name);
     console.log(`  Live tools on server: [ ${liveToolNames.join(', ')} ]`);

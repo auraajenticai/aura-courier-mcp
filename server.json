@@ -3,17 +3,23 @@
   "name": "io.github.auraajenticai/aura-courier-mcp",
   "title": "Aura Courier MCP",
   "description": "Bangladesh courier connector: Steadfast, Pathao, RedX, Paperfly normalized delivery and tracking.",
-  "version": "2.7.0",
-  "websiteUrl": "https://github.com/auraajenticai/aura-courier-mcp",
+  "version": "2.7.1",
+  "websiteUrl": "https://courier.auraajenticai.cloud",
   "repository": {
     "url": "https://github.com/auraajenticai/aura-courier-mcp",
     "source": "github"
   },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://courier.auraajenticai.cloud/mcp"
+    }
+  ],
   "packages": [
     {
       "registryType": "npm",
       "identifier": "aura-courier-mcp",
-      "version": "2.7.0",
+      "version": "2.7.1",
       "transport": {
         "type": "stdio"
       },

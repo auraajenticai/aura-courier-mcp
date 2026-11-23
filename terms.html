@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Terms of Service for Aura Courier MCP — Enterprise multi-carrier logistics connector for AI agents and e-commerce platforms." />
+  <title>Terms of Service — Aura Courier MCP</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+  <style>
+    :root {
+      --bg: #070b14;
+      --card: rgba(14, 21, 37, 0.85);
+      --line: rgba(148, 163, 184, 0.16);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --cyan: #38bdf8;
+      --emerald: #34d399;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(900px 460px at 50% -10%, rgba(6, 182, 212, 0.12), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 11, 20, 0.88);
+      border-bottom: 1px solid var(--line);
+    }
+    .hbar {
+      max-width: 900px; margin: 0 auto; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15.5px; color: #fff; text-decoration: none; }
+    .brand img { width: 34px; height: 34px; border-radius: 9px; }
+    .nav { display: flex; gap: 14px; font-size: 13px; font-weight: 600; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 42px 20px 72px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 650;
+      color: var(--emerald); background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 12px; border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.025em; color: #fff; margin-bottom: 8px; }
+    .meta { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+      padding: 24px 26px; margin-bottom: 18px;
+    }
+    .card h2 { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .card p { color: #cbd5e1; margin-bottom: 10px; }
+    .card p:last-child { margin-bottom: 0; }
+    .card ul { margin: 8px 0 0 20px; color: #cbd5e1; display: grid; gap: 6px; }
+    footer {
+      max-width: 900px; margin: 0 auto; padding: 24px 20px 44px;
+      border-top: 1px solid var(--line); text-align: center;
+      font-size: 12.5px; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hbar">
+      <a href="/" class="brand">
+        <img src="/assets/logo.svg" alt="Aura Courier MCP" />
+        <span>Aura Courier MCP</span>
+      </a>
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/guide">Docs</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/health.html">Status</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="pill">Effective: November 24, 2026 · v2.7.1</div>
+    <h1>Terms of Service</h1>
+    <p class="meta">Published by <strong>Aura Ajentic AI</strong> (Google Cloud Partner Advantage) · Contact: <a href="mailto:ceo@auraajenticai.cloud">ceo@auraajenticai.cloud</a></p>
+
+    <section class="card">
+      <h2>1. Scope of Service</h2>
+      <p>Aura Courier MCP (<code>https://courier.auraajenticai.cloud</code>) provides a Model Context Protocol (MCP) server and logistics integration gateway enabling AI assistants (including Google Gemini, Antigravity, Claude, ChatGPT, Cursor, and custom agents) and e-commerce stores to interact with supported Bangladeshi courier providers (Steadfast, Pathao, RedX, Paperfly) and Google Maps Platform spatial APIs.</p>
+    </section>
+
+    <section class="card">
+      <h2>2. Authentication, OAuth 2.1 &amp; Credential Responsibility</h2>
+      <p>Access to protected endpoints is governed via OAuth 2.1 with PKCE (<code>S256</code>), Aura Cloud SSO, scoped Merchant API keys, or Bring-Your-Own-Key (BYOK) request headers.</p>
+      <ul>
+        <li>You are solely responsible for safeguarding your Aura account credentials, API keys, and third-party carrier credentials.</li>
+        <li>OAuth tokens may be revoked at any time via <code>POST /oauth/revoke</code> or through your Aura Cloud Console.</li>
+        <li>Read-Only Sandbox access is strictly limited to non-mutating discovery and estimation tools.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3. Carrier Dispatch, Fees &amp; Billable Actions</h2>
+      <p>State-mutating tools such as <code>create_parcel</code>, <code>bulk_create_parcels</code>, <code>update_parcel</code>, and <code>cancel_parcel</code> transmit real operational requests directly to third-party courier networks when invoked with write credentials (unless <code>dry_run: true</code> is specified).</p>
+      <ul>
+        <li>All courier shipping charges, COD settlement timelines, pickup schedules, and parcel insurance terms are governed directly by your agreement with Steadfast, Pathao, RedX, or Paperfly.</li>
+        <li>We recommend using <code>dry_run: true</code> or human-in-the-loop confirmation before dispatching high-value COD shipments.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>4. Acceptable Use &amp; Rate Limits</h2>
+      <ul>
+        <li>Do not abuse fraud-check, geocoding, or carrier APIs for unauthorized scraping, harassment, or unlawful surveillance.</li>
+        <li>Fair-use rate limits (per-key and per-IP) apply to protect carrier upstream quotas and platform availability.</li>
+        <li>Any automated or human-initiated misuse may result in immediate key suspension or revocation.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>5. Privacy, Retention &amp; Open-Source License</h2>
+      <p>Personal data handling, PII masking on public tracking pages, 90-day automated anonymization, and zero-knowledge credential isolation are detailed in our <a href="/privacy">Privacy Policy</a>. The Aura Courier MCP open-source codebase is licensed under the <a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener">Apache License 2.0</a>.</p>
+    </section>
+
+    <section class="card">
+      <h2>6. Disclaimer &amp; Support</h2>
+      <p>Aura Courier MCP is provided "as is" without warranties regarding third-party courier API uptime or carrier delivery SLAs. For enterprise support, compliance inquiries, or security disclosures, contact <a href="mailto:ceo@auraajenticai.cloud">ceo@auraajenticai.cloud</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Aura Courier MCP v2.7.1 · Operated by <a href="https://auraajenticai.cloud">Aura Ajentic AI</a> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a></p>
+  </footer>
+</body>
+</html>

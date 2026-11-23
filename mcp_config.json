@@ -1,8 +1,7 @@
 {
   "mcpServers": {
     "aura-courier": {
-      "url": "https://courier.auraajenticai.cloud/mcp",
-      "transport": "streamable-http"
+      "serverUrl": "https://courier.auraajenticai.cloud/mcp"
     }
   }
 }

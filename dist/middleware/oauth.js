@@ -234,7 +234,8 @@ export function isAllowedRedirectUri(uri) {
         proto === "windsurf:" ||
         proto === "antigravity:" ||
         proto === "claude:" ||
-        proto === "cline:") {
+        proto === "cline:" ||
+        proto === "raycast:") {
         return true;
     }
     if ((proto === "http:" || proto === "https:") &&
@@ -244,17 +245,43 @@ export function isAllowedRedirectUri(uri) {
     if (proto !== "https:")
         return false;
     const trustedHostPatterns = [
+        // Google / Gemini / Antigravity / AI Studio
         /^(?:.+\.)?googleusercontent\.com$/,
         /^(?:.+\.)?google\.com$/,
         /^(?:.+\.)?googleapis\.com$/,
         /^(?:.+\.)?google\.dev$/,
         /^(?:.+\.)?antigravity\.google$/,
+        // Anthropic / Claude Connectors Directory (claude.ai + claude.com)
         /^(?:.+\.)?claude\.ai$/,
+        /^(?:.+\.)?claude\.com$/,
         /^(?:.+\.)?anthropic\.com$/,
+        // OpenAI / ChatGPT Apps & Connectors Directory
         /^(?:.+\.)?chatgpt\.com$/,
         /^(?:.+\.)?openai\.com$/,
+        // Global AI IDEs, Assistants & Agent Marketplaces
+        /^(?:.+\.)?cursor\.com$/,
+        /^(?:.+\.)?cursor\.sh$/,
+        /^(?:.+\.)?windsurf\.com$/,
+        /^(?:.+\.)?codeium\.com$/,
+        /^(?:.+\.)?perplexity\.ai$/,
+        /^(?:.+\.)?mistral\.ai$/,
+        /^(?:.+\.)?poe\.com$/,
+        /^(?:.+\.)?huggingface\.co$/,
+        /^(?:.+\.)?github\.com$/,
+        /^(?:.+\.)?vscode\.dev$/,
+        /^(?:.+\.)?raycast\.com$/,
+        // Automation & Workflow Connectors
+        /^(?:.+\.)?zapier\.com$/,
+        /^(?:.+\.)?make\.com$/,
+        /^(?:.+\.)?integromat\.com$/,
+        /^(?:.+\.)?n8n\.io$/,
+        /^(?:.+\.)?n8n\.cloud$/,
+        /^(?:.+\.)?pipedream\.com$/,
+        /^(?:.+\.)?activepieces\.com$/,
+        // Aura & Partner Ecosystem
         /^(?:.+\.)?auraajenticai\.cloud$/,
         /^(?:.+\.)?snehalata\.com$/,
+        // Official MCP Registries, Directories & API Clients
         /^(?:.+\.)?glama\.ai$/,
         /^(?:.+\.)?smithery\.ai$/,
         /^(?:.+\.)?modelcontextprotocol\.io$/,
@@ -834,7 +861,7 @@ function renderConsentPage(opts) {
     ${authSectionHtml}
 
     <div class="foot">
-      Protected by <a href="https://auraajenticai.cloud" target="_blank" rel="noopener">Aura Ajentic AI</a> · <a href="/privacy" target="_blank" rel="noopener">Privacy</a> · <a href="/guide" target="_blank" rel="noopener">Docs</a>
+      Protected by <a href="https://auraajenticai.cloud" target="_blank" rel="noopener">Aura Ajentic AI</a> · <a href="/privacy" target="_blank" rel="noopener">Privacy</a> · <a href="/terms" target="_blank" rel="noopener">Terms</a> · <a href="/guide" target="_blank" rel="noopener">Docs</a>
     </div>
   </div>
   <script>
@@ -892,7 +919,7 @@ function resolveClientMeta(clientId, redirectUri) {
         const h = new URL(redirectUri).hostname.toLowerCase();
         if (h.includes("googleusercontent.com") || h.includes("google.com"))
             inferredName = "Google Gemini";
-        else if (h.includes("claude.ai") || h.includes("anthropic.com"))
+        else if (h.includes("claude.ai") || h.includes("claude.com") || h.includes("anthropic.com"))
             inferredName = "Claude";
         else if (h.includes("chatgpt.com") || h.includes("openai.com"))
             inferredName = "ChatGPT";

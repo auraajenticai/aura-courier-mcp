@@ -7,11 +7,25 @@ export const TOOLS = [
     {
         name: "list_couriers",
         description: "Inspect operational health, configuration status, and active API credentials for supported Bangladeshi courier networks (Steadfast, Pathao, RedX, Paperfly) and spatial routing services (Google Maps Platform). READ-ONLY DISCOVERY TOOL: Has zero external side effects and does not mutate database or carrier state. Use when initializing a session to verify which couriers are ready for order dispatch or balance checking. Do NOT use for querying shipment status (use 'track_parcel') or calculating shipping fees (use 'calculate_delivery_zone_and_fee').",
+        annotations: {
+            title: "List Active Couriers",
+            readOnlyHint: true,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: false,
+        },
         inputSchema: { type: "object", properties: {}, required: [] },
     },
     {
         name: "create_parcel",
         description: "Book and dispatch a physical parcel consignment across Bangladesh through Steadfast, Pathao, RedX, Paperfly, or AI smart cascading routing, with built-in per-tenant invoice idempotency and optional dry-run validation. STATE-MUTATING ACTION (unless dry_run=true): Creates a real, billable shipment record in the carrier's production database, assigns an official tracking code, and deducts courier fees upon pickup. Set dry_run=true to validate recipient phone/address and preview the target courier and estimated BDT cost without booking upstream. Once booked, cancellations require direct courier portal operations ('cancellable_via_api: false').",
+        annotations: {
+            title: "Create & Dispatch Parcel",
+            readOnlyHint: false,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -42,6 +56,13 @@ export const TOOLS = [
     {
         name: "track_parcel",
         description: "Query live, real-time tracking milestones and delivery telemetry across Steadfast, Pathao, RedX, and Paperfly networks using consignment ID or tracking code. READ-ONLY OPERATION: Does not alter shipment state or carrier data. Returns normalized status, current location, carrier status notes, and timestamp history. Returns structured error code 'CONSIGNMENT_NOT_FOUND' with 'couriers_checked' if the consignment does not exist. Carrier provider is auto-detected from consignment prefix if omitted.",
+        annotations: {
+            title: "Track Parcel Live",
+            readOnlyHint: true,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -61,6 +82,13 @@ export const TOOLS = [
     {
         name: "get_balance",
         description: "Retrieve live merchant cash-on-delivery (COD) vault balance from Steadfast, or check provider balance support across Pathao, RedX, Paperfly, or all 4 couriers simultaneously. READ-ONLY FINANCIAL INQUIRY: Steadfast returns live 'amount_bdt' and 'status: OK'; Pathao, RedX, and Paperfly return 'amount_bdt: null' and 'status: UNSUPPORTED_BY_PROVIDER' with merchant portal hints because their public APIs do not expose a balance endpoint.",
+        annotations: {
+            title: "Get Merchant COD Balance",
+            readOnlyHint: true,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -76,6 +104,13 @@ export const TOOLS = [
     {
         name: "check_fraud_risk",
         description: "Screen a customer phone number against live nationwide Bangladesh logistics databases (Steadfast & Pathao) and the BTRC 11-digit prefix validator for delivery success rate, cancellation counts, and return fraud risk level ('INVALID_NUMBER', 'NO_HISTORY', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'). READ-ONLY DIAGNOSTIC QUERY: Returns null rates when a number is invalid or has 0 parcel history. Expects an 11-digit Bangladeshi mobile number ('01[3-9]XXXXXXXX').",
+        annotations: {
+            title: "Check Customer Fraud Risk",
+            readOnlyHint: true,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -87,6 +122,13 @@ export const TOOLS = [
     {
         name: "validate_and_geocode_address",
         description: "Validate, clean, and geocode an unformatted Bangladesh delivery address into structured administrative boundaries (thana_input, thana_resolved, district, division), latitude/longitude coordinates, match_quality (road, house, area), needs_review flag, and a deliverability confidence score (0-100, capped at 60 when location_type != ROOFTOP) via Google Maps Platform Geocoding API with OpenStreetMap gazetteer fallback. READ-ONLY SPATIAL LOOKUP.",
+        annotations: {
+            title: "Validate & Geocode Address",
+            readOnlyHint: true,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -100,6 +142,13 @@ export const TOOLS = [
     {
         name: "calculate_delivery_zone_and_fee",
         description: "Calculate standard delivery zone (inside_dhaka <=22km ৳80, sub_dhaka 22-45km ৳100, outside_dhaka >45km ৳150), road distance via Google Maps Platform Routes API, structured SLA hours ({min, max}), and applicable COD percentage for a single delivery destination using the unified tariff table (meta.source='static_tariff'). READ-ONLY ESTIMATION TOOL.",
+        annotations: {
+            title: "Calculate Delivery Zone & Fee",
+            readOnlyHint: true,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -113,6 +162,13 @@ export const TOOLS = [
     {
         name: "compare_courier_rates",
         description: "Execute side-by-side tariff, structured SLA ({min, max}), and COD collection fee comparisons across all four major Bangladeshi couriers (Steadfast, Pathao, RedX, Paperfly) for any destination nationwide using the unified tariff table (meta.source='static_tariff'). Evaluates exact parcel weight, declared COD amount, and optimization priority ('cheapest', 'fastest', 'balanced') to select the recommended courier. READ-ONLY CALCULATION ENGINE.",
+        annotations: {
+            title: "Compare Multi-Carrier Rates",
+            readOnlyHint: true,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -131,6 +187,13 @@ export const TOOLS = [
     {
         name: "resolve_ndr_issue",
         description: "Verify that a consignment exists on the specified courier via 'track_parcel' and generate honest, draft-only Non-Delivery Report (NDR) re-engagement copy ('status: DRAFT_GENERATED', 'actions_executed: []'). GENERATION-ONLY TOOL: Verifies consignment_id first (returns CONSIGNMENT_NOT_FOUND if unknown), then generates proposed Bengali WhatsApp copy ('whatsapp_draft') and a carrier escalation ticket draft ('courier_ticket_draft') for manual merchant execution.",
+        annotations: {
+            title: "Generate NDR Resolution Draft",
+            readOnlyHint: true,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -152,6 +215,13 @@ export const TOOLS = [
     {
         name: "cancel_parcel",
         description: "Cancel an existing parcel consignment across Steadfast, Pathao, RedX, or Paperfly. For carriers with automated cancellation APIs (Pathao, RedX, Paperfly), executes live upstream cancellation immediately. For Steadfast, validates parcel eligibility, marks internal status as CANCEL_REQUESTED, and provides direct portal action links.",
+        annotations: {
+            title: "Cancel Parcel Consignment",
+            readOnlyHint: false,
+            destructiveHint: true,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -165,6 +235,13 @@ export const TOOLS = [
     {
         name: "update_parcel",
         description: "Update delivery instructions, customer phone number, delivery address landmark, or COD collection amount for an existing in-transit consignment across supported courier partners. STATE-MUTATING ACTION: Propagates updated delivery notes upstream to carrier dispatch centers.",
+        annotations: {
+            title: "Update In-Transit Parcel",
+            readOnlyHint: false,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -181,6 +258,13 @@ export const TOOLS = [
     {
         name: "bulk_create_parcels",
         description: "Validate or book up to 100 parcels in a single batch with per-item error isolation, invoice idempotency, and optional dry_run preview mode. STATE-MUTATING ACTION (unless dry_run=true): Returns total, succeeded, failed, and per-item results.",
+        annotations: {
+            title: "Bulk Create Parcels",
+            readOnlyHint: false,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
         inputSchema: {
             type: "object",
             properties: {
@@ -214,6 +298,13 @@ export const TOOLS = [
     {
         name: "get_webhook_events",
         description: "Query verified courier webhook status events received by the server's /webhooks/{steadfast,pathao,redx,paperfly} endpoints. READ-ONLY DIAGNOSTIC TOOL: Filterable by consignment_id and ISO-8601 'since' timestamp.",
+        annotations: {
+            title: "Query Courier Webhook Events",
+            readOnlyHint: true,
+            destructiveHint: false,
+            idempotentHint: true,
+            openWorldHint: false,
+        },
         inputSchema: {
             type: "object",
             properties: {
