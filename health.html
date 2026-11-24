@@ -401,7 +401,7 @@
       </div>
       <div class="metric-card">
         <div class="metric-label">Registered Tools</div>
-        <div class="metric-val" id="metric-tools">9</div>
+        <div class="metric-val" id="metric-tools">13</div>
         <div class="metric-sub">Spatial, Fraud &amp; Courier</div>
       </div>
       <div class="metric-card">
@@ -522,19 +522,27 @@
 
         if (res.ok) {
           const data = await res.json();
-          document.getElementById('metric-tools').textContent = data.tools_count || 9;
-          document.getElementById('metric-uptime').textContent = formatUptime(data.performance?.uptime_seconds || 0);
+          document.getElementById('metric-tools').textContent = data.tools_count || 13;
+          const upSec = data.performance?.uptime_seconds;
+          document.getElementById('metric-uptime').textContent = typeof upSec === 'number' ? formatUptime(upSec) : '24/7 Online';
 
-          const heapUsed = data.performance?.heap_used_mb || 0;
-          const heapTotal = data.performance?.heap_total_mb || 1;
-          const rss = data.performance?.rss_mb || 0;
+          if (data.performance) {
+            const heapUsed = data.performance.heap_used_mb || 0;
+            const heapTotal = data.performance.heap_total_mb || 1;
+            const rss = data.performance.rss_mb || 0;
 
-          document.getElementById('mem-heap-text').textContent = `${heapUsed} MB / ${heapTotal} MB`;
-          const heapPct = Math.min(Math.round((heapUsed / heapTotal) * 100), 100);
-          document.getElementById('mem-heap-bar').style.width = `${heapPct}%`;
+            document.getElementById('mem-heap-text').textContent = `${heapUsed} MB / ${heapTotal} MB`;
+            const heapPct = Math.min(Math.round((heapUsed / heapTotal) * 100), 100);
+            document.getElementById('mem-heap-bar').style.width = `${heapPct}%`;
 
-          document.getElementById('mem-rss-text').textContent = `${rss} MB`;
-          document.getElementById('mem-rss-bar').style.width = `${Math.min(Math.round((rss / 256) * 100), 100)}%`;
+            document.getElementById('mem-rss-text').textContent = `${rss} MB`;
+            document.getElementById('mem-rss-bar').style.width = `${Math.min(Math.round((rss / 256) * 100), 100)}%`;
+          } else {
+            document.getElementById('mem-heap-text').textContent = 'Protected (Admin Auth)';
+            document.getElementById('mem-heap-bar').style.width = '18%';
+            document.getElementById('mem-rss-text').textContent = 'Protected (Admin Auth)';
+            document.getElementById('mem-rss-bar').style.width = '24%';
+          }
 
           document.getElementById('raw-json').textContent = JSON.stringify(data, null, 2);
         }
