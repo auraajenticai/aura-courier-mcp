@@ -9,6 +9,7 @@ export declare function clearWebhookEvents(tenantId?: string): void;
 export declare class CourierRegistry {
     private adapters;
     private googleMaps;
+    private config;
     constructor(config?: CourierConfig);
     listCouriers(): {
         couriers: {

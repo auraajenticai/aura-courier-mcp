@@ -9,7 +9,7 @@
     },
     "aura-courier-local": {
       "command": "npx",
-      "args": ["-y", "aura-courier-mcp@2.7.3"],
+      "args": ["-y", "aura-courier-mcp@2.7.4"],
       "env": {
         "PORT": "8080"
       }

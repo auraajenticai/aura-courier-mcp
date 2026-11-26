@@ -90,7 +90,9 @@ function isDefinitePreBookingRejection(err) {
 export class CourierRegistry {
     adapters = new Map();
     googleMaps;
+    config;
     constructor(config = loadConfig()) {
+        this.config = config;
         const steadfast = new SteadfastAdapter(config.steadfast.apiKey, config.steadfast.secretKey, config.steadfast.baseUrl);
         this.adapters.set("steadfast", steadfast);
         const pathao = new PathaoAdapter(config.pathao.clientId, config.pathao.clientSecret, config.pathao.username, config.pathao.password, config.pathao.storeId, config.pathao.baseUrl);
@@ -562,7 +564,7 @@ export class CourierRegistry {
     async checkFraudRisk(phone) {
         const steadfast = this.adapters.get("steadfast");
         const pathao = this.adapters.get("pathao");
-        return await FraudRiskEngine.evaluateRisk(phone, steadfast, pathao);
+        return await FraudRiskEngine.evaluateRisk(phone, steadfast, pathao, this.config);
     }
     async validateAddress(req) {
         return await this.googleMaps.validateAndGeocode(req);

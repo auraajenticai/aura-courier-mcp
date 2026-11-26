@@ -2,6 +2,8 @@ export interface CourierConfig {
     steadfast: {
         apiKey: string;
         secretKey: string;
+        email?: string;
+        password?: string;
         baseUrl: string;
         enabled: boolean;
     };
@@ -16,6 +18,8 @@ export interface CourierConfig {
     };
     redx: {
         apiToken: string;
+        phone?: string;
+        password?: string;
         baseUrl: string;
         pickupStoreId: string;
         enabled: boolean;
@@ -31,6 +35,14 @@ export interface CourierConfig {
     googleMaps: {
         apiKey: string;
         enabled: boolean;
+    };
+    extraFraudCreds?: {
+        carrybeeEmail: string;
+        carrybeePassword: string;
+        ecourierApiKey: string;
+        ecourierApiSecret: string;
+        ecourierUserId: string;
+        parceldexApiKey: string;
     };
 }
 export type EnvSource = Record<string, string | undefined>;

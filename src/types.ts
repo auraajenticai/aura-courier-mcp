@@ -71,6 +71,17 @@ export interface BalanceResponse {
   raw_response?: any;
 }
 
+export interface CarrierFraudBreakdownItem {
+  courier: string;
+  courier_name: string;
+  status: "LIVE" | "NOT_CONNECTED" | "ACCOUNT_INACTIVE" | "UPSTREAM_UNAVAILABLE";
+  total_parcels: number | null;
+  total_delivered: number | null;
+  total_cancelled: number | null;
+  success_rate: number | null;
+  note?: string;
+}
+
 export interface FraudRiskScoreResponse {
   phone: string;
   risk_level: "INVALID_NUMBER" | "NO_HISTORY" | "LOW" | "MEDIUM" | "MODERATE" | "HIGH" | "CRITICAL" | "NEW_BUYER";
@@ -86,6 +97,7 @@ export interface FraudRiskScoreResponse {
   data_sources: string[];
   sample_size: number;
   coverage_note: string;
+  courier_breakdown?: CarrierFraudBreakdownItem[];
   multi_signal_factors?: {
     carrier_score: string;
     address_confidence?: string;

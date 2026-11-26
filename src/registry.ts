@@ -121,8 +121,10 @@ function isDefinitePreBookingRejection(err: any): boolean {
 export class CourierRegistry {
   private adapters: Map<SupportedCourier, CourierAdapter> = new Map();
   private googleMaps: GoogleMapsAdapter;
+  private config: CourierConfig;
 
   constructor(config: CourierConfig = loadConfig()) {
+    this.config = config;
     const steadfast = new SteadfastAdapter(
       config.steadfast.apiKey,
       config.steadfast.secretKey,
@@ -647,7 +649,7 @@ export class CourierRegistry {
   async checkFraudRisk(phone: string): Promise<FraudRiskScoreResponse> {
     const steadfast = this.adapters.get("steadfast") as SteadfastAdapter | undefined;
     const pathao = this.adapters.get("pathao") as PathaoAdapter | undefined;
-    return await FraudRiskEngine.evaluateRisk(phone, steadfast, pathao);
+    return await FraudRiskEngine.evaluateRisk(phone, steadfast, pathao, this.config);
   }
 
   async validateAddress(req: AddressValidationRequest): Promise<AddressValidationResponse> {

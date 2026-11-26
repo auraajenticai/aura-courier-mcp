@@ -14,6 +14,8 @@ export interface CourierConfig {
   steadfast: {
     apiKey: string;
     secretKey: string;
+    email?: string;
+    password?: string;
     baseUrl: string;
     enabled: boolean;
   };
@@ -28,6 +30,8 @@ export interface CourierConfig {
   };
   redx: {
     apiToken: string;
+    phone?: string;
+    password?: string;
     baseUrl: string;
     pickupStoreId: string;
     enabled: boolean;
@@ -43,6 +47,14 @@ export interface CourierConfig {
   googleMaps: {
     apiKey: string;
     enabled: boolean;
+  };
+  extraFraudCreds?: {
+    carrybeeEmail: string;
+    carrybeePassword: string;
+    ecourierApiKey: string;
+    ecourierApiSecret: string;
+    ecourierUserId: string;
+    parceldexApiKey: string;
   };
 }
 
@@ -109,6 +121,8 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
     steadfast: {
       apiKey: steadfastApiKey,
       secretKey: steadfastSecretKey,
+      email: src.STEADFAST_EMAIL || "",
+      password: src.STEADFAST_PASSWORD || "",
       baseUrl: validateCarrierBaseUrl("steadfast", src.STEADFAST_BASE_URL, "https://portal.packzy.com/api/v1"),
       enabled: Boolean(steadfastApiKey && steadfastSecretKey),
     },
@@ -123,6 +137,8 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
     },
     redx: {
       apiToken: src.REDX_API_TOKEN || "",
+      phone: src.REDX_PHONE || "",
+      password: src.REDX_PASSWORD || "",
       baseUrl: validateCarrierBaseUrl("redx", src.REDX_BASE_URL, "https://openapi.redx.com.bd/v1.0.0-beta"),
       pickupStoreId: src.REDX_PICKUP_STORE_ID || "",
       enabled: Boolean(src.REDX_API_TOKEN),
@@ -138,6 +154,14 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
     googleMaps: {
       apiKey: googleMapsKey,
       enabled: Boolean(googleMapsKey),
+    },
+    extraFraudCreds: {
+      carrybeeEmail: src.CARRYBEE_EMAIL || "",
+      carrybeePassword: src.CARRYBEE_PASSWORD || "",
+      ecourierApiKey: src.ECOURIER_API_KEY || "",
+      ecourierApiSecret: src.ECOURIER_API_SECRET || "",
+      ecourierUserId: src.ECOURIER_USER_ID || "",
+      parceldexApiKey: src.PARCELDEX_API_KEY || "",
     },
   };
 }

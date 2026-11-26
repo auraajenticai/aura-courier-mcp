@@ -161,6 +161,8 @@ export function keysFromRequest(req: Request): EnvSource {
   return {
     STEADFAST_API_KEY: pick("x-steadfast-api-key", "STEADFAST_API_KEY"),
     STEADFAST_SECRET_KEY: pick("x-steadfast-secret-key", "STEADFAST_SECRET_KEY"),
+    STEADFAST_EMAIL: pick("x-steadfast-email", "STEADFAST_EMAIL"),
+    STEADFAST_PASSWORD: pick("x-steadfast-password", "STEADFAST_PASSWORD"),
     STEADFAST_BASE_URL: pickBaseUrl("steadfast", "x-steadfast-base-url", "STEADFAST_BASE_URL", "https://portal.packzy.com/api/v1"),
     PATHAO_CLIENT_ID: pick("x-pathao-client-id", "PATHAO_CLIENT_ID"),
     PATHAO_CLIENT_SECRET: pick("x-pathao-client-secret", "PATHAO_CLIENT_SECRET"),
@@ -169,6 +171,8 @@ export function keysFromRequest(req: Request): EnvSource {
     PATHAO_STORE_ID: pick("x-pathao-store-id", "PATHAO_STORE_ID"),
     PATHAO_BASE_URL: pickBaseUrl("pathao", "x-pathao-base-url", "PATHAO_BASE_URL", "https://api-hermes.pathao.com"),
     REDX_API_TOKEN: pick("x-redx-api-token", "REDX_API_TOKEN"),
+    REDX_PHONE: pick("x-redx-phone", "REDX_PHONE"),
+    REDX_PASSWORD: pick("x-redx-password", "REDX_PASSWORD"),
     REDX_BASE_URL: pickBaseUrl("redx", "x-redx-base-url", "REDX_BASE_URL", "https://openapi.redx.com.bd/v1.0.0-beta"),
     REDX_PICKUP_STORE_ID: pick("x-redx-pickup-store-id", "REDX_PICKUP_STORE_ID"),
     PAPERFLY_API_KEY: pick("x-paperfly-api-key", "PAPERFLY_API_KEY"),
@@ -176,6 +180,12 @@ export function keysFromRequest(req: Request): EnvSource {
     PAPERFLY_PASSWORD: pick("x-paperfly-password", "PAPERFLY_PASSWORD"),
     PAPERFLY_STORE_NAME: pick("x-paperfly-store-name", "PAPERFLY_STORE_NAME"),
     PAPERFLY_BASE_URL: pickBaseUrl("paperfly", "x-paperfly-base-url", "PAPERFLY_BASE_URL", "https://api.paperfly.com.bd"),
+    CARRYBEE_EMAIL: pick("x-carrybee-email", "CARRYBEE_EMAIL"),
+    CARRYBEE_PASSWORD: pick("x-carrybee-password", "CARRYBEE_PASSWORD"),
+    ECOURIER_API_KEY: pick("x-ecourier-api-key", "ECOURIER_API_KEY"),
+    ECOURIER_API_SECRET: pick("x-ecourier-api-secret", "ECOURIER_API_SECRET"),
+    ECOURIER_USER_ID: pick("x-ecourier-user-id", "ECOURIER_USER_ID"),
+    PARCELDEX_API_KEY: pick("x-parceldex-api-key", "PARCELDEX_API_KEY"),
     GOOGLE_MAPS_API_KEY: pick("x-google-maps-key", "GOOGLE_MAPS_API_KEY", true),
   };
 }
@@ -1019,6 +1029,7 @@ app.post("/api/public/fraud-demo", publicDemoLimiter, async (req: Request, res: 
       total_cancelled: result.total_cancelled,
       sample_size: result.sample_size,
       data_sources: result.data_sources,
+      courier_breakdown: result.courier_breakdown || [],
       recommendation: result.recommendation,
     };
     return res.json(wrapSuccess(safeDto, "live_api"));
