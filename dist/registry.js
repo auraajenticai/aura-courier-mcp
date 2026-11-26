@@ -12,11 +12,15 @@ export function setRegistryDbPool(pool) {
     registryDbPool = pool;
 }
 /**
- * Process-wide Idempotency Store keyed by `${tenantId}:${invoice}` (Task T8).
+ * Process-wide Atomic & Durable Idempotency Store keyed by `${tenantId}:${invoice}` (P1-03 & P1-04).
  */
 const idempotencyStore = new Map();
+const inFlightBookings = new Map();
+const pendingReconciliationStore = new Map();
 export function clearIdempotencyStore() {
     idempotencyStore.clear();
+    inFlightBookings.clear();
+    pendingReconciliationStore.clear();
 }
 /**
  * Process-wide Verified Webhook Event Ring Buffer (Task T1 & T8).
@@ -56,6 +60,32 @@ function isNetworkTimeout(err) {
         msg.includes("aborted") ||
         msg.includes("network error") ||
         msg.includes("socket hang up"));
+}
+/**
+ * P1-04 Fix: Only cascade to a fallback courier on a DEFINITE pre-booking rejection
+ * (4xx client/validation/auth/unconfigured errors). Any 5xx, timeout, network drop, or
+ * malformed response after dispatch is AMBIGUOUS and halts cascade to prevent duplicates.
+ */
+function isDefinitePreBookingRejection(err) {
+    if (!err)
+        return false;
+    if (isNetworkTimeout(err))
+        return false;
+    const status = Number(err?.response?.status || err?.status || err?.statusCode || 0);
+    if (status >= 400 && status < 500 && status !== 408 && status !== 429) {
+        return true;
+    }
+    if (err instanceof McpToolError) {
+        return ["INVALID_INPUT", "UNCONFIGURED", "NO_COVERAGE", "UNAUTHORIZED", "CONSIGNMENT_NOT_FOUND"].includes(err.code);
+    }
+    const msg = String(err.message || "").toLowerCase();
+    return (msg.includes("not configured") ||
+        msg.includes("credentials") ||
+        msg.includes("could not match a delivery area") ||
+        msg.includes("store name is required") ||
+        msg.includes("store_id") ||
+        msg.includes("invalid phone") ||
+        msg.includes("validation failed"));
 }
 export class CourierRegistry {
     adapters = new Map();
@@ -188,7 +218,7 @@ export class CourierRegistry {
                 },
             };
         }
-        // Task T8: Idempotency by (tenant_id, invoice)
+        // P1-03 & P1-04 Fix: Atomic in-flight reservation + durable PostgreSQL idempotency by (tenant_id, invoice)
         const tenantKey = String(req.tenant_id || "default");
         const idemKey = `${tenantKey}:${invoice}`;
         const existing = idempotencyStore.get(idemKey);
@@ -198,68 +228,191 @@ export class CourierRegistry {
                 idempotent_replay: true,
             };
         }
-        let lastErr = null;
-        for (const courierName of candidates) {
-            try {
-                const adapter = this.getAdapter(courierName);
-                const res = await adapter.createParcel({
-                    ...req,
-                    recipient_phone: cleanPhone,
-                    recipient_address: addrStr,
+        const pendingRecon = pendingReconciliationStore.get(idemKey);
+        if (pendingRecon) {
+            throw new McpToolError({
+                code: "COURIER_UPSTREAM_ERROR",
+                message: `Invoice '${invoice}' has an unresolved ambiguous booking attempt on '${pendingRecon.courier}'. Halting duplicate creation until reconciled.`,
+                courier: pendingRecon.courier,
+                retryable: true,
+                extraFields: {
+                    status: "UNKNOWN_PENDING_RECONCILIATION",
+                    ambiguous_outcome: true,
+                    courier_attempted: pendingRecon.courier,
                     invoice,
-                    courier: courierName,
-                });
-                if (res && res.success !== false && (res.tracking_code || res.consignment_id)) {
-                    const courierQuote = computeCourierQuote(courierName, zone, weightKg, codAmount);
-                    const enriched = {
-                        ...res,
-                        idempotent_replay: false,
-                        routing_reason: isAuto
-                            ? `Auto-selected '${courierName}' for zone='${zone}' with priority='${priority}'.`
-                            : `Booked on explicitly requested courier '${courierName}'.`,
-                        estimated_cost_bdt: courierQuote.total_cost,
-                        cost_estimate_bdt: courierQuote.total_cost,
-                        cancellable_via_api: false,
-                        validation: {
-                            phone_ok: true,
-                            address_ok: true,
-                            needs_review: needsReview,
-                        },
-                    };
-                    idempotencyStore.set(idemKey, enriched);
-                    return enriched;
-                }
-                lastErr = new McpToolError({
-                    code: "COURIER_UPSTREAM_ERROR",
-                    message: res?.message || res?.error || `${courierName} rejected parcel booking.`,
-                    courier: courierName,
-                });
-            }
-            catch (err) {
-                lastErr = err;
-                if (isNetworkTimeout(err)) {
-                    throw new McpToolError({
-                        code: "COURIER_UPSTREAM_ERROR",
-                        message: "Carrier " + courierName + " timed out during parcel creation. The parcel may have been booked upstream. Halting cascade to prevent duplicate parcel creation. State is UNKNOWN_PENDING_RECONCILIATION.",
-                        courier: courierName,
-                        retryable: true,
-                        extraFields: {
-                            status: "UNKNOWN_PENDING_RECONCILIATION",
-                            timeout_uncertain: true,
-                            courier_attempted: courierName,
+                },
+            });
+        }
+        // Coalesce concurrent identical (tenant, invoice) requests onto ONE single upstream call
+        const inFlight = inFlightBookings.get(idemKey);
+        if (inFlight) {
+            const sharedResult = await inFlight;
+            return {
+                ...sharedResult,
+                idempotent_replay: true,
+            };
+        }
+        const bookingPromise = (async () => {
+            // Check durable PostgreSQL ledger before hitting upstream carrier (survives restarts/redeployments)
+            if (registryDbPool) {
+                try {
+                    const dbHit = await registryDbPool.query(`SELECT courier, tracking_code, status, cod_amount, raw
+             FROM courier_parcels
+             WHERE tenant = $1 AND (raw->>'invoice' = $2 OR raw->>'idempotency_key' = $3)
+             ORDER BY created_at DESC LIMIT 1`, [tenantKey, invoice, idemKey]);
+                    if (dbHit?.rows && dbHit.rows.length > 0) {
+                        const row = dbHit.rows[0];
+                        const recovered = {
+                            success: true,
+                            courier: (row.courier || candidates[0]),
+                            tracking_code: String(row.tracking_code || ""),
+                            consignment_id: row.raw?.consignment_id || row.tracking_code,
                             invoice,
-                        },
+                            status: String(row.status || "booked"),
+                            cod_amount: Number(row.cod_amount ?? codAmount),
+                            idempotent_replay: true,
+                            routing_reason: `Recovered existing booking from durable PostgreSQL ledger for invoice '${invoice}'.`,
+                            cancellable_via_api: false,
+                        };
+                        idempotencyStore.set(idemKey, recovered);
+                        return recovered;
+                    }
+                }
+                catch (dbErr) {
+                    console.warn("[Registry] Durable idempotency lookup skipped:", dbErr?.message);
+                }
+            }
+            let lastErr = null;
+            for (const courierName of candidates) {
+                try {
+                    const adapter = this.getAdapter(courierName);
+                    const res = await adapter.createParcel({
+                        ...req,
+                        recipient_phone: cleanPhone,
+                        recipient_address: addrStr,
+                        invoice,
+                        courier: courierName,
+                    });
+                    if (res && res.success !== false && (res.tracking_code || res.consignment_id)) {
+                        const courierQuote = computeCourierQuote(courierName, zone, weightKg, codAmount);
+                        const enriched = {
+                            ...res,
+                            idempotent_replay: false,
+                            routing_reason: isAuto
+                                ? `Auto-selected '${courierName}' for zone='${zone}' with priority='${priority}'.`
+                                : `Booked on explicitly requested courier '${courierName}'.`,
+                            estimated_cost_bdt: courierQuote.total_cost,
+                            cost_estimate_bdt: courierQuote.total_cost,
+                            cancellable_via_api: false,
+                            validation: {
+                                phone_ok: true,
+                                address_ok: true,
+                                needs_review: needsReview,
+                            },
+                        };
+                        idempotencyStore.set(idemKey, enriched);
+                        // Persist durably in PostgreSQL if connected
+                        if (registryDbPool && enriched.tracking_code) {
+                            try {
+                                await registryDbPool.query(`INSERT INTO courier_parcels
+                     (tenant, source, courier, tracking_code, customer_name, phone, address, cod_amount, item_description, status, raw)
+                   VALUES ($1, 'mcp', $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb)
+                   ON CONFLICT (tenant, tracking_code) DO NOTHING`, [
+                                    tenantKey,
+                                    courierName,
+                                    String(enriched.tracking_code),
+                                    String(req.recipient_name || ""),
+                                    cleanPhone,
+                                    addrStr,
+                                    Number(codAmount || 0),
+                                    String(req.note || req.item_type || ""),
+                                    String(enriched.status || "booked"),
+                                    JSON.stringify({
+                                        invoice,
+                                        idempotency_key: idemKey,
+                                        consignment_id: enriched.consignment_id,
+                                    }),
+                                ]);
+                            }
+                            catch (persistErr) {
+                                console.warn("[Registry] Durable parcel persist skipped:", persistErr?.message);
+                            }
+                        }
+                        return enriched;
+                    }
+                    // Ambiguous non-error response missing tracking_code/consignment_id -> HALT cascade (P1-04)
+                    if (res && res.success !== false) {
+                        pendingReconciliationStore.set(idemKey, {
+                            courier: courierName,
+                            invoice,
+                            reason: "Ambiguous upstream response without tracking_code/consignment_id",
+                            timestamp: new Date().toISOString(),
+                        });
+                        throw new McpToolError({
+                            code: "COURIER_UPSTREAM_ERROR",
+                            message: `Carrier ${courierName} returned an ambiguous response without tracking_code/consignment_id. Halting cascade to prevent duplicate booking. State is UNKNOWN_PENDING_RECONCILIATION.`,
+                            courier: courierName,
+                            retryable: true,
+                            extraFields: {
+                                status: "UNKNOWN_PENDING_RECONCILIATION",
+                                ambiguous_outcome: true,
+                                courier_attempted: courierName,
+                                invoice,
+                            },
+                        });
+                    }
+                    lastErr = new McpToolError({
+                        code: "COURIER_UPSTREAM_ERROR",
+                        message: res?.message || res?.error || `${courierName} rejected parcel booking.`,
+                        courier: courierName,
                     });
                 }
+                catch (err) {
+                    if (err instanceof McpToolError && err.extraFields?.status === "UNKNOWN_PENDING_RECONCILIATION") {
+                        throw err;
+                    }
+                    lastErr = err;
+                    if (!isDefinitePreBookingRejection(err)) {
+                        const isTimeout = isNetworkTimeout(err);
+                        pendingReconciliationStore.set(idemKey, {
+                            courier: courierName,
+                            invoice,
+                            reason: err?.message || "Ambiguous upstream failure",
+                            timestamp: new Date().toISOString(),
+                        });
+                        throw new McpToolError({
+                            code: "COURIER_UPSTREAM_ERROR",
+                            message: isTimeout
+                                ? `Carrier ${courierName} timed out during parcel creation. The parcel may have been booked upstream. Halting cascade to prevent duplicate parcel creation. State is UNKNOWN_PENDING_RECONCILIATION.`
+                                : `Carrier ${courierName} returned an ambiguous upstream outcome (${err?.message || "unknown error"}). Halting cascade to prevent duplicate parcel creation. State is UNKNOWN_PENDING_RECONCILIATION.`,
+                            courier: courierName,
+                            retryable: true,
+                            extraFields: {
+                                status: "UNKNOWN_PENDING_RECONCILIATION",
+                                timeout_uncertain: isTimeout,
+                                ambiguous_outcome: true,
+                                courier_attempted: courierName,
+                                invoice,
+                            },
+                        });
+                    }
+                }
             }
+            if (lastErr instanceof McpToolError) {
+                throw lastErr;
+            }
+            throw new McpToolError({
+                code: "COURIER_UPSTREAM_ERROR",
+                message: lastErr?.message || "All configured courier gateways failed to book parcel.",
+            });
+        })();
+        inFlightBookings.set(idemKey, bookingPromise);
+        try {
+            return await bookingPromise;
         }
-        if (lastErr instanceof McpToolError) {
-            throw lastErr;
+        finally {
+            inFlightBookings.delete(idemKey);
         }
-        throw new McpToolError({
-            code: "COURIER_UPSTREAM_ERROR",
-            message: lastErr?.message || "All configured courier gateways failed to book parcel.",
-        });
     }
     async trackParcel(trackingCode, courierName) {
         const cleanCode = String(trackingCode || "").trim();

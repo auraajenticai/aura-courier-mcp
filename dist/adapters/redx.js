@@ -15,6 +15,7 @@ export class RedxAdapter {
                 "Content-Type": "application/json",
             },
             timeout: 15000,
+            maxRedirects: 0,
         });
     }
     isConfigured() {

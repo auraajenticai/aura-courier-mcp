@@ -25,6 +25,7 @@ export class SteadfastAdapter implements CourierAdapter {
         "Content-Type": "application/json",
       },
       timeout: 10000,
+      maxRedirects: 0,
     });
   }
 

@@ -36,7 +36,7 @@ export class PathaoAdapter {
             username: this.username,
             password: this.password,
             grant_type: "password",
-        });
+        }, { timeout: 12000, maxRedirects: 0 });
         this.accessToken = response.data.access_token;
         this.tokenExpiresAt = now + (response.data.expires_in || 3600) * 1000;
         return this.accessToken;
@@ -50,6 +50,7 @@ export class PathaoAdapter {
                 "Content-Type": "application/json",
             },
             timeout: 12000,
+            maxRedirects: 0,
         });
     }
     /**

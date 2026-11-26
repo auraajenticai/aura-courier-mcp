@@ -52,13 +52,17 @@ export class PathaoAdapter implements CourierAdapter {
       return this.accessToken;
     }
 
-    const response = await axios.post(`${this.baseUrl}/aladdin/api/v1/issue-token`, {
-      client_id: this.clientId,
-      client_secret: this.clientSecret,
-      username: this.username,
-      password: this.password,
-      grant_type: "password",
-    });
+    const response = await axios.post(
+      `${this.baseUrl}/aladdin/api/v1/issue-token`,
+      {
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        username: this.username,
+        password: this.password,
+        grant_type: "password",
+      },
+      { timeout: 12000, maxRedirects: 0 }
+    );
 
     this.accessToken = response.data.access_token;
     this.tokenExpiresAt = now + (response.data.expires_in || 3600) * 1000;
@@ -74,6 +78,7 @@ export class PathaoAdapter implements CourierAdapter {
         "Content-Type": "application/json",
       },
       timeout: 12000,
+      maxRedirects: 0,
     });
   }
 

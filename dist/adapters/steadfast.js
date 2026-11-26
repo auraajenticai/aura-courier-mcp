@@ -15,6 +15,7 @@ export class SteadfastAdapter {
                 "Content-Type": "application/json",
             },
             timeout: 10000,
+            maxRedirects: 0,
         });
     }
     isConfigured() {

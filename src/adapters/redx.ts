@@ -25,6 +25,7 @@ export class RedxAdapter implements CourierAdapter {
         "Content-Type": "application/json",
       },
       timeout: 15000,
+      maxRedirects: 0,
     });
   }
 

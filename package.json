@@ -1,6 +1,6 @@
 {
   "name": "aura-courier-mcp",
-  "version": "2.7.1",
+  "version": "2.7.2",
   "description": "Universal Bangladesh courier MCP server for Steadfast, Pathao, RedX, and Paperfly with zero-mock fraud risk, Google Maps routing, enterprise privacy, and token-bucket rate limiting.",
   "main": "dist/index.js",
   "type": "module",
@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "node --test test/v260.test.mjs test/oauth21.test.mjs",
+    "test": "node --test test/v260.test.mjs test/oauth21.test.mjs test/security_hardening.test.mjs",
     "prepublishOnly": "npm run test && npm run build",
     "start": "node dist/index.js",
     "start:http": "node dist/http.js",
@@ -47,15 +47,15 @@
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "zod": "^3.24.2",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.13.0",
+    "@types/pg": "^8.11.11",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3",
-    "@types/pg": "^8.11.11"
+    "typescript": "^5.7.3"
   },
   "mcpName": "io.github.auraajenticai/aura-courier-mcp"
 }

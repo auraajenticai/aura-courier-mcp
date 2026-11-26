@@ -1,8 +1,10 @@
 import { type Express, type Request } from "express";
 import { EnvSource } from "./config.js";
 /**
- * F10 Fix: Pull client courier keys strictly from request headers.
- * Query parameters are completely ignored to prevent credential leakage in URL logs.
+ * P0-03 & P1-01 Fix: Pull authenticated tenant BYOK keys strictly from request headers.
+ * Arbitrary caller base-URL headers are validated against the official HTTPS carrier allowlist
+ * (rejecting any http:, IP literal, private/internal host, or unlisted domain).
  */
 export declare function keysFromRequest(req: Request): EnvSource;
 export declare const app: Express;
+export declare function clearWebhookReplayCache(): void;

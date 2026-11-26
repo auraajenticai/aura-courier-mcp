@@ -26,10 +26,26 @@ export interface AuditEntry {
     outcome: "ok" | "denied" | "error";
 }
 export declare const auditLogBuffer: AuditEntry[];
+export declare const FORBIDDEN_WEAK_SECRETS: Set<string>;
+export declare function isStrongSecret(val: string | undefined, minLen?: number): boolean;
+export declare function getMasterKey(): string;
+export declare function getAdminKey(): string;
+export declare function getReadOnlyKey(): string;
+export declare function getWebhookSecret(): string;
+export declare function validateSecurityConfig(): {
+    ok: boolean;
+    errors: string[];
+};
 /**
- * F10 Fix: Accept BYOK credentials STRICTLY from request headers.
- * Query parameters are completely ignored to avoid leaking secrets in proxy/access logs.
+ * P0-03 Fix: Detect and validate BYOK carrier credential bundles strictly from request headers.
+ * Every BYOK provider supplied must include its complete required credential set.
+ * BYOK NEVER bypasses Aura authentication or tool scopes.
  */
+export declare function validateByokHeaders(req: Request): {
+    isByok: boolean;
+    valid: boolean;
+    reason?: string;
+};
 export declare function hasByokCredentials(req: Request): boolean;
 export declare function extractBearerToken(req: Request): string | undefined;
 /**
@@ -66,8 +82,8 @@ export declare function listDynamicKeySummaries(): {
 }[];
 export declare function registerApiKey(token: string, tenantId: string, scopes?: AuthScope[], isAdmin?: boolean): void;
 /**
- * F01 Fix: Cryptographic Token Resolution without prefix bypass.
- * Prefix matching (aura_rw_*, aura_tenant_*) is strictly abolished.
+ * P0-01 Fix: Fail-Closed Cryptographic Token Resolution.
+ * Zero hardcoded fallback keys; zero prefix bypasses.
  */
 export declare function resolveAuthContext(req: Request): AuraAuthContext;
 /**
@@ -92,9 +108,16 @@ export declare function isActionPermitted(req: Request, toolName: string, args?:
  * Record privacy-safe audit log: hashes sanitized arguments; NEVER logs raw phone numbers or addresses.
  */
 export declare function recordAuditLog(tenant: string, tool: string, args: Record<string, any> | undefined, outcome: "ok" | "denied" | "error"): void;
+export interface WebhookAuthResult {
+    valid: boolean;
+    tenantId: string;
+    authMethod?: string;
+}
 /**
- * F09 Fix: Native Carrier Webhook HMAC-SHA256 & Token Verification.
- * Pathao uses HMAC-SHA256 with PATHAO_CLIENT_SECRET over raw request body.
- * Steadfast uses secret key header comparison.
+ * P0-02 Fix: Fail-Closed Carrier Webhook Authentication & Server-Side Tenant Resolution.
+ * - Abolishes arbitrary >=8-char URL path token acceptance.
+ * - Abolishes hardcoded webhook secret fallbacks.
+ * - Resolves tenantId strictly from server-side verified key/provider bindings (never attacker-supplied URL paths).
  */
+export declare function authenticateWebhook(req: Request, provider: string): WebhookAuthResult;
 export declare function verifyWebhookSignature(req: Request, provider: string): boolean;

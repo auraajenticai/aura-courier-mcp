@@ -1,15 +1,15 @@
 import express from "express";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { CourierRegistry, recordWebhookEvent, setRegistryDbPool } from "./registry.js";
-import { loadConfig } from "./config.js";
+import { loadConfig, validateCarrierBaseUrl } from "./config.js";
 import { buildMcpServer, executeToolCall, TOOLS } from "./server.js";
 import { createRateLimiter } from "./middleware/rate_limit.js";
-import { optionalAuthMiddleware, requireMcpAuth, isActionPermitted, resolveAuthContext, verifyWebhookSignature, recordAuditLog, initDynamicAuthStore, upsertDynamicKeyHash, setTenantDynamicKeyStatus, listDynamicKeySummaries, } from "./middleware/auth.js";
+import { optionalAuthMiddleware, requireMcpAuth, isActionPermitted, resolveAuthContext, authenticateWebhook, validateSecurityConfig, recordAuditLog, initDynamicAuthStore, upsertDynamicKeyHash, setTenantDynamicKeyStatus, listDynamicKeySummaries, } from "./middleware/auth.js";
 import { registerOAuthRoutes, buildWwwAuthenticateHeader } from "./middleware/oauth.js";
-import { McpToolError, wrapError, wrapSuccess, maskPhone } from "./envelope.js";
+import { McpToolError, wrapError, wrapSuccess } from "./envelope.js";
 import { APP_VERSION } from "./version.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -81,14 +81,12 @@ function redactAddressToDistrict(addr) {
     return addr;
 }
 /**
- * F10 Fix: Pull client courier keys strictly from request headers.
- * Query parameters are completely ignored to prevent credential leakage in URL logs.
+ * P0-03 & P1-01 Fix: Pull authenticated tenant BYOK keys strictly from request headers.
+ * Arbitrary caller base-URL headers are validated against the official HTTPS carrier allowlist
+ * (rejecting any http:, IP literal, private/internal host, or unlisted domain).
  */
 export function keysFromRequest(req) {
     const h = req.headers;
-    // Strict Multi-Tenant & BYOK Isolation:
-    // If caller explicitly sends any BYOK courier headers (isByok === true), NEVER fall back to
-    // platform master courier env keys so vendor/merchant BYOK credentials never mix with central keys.
     const isByokRequest = Boolean(req.auraAuth?.isByok ||
         h["x-steadfast-api-key"] ||
         h["x-pathao-client-id"] ||
@@ -108,23 +106,33 @@ export function keysFromRequest(req) {
         }
         return undefined;
     };
+    // Validate any caller-supplied base URL headers immediately against the strict SSRF allowlist
+    const pickBaseUrl = (provider, header, envVar, defaultUrl) => {
+        const hv = h[header];
+        const headerVal = (Array.isArray(hv) ? hv[0] : hv) || "";
+        if (typeof headerVal === "string" && headerVal.trim()) {
+            return validateCarrierBaseUrl(provider, headerVal.trim(), defaultUrl);
+        }
+        return validateCarrierBaseUrl(provider, process.env[envVar], defaultUrl);
+    };
     return {
         STEADFAST_API_KEY: pick("x-steadfast-api-key", "STEADFAST_API_KEY"),
         STEADFAST_SECRET_KEY: pick("x-steadfast-secret-key", "STEADFAST_SECRET_KEY"),
-        STEADFAST_BASE_URL: pick("x-steadfast-base-url", "STEADFAST_BASE_URL", true),
+        STEADFAST_BASE_URL: pickBaseUrl("steadfast", "x-steadfast-base-url", "STEADFAST_BASE_URL", "https://portal.packzy.com/api/v1"),
         PATHAO_CLIENT_ID: pick("x-pathao-client-id", "PATHAO_CLIENT_ID"),
         PATHAO_CLIENT_SECRET: pick("x-pathao-client-secret", "PATHAO_CLIENT_SECRET"),
         PATHAO_USERNAME: pick("x-pathao-username", "PATHAO_USERNAME"),
         PATHAO_PASSWORD: pick("x-pathao-password", "PATHAO_PASSWORD"),
         PATHAO_STORE_ID: pick("x-pathao-store-id", "PATHAO_STORE_ID"),
-        PATHAO_BASE_URL: pick("x-pathao-base-url", "PATHAO_BASE_URL", true),
+        PATHAO_BASE_URL: pickBaseUrl("pathao", "x-pathao-base-url", "PATHAO_BASE_URL", "https://api-hermes.pathao.com"),
         REDX_API_TOKEN: pick("x-redx-api-token", "REDX_API_TOKEN"),
-        REDX_BASE_URL: pick("x-redx-base-url", "REDX_BASE_URL", true),
+        REDX_BASE_URL: pickBaseUrl("redx", "x-redx-base-url", "REDX_BASE_URL", "https://openapi.redx.com.bd/v1.0.0-beta"),
         REDX_PICKUP_STORE_ID: pick("x-redx-pickup-store-id", "REDX_PICKUP_STORE_ID"),
         PAPERFLY_API_KEY: pick("x-paperfly-api-key", "PAPERFLY_API_KEY"),
         PAPERFLY_USERNAME: pick("x-paperfly-username", "PAPERFLY_USERNAME"),
         PAPERFLY_PASSWORD: pick("x-paperfly-password", "PAPERFLY_PASSWORD"),
         PAPERFLY_STORE_NAME: pick("x-paperfly-store-name", "PAPERFLY_STORE_NAME"),
+        PAPERFLY_BASE_URL: pickBaseUrl("paperfly", "x-paperfly-base-url", "PAPERFLY_BASE_URL", "https://api.paperfly.com.bd"),
         GOOGLE_MAPS_API_KEY: pick("x-google-maps-key", "GOOGLE_MAPS_API_KEY", true),
     };
 }
@@ -148,14 +156,53 @@ app.use((err, _req, res, next) => {
     }
     next(err);
 });
-// Allow browser-based and cross-origin MCP clients.
+// Controlled CORS policy: respects CORS_ORIGIN allowlist when configured; excludes arbitrary carrier base-URL headers.
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
+    const configuredOrigins = (process.env.CORS_ORIGIN || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    const reqOrigin = req.headers.origin;
+    if (configuredOrigins.length > 0) {
+        if (reqOrigin && configuredOrigins.includes(reqOrigin)) {
+            res.header("Access-Control-Allow-Origin", reqOrigin);
+            res.header("Vary", "Origin");
+        }
+    }
+    else {
+        res.header("Access-Control-Allow-Origin", "*");
+    }
     res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS, HEAD, PATCH, PUT");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-aura-signature, x-steadfast-signature, x-pathao-signature, x-redx-signature, x-paperfly-signature, x-webhook-secret, x-steadfast-api-key, x-steadfast-secret-key, x-steadfast-base-url, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-pathao-base-url, x-redx-api-token, x-redx-base-url, x-redx-pickup-store-id, x-paperfly-api-key, x-paperfly-username, x-paperfly-password, x-paperfly-store-name, x-google-maps-key");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-aura-signature, x-steadfast-signature, x-pathao-signature, x-redx-signature, x-paperfly-signature, x-webhook-secret, x-steadfast-api-key, x-steadfast-secret-key, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-redx-api-token, x-redx-pickup-store-id, x-paperfly-api-key, x-paperfly-username, x-paperfly-password, x-paperfly-store-name, x-google-maps-key");
     res.header("Access-Control-Expose-Headers", "mcp-session-id, WWW-Authenticate");
     if (req.method === "OPTIONS") {
         return res.sendStatus(204);
+    }
+    next();
+});
+// P1-01 Early Anti-SSRF Header Guard: reject any disallowed carrier base-URL header before routing
+app.use((req, res, next) => {
+    const checks = [
+        ["steadfast", "x-steadfast-base-url", "https://portal.packzy.com/api/v1"],
+        ["pathao", "x-pathao-base-url", "https://api-hermes.pathao.com"],
+        ["redx", "x-redx-base-url", "https://openapi.redx.com.bd/v1.0.0-beta"],
+        ["paperfly", "x-paperfly-base-url", "https://api.paperfly.com.bd"],
+    ];
+    for (const [prov, hdr, def] of checks) {
+        const hv = req.headers[hdr];
+        const val = Array.isArray(hv) ? hv[0] : hv;
+        if (typeof val === "string" && val.trim()) {
+            try {
+                validateCarrierBaseUrl(prov, val.trim(), def);
+            }
+            catch (err) {
+                return res.status(400).json(wrapError(new McpToolError({
+                    code: "INVALID_INPUT",
+                    message: err?.message || `Disallowed ${prov} base URL header.`,
+                    retryable: false,
+                }), "validator"));
+            }
+        }
     }
     next();
 });
@@ -395,9 +442,9 @@ app.delete("/mcp", requireMcpAuth, async (req, res) => {
     await entry.transport.handleRequest(req, res);
 });
 /**
- * GET /sse - Standard MCP Server-Sent Events Endpoint for AI Agent Connectors (Claude Desktop, Cursor, Glama, LibreChat, Smithery)
+ * GET /sse - Authenticated MCP Server-Sent Events Endpoint for AI Agent Connectors
  */
-app.get("/sse", mcpLimiter, async (req, res) => {
+app.get("/sse", mcpLimiter, requireMcpAuth, async (req, res) => {
     const tenantId = req.auraAuth?.tenantId || "default";
     const token = req.query.token || req.query.key || req.query.apiKey || req.query.api_key;
     const endpointUrl = token
@@ -414,16 +461,16 @@ app.get("/sse", mcpLimiter, async (req, res) => {
     await server.connect(transport);
 });
 /**
- * POST /messages - Standard MCP JSON-RPC Message Ingestion Endpoint for SSE Transports
+ * POST /messages - Authenticated MCP JSON-RPC Message Ingestion Endpoint for SSE Transports
  */
-app.post("/messages", mcpLimiter, async (req, res) => {
+app.post("/messages", mcpLimiter, requireMcpAuth, async (req, res) => {
     const sessionId = (req.query.sessionId || req.headers["mcp-session-id"]);
     if (!sessionId || !sseSessions.has(sessionId)) {
         return res.status(400).send("Invalid or missing sessionId");
     }
     const entry = sseSessions.get(sessionId);
-    const callerTenant = req.auraAuth?.authenticated ? req.auraAuth.tenantId : entry.tenantId;
-    if (entry.tenantId !== callerTenant && callerTenant !== "master" && entry.tenantId !== "default" && entry.tenantId !== "anonymous") {
+    const callerTenant = req.auraAuth?.tenantId || "anonymous";
+    if (entry.tenantId !== callerTenant && callerTenant !== "master") {
         return res.status(403).json(wrapError(new McpToolError({
             code: "UNAUTHORIZED",
             message: "SSE Session belongs to another tenant.",
@@ -433,13 +480,39 @@ app.post("/messages", mcpLimiter, async (req, res) => {
     entry.lastActiveAt = Date.now();
     await entry.transport.handlePostMessage(req, res, req.body);
 });
+// P0-02 Replay Protection Cache (10-minute sliding window, bounded size)
+const WEBHOOK_REPLAY_TTL_MS = 10 * 60 * 1000;
+const webhookReplayCache = new Map();
+export function clearWebhookReplayCache() {
+    webhookReplayCache.clear();
+}
+function checkAndMarkWebhookReplay(key) {
+    const now = Date.now();
+    const prev = webhookReplayCache.get(key);
+    if (prev && now - prev < WEBHOOK_REPLAY_TTL_MS) {
+        return true;
+    }
+    webhookReplayCache.set(key, now);
+    if (webhookReplayCache.size > 5000) {
+        for (const [k, ts] of webhookReplayCache.entries()) {
+            if (now - ts >= WEBHOOK_REPLAY_TTL_MS || webhookReplayCache.size > 4000) {
+                webhookReplayCache.delete(k);
+            }
+        }
+    }
+    return false;
+}
 /**
- * Task T1 & T8 — Unified Authenticated Webhook Handler for Steadfast, Pathao, RedX, and Paperfly
+ * P0-02 Hardened — Unified Authenticated Webhook Handler for Steadfast, Pathao, RedX, and Paperfly
+ * - Rejects unauthenticated/arbitrary merchant_token path segments with 401
+ * - Never discloses PATHAO_CLIENT_SECRET or AURA_WEBHOOK_SECRET in any response header
+ * - Derives tenantId strictly from server-side authenticated identity
+ * - Enforces optional timestamp skew guard (±10 min) and event replay deduplication (409)
  */
 function handleCourierWebhook(provider) {
     return (req, res) => {
-        const isValidSig = verifyWebhookSignature(req, provider);
-        if (!isValidSig) {
+        const whAuth = authenticateWebhook(req, provider);
+        if (!whAuth.valid) {
             return res.status(401).json(wrapError(new McpToolError({
                 code: "UNAUTHORIZED",
                 message: `Unauthorized ${provider} webhook request: missing or invalid signature/secret.`,
@@ -447,11 +520,24 @@ function handleCourierWebhook(provider) {
                 retryable: false,
             }), "validator"));
         }
+        // Optional webhook timestamp freshness check (±10 minutes)
+        const rawTs = (req.headers["x-webhook-timestamp"] || req.headers["x-timestamp"] || "");
+        if (rawTs) {
+            const parsedMs = /^\d+$/.test(rawTs.trim())
+                ? (rawTs.trim().length <= 10 ? Number(rawTs.trim()) * 1000 : Number(rawTs.trim()))
+                : Date.parse(rawTs.trim());
+            if (!Number.isFinite(parsedMs) || Math.abs(Date.now() - parsedMs) > WEBHOOK_REPLAY_TTL_MS) {
+                return res.status(401).json(wrapError(new McpToolError({
+                    code: "UNAUTHORIZED",
+                    message: "Stale or invalid webhook timestamp (outside ±10 minute replay window).",
+                    courier: provider,
+                    retryable: false,
+                }), "validator"));
+            }
+        }
         const payload = req.body || {};
         if (provider === "pathao" && String(payload.event || "").toLowerCase() === "webhook_integration") {
-            const secret = process.env.PATHAO_CLIENT_SECRET || process.env.AURA_WEBHOOK_SECRET || "";
-            if (secret)
-                res.setHeader("X-Pathao-Merchant-Webhook-Integration-Secret", secret);
+            // P0-02 Fix: NEVER return PATHAO_CLIENT_SECRET or AURA_WEBHOOK_SECRET in any HTTP response.
             return res.status(202).json({ ok: true, status: "webhook_verified" });
         }
         const consignmentId = payload.consignment_id ||
@@ -469,8 +555,29 @@ function handleCourierWebhook(provider) {
         const status = String(payload.status || payload.order_status || payload.event || "received");
         const eventType = String(payload.notification_type || payload.event || "delivery_status");
         const invoice = payload.invoice || payload.merchant_order_id;
-        const paramMerchantToken = req.params?.merchant_token ? String(req.params.merchant_token).trim() : "";
-        const tenantId = String(paramMerchantToken || req.query.tenant || req.headers["x-tenant-id"] || "default");
+        // P0-02 Fix: Tenant identity comes STRICTLY from server-side verified webhook auth, never arbitrary URL path.
+        const tenantId = whAuth.tenantId;
+        // Replay deduplication check (header event-id or payload body fingerprint)
+        const explicitEventId = String(req.headers["x-webhook-id"] ||
+            req.headers["x-event-id"] ||
+            payload.event_id ||
+            payload.webhook_event_id ||
+            "").trim();
+        const rawBodyHash = createHash("sha256")
+            .update(req.rawBody ? String(req.rawBody) : JSON.stringify(payload))
+            .digest("hex")
+            .slice(0, 24);
+        const replayKey = explicitEventId
+            ? `${provider}:${tenantId}:id:${explicitEventId}`
+            : `${provider}:${tenantId}:hash:${consignmentId || "none"}:${status}:${eventType}:${rawBodyHash}`;
+        if (checkAndMarkWebhookReplay(replayKey)) {
+            return res.status(409).json({
+                ok: false,
+                duplicate: true,
+                courier: provider,
+                message: "Duplicate webhook event ignored (replay protection).",
+            });
+        }
         const record = {
             id: randomUUID(),
             courier: provider,
@@ -481,12 +588,12 @@ function handleCourierWebhook(provider) {
             received_at: new Date().toISOString(),
             payload,
         };
-        // F06: Record webhook event scoped by tenantId
+        // F06: Record webhook event scoped by server-verified tenantId
         recordWebhookEvent(record, tenantId);
         // Forward verified Pathao financial events best-effort to Snehalata Financial Manager
         if (provider === "pathao" && process.env.NODE_ENV !== "test" && /deliver|return|paid|settlement|invoice/i.test(`${status} ${eventType}`)) {
             const fwdUrl = process.env.SNEHALATA_WEBHOOK_URL || "https://www.snehalata.com/api/webhooks/pathao";
-            const sig = String(req.headers["x-pathao-signature"] || process.env.PATHAO_CLIENT_SECRET || "");
+            const sig = String(req.headers["x-pathao-signature"] || "");
             if (fwdUrl && sig) {
                 fetch(fwdUrl, {
                     method: "POST",
@@ -555,41 +662,52 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
     const isOwner = isAuth && (callerTenant === "master" || callerTenant === dbParcel?.tenant_id || callerTenant === dbParcel?.tenant);
     if (format === "json" || (!req.headers.accept?.includes("text/html") && format !== "html")) {
         if (trackResult) {
-            let sanitized = trackResult;
             if (!isOwner) {
-                sanitized = {
-                    ...trackResult,
-                    recipient_phone: trackResult.recipient_phone ? maskPhone(trackResult.recipient_phone) : undefined,
-                    recipient_address: trackResult.recipient_address ? redactAddressToDistrict(trackResult.recipient_address) : undefined,
+                // P1-02 Fix: Minimal public DTO — strips raw_response, phone, full address, customer name, and COD value
+                const publicDto = {
+                    success: true,
+                    courier: trackResult.courier,
+                    tracking_code: trackResult.tracking_code || code,
+                    status: trackResult.status,
+                    updated_at: trackResult.updated_at,
+                    destination_area: trackResult.recipient_address
+                        ? redactAddressToDistrict(trackResult.recipient_address)
+                        : "Bangladesh",
+                    privacy_mode: "public_masked",
                 };
+                return res.json(wrapSuccess(publicDto, "live_api"));
             }
-            return res.json(wrapSuccess(sanitized, "live_api"));
+            return res.json(wrapSuccess(trackResult, "live_api"));
         }
         if (dbParcel) {
-            let safeParcel = dbParcel;
             if (!isOwner) {
-                safeParcel = {
-                    ...dbParcel,
-                    recipient_phone: maskPhone(dbParcel.recipient_phone || dbParcel.phone || ""),
-                    recipient_address: redactAddressToDistrict(dbParcel.recipient_address || dbParcel.address || ""),
-                    customer_name: dbParcel.customer_name ? dbParcel.customer_name.charAt(0) + "***" : "Customer",
+                const publicDbDto = {
+                    success: true,
+                    parcel: {
+                        courier: dbParcel.courier || courier,
+                        tracking_code: dbParcel.tracking_code || code,
+                        status: dbParcel.status || "booked",
+                        updated_at: dbParcel.updated_at || dbParcel.created_at,
+                        destination_area: redactAddressToDistrict(dbParcel.recipient_address || dbParcel.address || ""),
+                        privacy_mode: "public_masked",
+                    },
                 };
+                return res.json(wrapSuccess(publicDbDto, "cache"));
             }
-            return res.json(wrapSuccess({ success: true, parcel: safeParcel }, "cache"));
+            return res.json(wrapSuccess({ success: true, parcel: dbParcel }, "cache"));
         }
         return res.status(404).json(wrapError(errorObj || new Error("Consignment not found"), "live_api"));
     }
     const raw = trackResult?.raw_response?.data || trackResult?.raw_response || (dbParcel?.raw?.data || dbParcel?.raw) || {};
     let recipientName = dbParcel?.customer_name || raw.recipient_name || raw.customer_name || raw.name || "Verified Customer";
     let recipientAddress = dbParcel?.address || raw.recipient_address || raw.address || "Bangladesh";
-    // F03: Mask PII for public web tracker view
+    // P1-02 Fix: Strict PII & COD redaction for unauthenticated/non-owner HTML tracker view
     if (!isOwner) {
         recipientAddress = redactAddressToDistrict(recipientAddress);
-        if (recipientName && recipientName.length > 2) {
-            recipientName = recipientName.charAt(0) + "*** " + (recipientName.split(" ")[1] || "");
-        }
+        recipientName = "Verified Recipient";
     }
     const codAmount = dbParcel?.cod_amount || raw.order_amount || raw.amount_to_collect || raw.cod_amount || raw.collectable_amount || 0;
+    const codDisplay = isOwner ? `৳ ${Number(codAmount).toLocaleString()}` : "Protected (Merchant Only)";
     const statusText = trackResult?.status || raw.order_status || (dbParcel?.status ? dbParcel.status.charAt(0).toUpperCase() + dbParcel.status.slice(1) : "Not Found");
     const resolvedCourier = (dbParcel?.courier || courier || "pathao").toLowerCase();
     const carrierName = resolvedCourier === "pathao" ? "Pathao Express" : (resolvedCourier === "steadfast" ? "Steadfast Courier" : resolvedCourier === "redx" ? "RedX Delivery" : resolvedCourier === "paperfly" ? "Paperfly Go" : resolvedCourier.toUpperCase());
@@ -664,7 +782,7 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
     </div>
     <div class="info-grid">
       <div class="info-item"><div class="info-item-label">Customer</div><div class="info-item-val">${escapeHtml(recipientName)}</div></div>
-      <div class="info-item"><div class="info-item-label">Cash on Delivery (COD)</div><div class="info-item-val">৳ ${Number(codAmount).toLocaleString()}</div></div>
+      <div class="info-item"><div class="info-item-label">Cash on Delivery (COD)</div><div class="info-item-val">${escapeHtml(codDisplay)}</div></div>
     </div>
     <div class="actions">
       ${shortLink ? `<a href="${escapeHtml(shortLink)}" target="_blank" class="btn btn-primary"><i class="fa-solid fa-location-arrow"></i> Official Carrier Map Tracker</a>` : ""}
@@ -765,6 +883,14 @@ app.get("/", (_req, res) => {
     });
 });
 if (process.env.NODE_ENV !== "test") {
+    const sec = validateSecurityConfig();
+    if (!sec.ok) {
+        console.error("[FATAL SECURITY CONFIG] Refusing to start Aura Courier MCP without strong secrets:");
+        for (const e of sec.errors) {
+            console.error(`  - ${e}`);
+        }
+        process.exit(1);
+    }
     app.listen(PORT, () => {
         console.log(`Aura Courier MCP v${APP_VERSION} (HTTP) listening on :${PORT} — POST /mcp`);
     });

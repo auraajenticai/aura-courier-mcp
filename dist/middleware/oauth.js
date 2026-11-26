@@ -22,11 +22,23 @@ setInterval(() => {
             revokedTokenIds.delete(k);
     }
 }, 5 * 60 * 1000).unref();
+const OAUTH_FORBIDDEN_DEFAULTS = new Set([
+    "aura_live_mcp_master_key_2026",
+    "aura_ro_public_inspector_2026",
+    "aura_webhook_secret_2026",
+    "change_me",
+    "changeme",
+    "secret",
+]);
 function getRootSecret() {
-    return (process.env.AURA_OAUTH_SECRET ||
+    const raw = (process.env.AURA_OAUTH_SECRET ||
         process.env.AURA_API_KEY ||
         process.env.COURIER_AUTH_TOKEN ||
-        "aura_live_mcp_master_key_2026");
+        "").trim();
+    if (raw.length < 20 || OAUTH_FORBIDDEN_DEFAULTS.has(raw.toLowerCase())) {
+        throw new Error("AURA_OAUTH_SECRET (or strong AURA_API_KEY >=20 chars) must be configured; predictable defaults are forbidden.");
+    }
+    return raw;
 }
 function deriveKey(purpose) {
     return createHash("sha256")

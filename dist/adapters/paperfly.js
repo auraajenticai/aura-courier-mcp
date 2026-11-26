@@ -17,6 +17,7 @@ export class PaperflyAdapter {
         this.client = axios.create({
             baseURL: baseUrl,
             timeout: 15000,
+            maxRedirects: 0,
             headers: { "Content-Type": "application/json" },
         });
     }
