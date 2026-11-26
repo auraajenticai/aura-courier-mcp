@@ -1,6 +1,14 @@
 import type { Express, Request, Response } from "express";
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { resolveAuthContextAsync, type AuthScope } from "./auth.js";
+import { createRateLimiter } from "./rate_limit.js";
+
+const oauthLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 20,
+  name: "OAuth 2.1 Security Gateway",
+  message: "Too many OAuth authentication or registration attempts. Please retry in a minute.",
+});
 
 const ACCESS_TOKEN_TTL_SEC = 3600; // 1 hour
 const REFRESH_TOKEN_TTL_SEC = 180 * 24 * 3600; // 180 days (non-rotating for Gemini stability)
@@ -1102,7 +1110,7 @@ export function registerOAuthRoutes(app: Express): void {
   app.get("/.well-known/openid-configuration", authServerMetadataHandler);
 
   // 3. RFC 7591 — Dynamic Client Registration (stateless HMAC-signed client_id, restart-proof)
-  app.post("/oauth/register", (req: Request, res: Response) => {
+  app.post("/oauth/register", oauthLimiter, (req: Request, res: Response) => {
     res.setHeader("Cache-Control", "no-store");
     const body = (req.body || {}) as Record<string, any>;
     const rawUris = body.redirect_uris;
@@ -1249,7 +1257,7 @@ export function registerOAuthRoutes(app: Express): void {
   });
 
   // 5. OAuth 2.1 Authorization Endpoint (POST Consent Submission)
-  app.post("/oauth/authorize", async (req: Request, res: Response) => {
+  app.post("/oauth/authorize", oauthLimiter, async (req: Request, res: Response) => {
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("X-Frame-Options", "DENY");
     res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
@@ -1407,7 +1415,7 @@ export function registerOAuthRoutes(app: Express): void {
   });
 
   // 6. OAuth 2.1 Token Endpoint (Authorization Code + PKCE S256 & Non-Rotating Refresh Token)
-  app.post("/oauth/token", (req: Request, res: Response) => {
+  app.post("/oauth/token", oauthLimiter, (req: Request, res: Response) => {
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Pragma", "no-cache");
 

@@ -9,7 +9,7 @@ import { buildMcpServer, executeToolCall, TOOLS } from "./server.js";
 import { createRateLimiter } from "./middleware/rate_limit.js";
 import { optionalAuthMiddleware, requireMcpAuth, isActionPermitted, resolveAuthContext, authenticateWebhook, validateSecurityConfig, recordAuditLog, initDynamicAuthStore, upsertDynamicKeyHash, setTenantDynamicKeyStatus, listDynamicKeySummaries, } from "./middleware/auth.js";
 import { registerOAuthRoutes, buildWwwAuthenticateHeader } from "./middleware/oauth.js";
-import { McpToolError, wrapError, wrapSuccess } from "./envelope.js";
+import { McpToolError, wrapError, wrapSuccess, maskPhone } from "./envelope.js";
 import { APP_VERSION } from "./version.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -30,18 +30,33 @@ if (process.env.NODE_ENV !== "test" && dbUrl) {
         console.warn("[PostgreSQL] Connection initialization skipped:", err?.message);
     }
 }
-// Automated Data Retention Engine (Daily Midnight Sweep)
+/**
+ * NEW-01 Fix: Automated Data Retention Engine (Daily Sweep) aligned to live PostgreSQL `courier_parcels` schema.
+ */
+export async function runDataRetentionSweep(pool) {
+    if (!pool)
+        return 0;
+    const pruneRes = await pool.query(`UPDATE courier_parcels
+     SET customer_name = 'ANONYMIZED',
+         phone = 'ANONYMIZED',
+         address = 'ANONYMIZED'
+     WHERE created_at < NOW() - INTERVAL '90 days'
+       AND (customer_name IS DISTINCT FROM 'ANONYMIZED'
+            OR phone IS DISTINCT FROM 'ANONYMIZED'
+            OR address IS DISTINCT FROM 'ANONYMIZED')`);
+    return pruneRes?.rowCount || 0;
+}
 setInterval(async () => {
     if (dbPool) {
         try {
-            const pruneRes = await dbPool.query(`UPDATE courier_parcels 
-         SET recipient_name = 'ANONYMIZED', recipient_phone = 'ANONYMIZED', recipient_address = 'ANONYMIZED'
-         WHERE created_at < NOW() - INTERVAL '90 days' AND recipient_name != 'ANONYMIZED'`);
-            if (pruneRes.rowCount && pruneRes.rowCount > 0) {
-                console.log(`[Data Retention Engine] Anonymized ${pruneRes.rowCount} legacy order records older than 90 days.`);
+            const pruned = await runDataRetentionSweep(dbPool);
+            if (pruned > 0) {
+                console.log(`[Data Retention Engine] Anonymized ${pruned} legacy order records older than 90 days.`);
             }
         }
-        catch (_) { }
+        catch (err) {
+            console.warn("[Data Retention Engine] Sweep error:", err?.message);
+        }
     }
 }, 24 * 60 * 60 * 1000).unref();
 const PORT = Number(process.env.PORT || 8080);
@@ -175,6 +190,8 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS, HEAD, PATCH, PUT");
     res.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, x-aura-signature, x-steadfast-signature, x-pathao-signature, x-redx-signature, x-paperfly-signature, x-webhook-secret, x-steadfast-api-key, x-steadfast-secret-key, x-pathao-client-id, x-pathao-client-secret, x-pathao-username, x-pathao-password, x-pathao-store-id, x-redx-api-token, x-redx-pickup-store-id, x-paperfly-api-key, x-paperfly-username, x-paperfly-password, x-paperfly-store-name, x-google-maps-key");
     res.header("Access-Control-Expose-Headers", "mcp-session-id, WWW-Authenticate");
+    res.header("Referrer-Policy", "no-referrer");
+    res.header("X-Content-Type-Options", "nosniff");
     if (req.method === "OPTIONS") {
         return res.sendStatus(204);
     }
@@ -260,8 +277,9 @@ app.post("/admin/tokens/revoke", async (req, res) => {
     const count = await setTenantDynamicKeyStatus(String(b.tenantId), String(b.status || "PAYMENT_DUE"));
     return res.json({ ok: true, tenantId: b.tenantId, updatedKeys: count, status: b.status || "PAYMENT_DUE" });
 });
-const mcpLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 60, name: "MCP Protocol Gateway" });
+const mcpLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "MCP Protocol Gateway" });
 const trackingLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 120, name: "Tracking Gateway" });
+const publicDemoLimiter = createRateLimiter({ windowMs: 60 * 1000, max: 10, name: "Public Fraud Demo" });
 const sessions = new Map();
 const sseSessions = new Map();
 const SESSION_TTL_MS = 30 * 60 * 1000;
@@ -409,9 +427,16 @@ app.get("/mcp", mcpLimiter, async (req, res) => {
         res.status(400).send("Invalid or missing session ID");
         return;
     }
+    if (!req.auraAuth?.authenticated) {
+        res.setHeader("WWW-Authenticate", buildWwwAuthenticateHeader(req, req.auraAuth?.tenantId === "invalid"));
+        return res.status(401).json(wrapError(new McpToolError({
+            code: "UNAUTHORIZED",
+            message: "Missing or invalid Authorization: Bearer <AURA_API_KEY> header for active MCP session.",
+        }), "validator"));
+    }
     const entry = sessions.get(sessionId);
-    const callerTenant = req.auraAuth?.authenticated ? req.auraAuth.tenantId : entry.tenantId;
-    if (entry.tenantId !== callerTenant && callerTenant !== "master" && entry.tenantId !== "default" && entry.tenantId !== "anonymous") {
+    const callerTenant = req.auraAuth.tenantId;
+    if (entry.tenantId !== callerTenant && callerTenant !== "master") {
         return res.status(403).json(wrapError(new McpToolError({
             code: "UNAUTHORIZED",
             message: "MCP Session belongs to another tenant.",
@@ -791,6 +816,41 @@ app.get("/track/:code", trackingLimiter, async (req, res) => {
   </div>
 </body>
 </html>`);
+});
+/**
+ * NEW-03 Fix: Safe Server-Side Public Fraud Demo Endpoint (Zero Browser API Key Exposure).
+ * Strictly limited to 10 requests/minute/IP and scoped exclusively to check_fraud_risk on valid BD mobile numbers.
+ */
+app.post("/api/public/fraud-demo", publicDemoLimiter, async (req, res) => {
+    const rawPhone = String(req.body?.phone || "").trim().replace(/[\s\-()]/g, "").replace(/^\+?88/, "");
+    if (!/^01[3-9]\d{8}$/.test(rawPhone)) {
+        return res.status(400).json(wrapError(new McpToolError({
+            code: "INVALID_INPUT",
+            message: "Valid 11-digit Bangladesh mobile number (013-019) is required.",
+            retryable: false,
+        }), "validator"));
+    }
+    try {
+        const registry = new CourierRegistry(loadConfig(process.env));
+        const result = await registry.checkFraudRisk(rawPhone);
+        const safeDto = {
+            phone_masked: maskPhone(rawPhone),
+            risk_level: result.risk_level,
+            delivery_success_rate: result.delivery_success_rate,
+            cancellation_rate: result.cancellation_rate,
+            is_verified_buyer: result.is_verified_buyer,
+            total_parcels: result.total_parcels,
+            total_delivered: result.total_delivered,
+            total_cancelled: result.total_cancelled,
+            sample_size: result.sample_size,
+            data_sources: result.data_sources,
+            recommendation: result.recommendation,
+        };
+        return res.json(wrapSuccess(safeDto, "live_api"));
+    }
+    catch (err) {
+        return res.status(502).json(wrapError(err, "live_api"));
+    }
 });
 /**
  * Task T9 — Health & Live Telemetry Endpoint

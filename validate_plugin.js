@@ -5,6 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -117,11 +118,76 @@ async function validateSkillsAndRules() {
   assert(ruleContent.includes('Google Maps Platform'), 'Google Maps geocoding policy is defined');
 }
 
+async function mintSandboxOAuthToken(baseOrigin, endpoint) {
+  const dcrRes = await fetch(`${baseOrigin}/oauth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      client_name: 'Antigravity Validator',
+      redirect_uris: ['http://127.0.0.1:54321/callback'],
+      token_endpoint_auth_method: 'none'
+    })
+  });
+  const dcr = await dcrRes.json();
+  const verifier = crypto.randomBytes(32).toString('base64url');
+  const challenge = crypto.createHash('sha256').update(verifier).digest('base64url');
+  const authUrl = new URL(`${baseOrigin}/oauth/authorize`);
+  authUrl.searchParams.set('response_type', 'code');
+  authUrl.searchParams.set('client_id', dcr.client_id);
+  authUrl.searchParams.set('redirect_uri', 'http://127.0.0.1:54321/callback');
+  authUrl.searchParams.set('code_challenge', challenge);
+  authUrl.searchParams.set('code_challenge_method', 'S256');
+  authUrl.searchParams.set('scope', 'read');
+  authUrl.searchParams.set('state', 'validator');
+  authUrl.searchParams.set('resource', endpoint);
+
+  const consentGet = await fetch(authUrl.toString());
+  const html = await consentGet.text();
+  const csrfMatch = html.match(/name="csrf_token"\s+value="([^"]+)"/);
+  if (!csrfMatch) throw new Error('Could not extract OAuth CSRF token');
+
+  const form = new URLSearchParams({
+    client_id: dcr.client_id,
+    redirect_uri: 'http://127.0.0.1:54321/callback',
+    state: 'validator',
+    scope: 'read',
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    resource: endpoint,
+    csrf_token: csrfMatch[1],
+    decision: 'sandbox',
+    auth_mode: 'sandbox'
+  });
+  const consentPost = await fetch(`${baseOrigin}/oauth/authorize`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: form.toString(),
+    redirect: 'manual'
+  });
+  const loc = consentPost.headers.get('location') || '';
+  const code = new URL(loc).searchParams.get('code');
+  if (!code) throw new Error('OAuth sandbox did not issue authorization code');
+
+  const tokRes = await fetch(`${baseOrigin}/oauth/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      client_id: dcr.client_id,
+      redirect_uri: 'http://127.0.0.1:54321/callback',
+      code_verifier: verifier
+    }).toString()
+  });
+  const tokJson = await tokRes.json();
+  if (!tokJson.access_token) throw new Error('OAuth token endpoint did not return access_token');
+  return tokJson.access_token;
+}
+
 async function validateRemoteMcpServer() {
   console.log('\n--- 5. Validating Live Remote MCP OAuth 2.1 Discovery, Handshake & 13 Tools ---');
   const baseOrigin = 'https://courier.auraajenticai.cloud';
   const endpoint = `${baseOrigin}/mcp`;
-  const authToken = process.env.AURA_API_KEY || 'aura_ro_public_inspector_2026';
   try {
     // 5a. RFC 9728 Protected Resource Metadata & RFC 8414 Authorization Server Metadata
     const prmRes = await fetch(`${baseOrigin}/.well-known/oauth-protected-resource`);
@@ -155,6 +221,8 @@ async function validateRemoteMcpServer() {
     assert(unauthRes.status === 401, `unauthenticated initialize returns HTTP 401 OAuth challenge (got ${unauthRes.status})`);
     const wwwAuth = unauthRes.headers.get('www-authenticate') || '';
     assert(wwwAuth.includes('resource_metadata='), '401 includes RFC 9728 WWW-Authenticate resource_metadata header');
+
+    const authToken = process.env.AURA_API_KEY || await mintSandboxOAuthToken(baseOrigin, endpoint);
 
     // 5c. Authenticated initialize handshake + 13 live tools
     const initRes = await fetch(endpoint, {

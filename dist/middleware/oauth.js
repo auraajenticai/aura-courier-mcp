@@ -1,5 +1,12 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { resolveAuthContextAsync } from "./auth.js";
+import { createRateLimiter } from "./rate_limit.js";
+const oauthLimiter = createRateLimiter({
+    windowMs: 60 * 1000,
+    max: 20,
+    name: "OAuth 2.1 Security Gateway",
+    message: "Too many OAuth authentication or registration attempts. Please retry in a minute.",
+});
 const ACCESS_TOKEN_TTL_SEC = 3600; // 1 hour
 const REFRESH_TOKEN_TTL_SEC = 180 * 24 * 3600; // 180 days (non-rotating for Gemini stability)
 const AUTH_CODE_TTL_SEC = 300; // 5 minutes
@@ -978,7 +985,7 @@ export function registerOAuthRoutes(app) {
     app.get("/.well-known/oauth-authorization-server/mcp", authServerMetadataHandler);
     app.get("/.well-known/openid-configuration", authServerMetadataHandler);
     // 3. RFC 7591 — Dynamic Client Registration (stateless HMAC-signed client_id, restart-proof)
-    app.post("/oauth/register", (req, res) => {
+    app.post("/oauth/register", oauthLimiter, (req, res) => {
         res.setHeader("Cache-Control", "no-store");
         const body = (req.body || {});
         const rawUris = body.redirect_uris;
@@ -1086,7 +1093,7 @@ export function registerOAuthRoutes(app) {
         }));
     });
     // 5. OAuth 2.1 Authorization Endpoint (POST Consent Submission)
-    app.post("/oauth/authorize", async (req, res) => {
+    app.post("/oauth/authorize", oauthLimiter, async (req, res) => {
         res.setHeader("Cache-Control", "no-store");
         res.setHeader("X-Frame-Options", "DENY");
         res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
@@ -1217,7 +1224,7 @@ export function registerOAuthRoutes(app) {
         return res.redirect(302, callback.toString());
     });
     // 6. OAuth 2.1 Token Endpoint (Authorization Code + PKCE S256 & Non-Rotating Refresh Token)
-    app.post("/oauth/token", (req, res) => {
+    app.post("/oauth/token", oauthLimiter, (req, res) => {
         res.setHeader("Cache-Control", "no-store");
         res.setHeader("Pragma", "no-cache");
         const b = (req.body || {});

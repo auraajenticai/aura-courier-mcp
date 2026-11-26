@@ -149,6 +149,10 @@ export function hasByokCredentials(req) {
     return validateByokHeaders(req).isByok;
 }
 export function extractBearerToken(req) {
+    const cachedQueryTok = req._extractedQueryToken;
+    if (typeof cachedQueryTok === "string" && cachedQueryTok) {
+        return cachedQueryTok;
+    }
     const authHeader = req.headers["authorization"] || req.headers["Authorization"];
     if (typeof authHeader === "string") {
         const trimmed = authHeader.trim();
@@ -161,12 +165,33 @@ export function extractBearerToken(req) {
     if (typeof customKey === "string" && customKey.trim()) {
         return customKey.trim();
     }
-    // Support query parameter tokens for remote AI agent connectors (Claude Desktop, Cursor, Glama, Zapier, Custom GPTs)
-    const q = req.query;
-    if (q) {
-        const candidate = q.token || q.key || q.apiKey || q.api_key;
-        if (typeof candidate === "string" && candidate.trim()) {
-            return candidate.trim();
+    // NEW-05 Fix: Restrict query-parameter tokens strictly to MCP/SSE connector endpoints (never /admin, /track, /webhooks, /oauth)
+    // and scrub secret query parameters from req.url / req.originalUrl immediately to prevent downstream log exposure.
+    if (process.env.ALLOW_QUERY_TOKEN !== "false") {
+        const reqPath = (req.path || (req.url ? req.url.split("?")[0] : "")).trim();
+        if (reqPath === "/mcp" || reqPath === "/sse" || reqPath === "/messages") {
+            const q = req.query;
+            if (q) {
+                const candidate = q.token || q.key || q.apiKey || q.api_key;
+                if (typeof candidate === "string" && candidate.trim()) {
+                    const cleanTok = candidate.trim();
+                    req._extractedQueryToken = cleanTok;
+                    req._usedQueryToken = true;
+                    delete q.token;
+                    delete q.key;
+                    delete q.apiKey;
+                    delete q.api_key;
+                    if (typeof req.url === "string" && req.url.includes("?")) {
+                        req.url = req.url.replace(/([?&])(token|key|apiKey|api_key)=[^&]*/gi, "$1[REDACTED]").replace(/\?&/, "?");
+                    }
+                    if (typeof req.originalUrl === "string" && req.originalUrl.includes("?")) {
+                        req.originalUrl = req.originalUrl
+                            .replace(/([?&])(token|key|apiKey|api_key)=[^&]*/gi, "$1[REDACTED]")
+                            .replace(/\?&/, "?");
+                    }
+                    return cleanTok;
+                }
+            }
         }
     }
     return undefined;

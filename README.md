@@ -1,10 +1,10 @@
-# 🚚 AURA COURIER MCP v2.7.1 — THE ENTERPRISE LOGISTICS MASTER MANUAL
+# 🚚 AURA COURIER MCP v2.7.3 — THE ENTERPRISE LOGISTICS MASTER MANUAL
 ### Universal Multi-Carrier Logistics Engine, Spatial Intelligence Hub & Zero-Risk COD Gateway
 **Published by Aura Agentic AI · Architected with DeepMind Principles & Google Maps Platform**
 
 [![Google Cloud Partner Advantage](https://img.shields.io/badge/Google_Cloud_Partner-Aura_Ajentic_AI-4285F4?logo=google-cloud&logoColor=white)](https://cloud.google.com/find-a-partner/partner/aura-ajentic-ai)
 [![auraajenticai/aura-courier-mcp MCP server](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp/badges/score.svg)](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp)
-[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.7.1-0676FF?logo=google&logoColor=white)](plugin.json)
+[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.7.3-0676FF?logo=google&logoColor=white)](plugin.json)
 [![User Guide BN/EN](https://img.shields.io/badge/User_Guide-বাংলা_%26_English-f59e0b)](https://courier.auraajenticai.cloud/guide)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Status](https://img.shields.io/badge/Status-Production%20Active-success.svg)](https://courier.auraajenticai.cloud)
@@ -24,7 +24,7 @@
 ### Core Architectural Pillars
 ```mermaid
 graph TD
-    AI[AI Agent / Vertex AI / Dashboard] -->|Streamable-HTTP / MCP| MCP[Aura Courier MCP Server v2.4]
+    AI[AI Agent / Vertex AI / Dashboard] -->|Streamable-HTTP / MCP| MCP[Aura Courier MCP Server v2.7.3]
     
     subgraph "Intelligent Logic Engines"
         MCP --> ROUTER[Multi-Carrier Smart Router]
@@ -117,9 +117,9 @@ Aura Courier MCP seamlessly interfaces with all tier-1 Bangladesh courier APIs u
 
 ---
 
-## 4. The 9 Enterprise Model Context Protocol (MCP) Tools
+## 4. The 13 Enterprise Model Context Protocol (MCP) Tools
 
-Aura Courier MCP exports 9 tools conforming to the MCP Specification (`2024-11-05`):
+Aura Courier MCP exports 13 tools conforming to the MCP Specification (`2025-03-26` / `2024-11-05`):
 
 ### 1. `list_couriers`
 * **Purpose**: Inspect carrier operational health and active credentials.
@@ -184,13 +184,22 @@ Aura Courier MCP exports 9 tools conforming to the MCP Specification (`2024-11-0
   ```
 * **Returns**: Best recommended courier, savings rationale, and 4 detailed carrier quotes.
 
-### 9. `resolve_ndr_issue` *(v2.4 New)*
-* **Purpose**: Non-Delivery Report (NDR) triage and automated dispute resolution.
+### 9. `resolve_ndr_issue`
+* **Purpose**: Non-Delivery Report (NDR) triage and automated dispute draft generation.
 * **Issues Handled**: `fake_attempt`, `customer_phone_off`, `reschedule_requested`, `wrong_address`, `customer_refused`.
-* **Output**:
-  - `customer_whatsapp_message`: Ready-to-send empathetic resolution text in Bengali.
-  - `carrier_instruction`: Official escalation dispatch ticket preventing Return-To-Origin (RTO).
-  - `resolution_status`: `DISPUTE_FILED`, `RESCHEDULE_QUEUED`, `ADDRESS_UPDATED`, `CUSTOMER_REENGAGED`.
+* **Output**: `customer_whatsapp_message`, `carrier_instruction`, and `resolution_status: "DRAFT_GENERATED"`.
+
+### 10. `cancel_parcel`
+* **Purpose**: Request parcel cancellation with strict tenant isolation (`courier`, `consignment_id`, `reason?`).
+
+### 11. `update_parcel`
+* **Purpose**: Update delivery instructions, phone, address, or COD amount for an active parcel (`courier`, `consignment_id`, `recipient_phone?`, `recipient_address?`, `cod_amount?`, `note?`).
+
+### 12. `bulk_create_parcels`
+* **Purpose**: Validate (`dry_run: true`) or book up to 100 parcels in a batch with isolated per-item error handling and durable idempotency.
+
+### 13. `get_webhook_events`
+* **Purpose**: Retrieve normalized tenant-scoped carrier webhook updates (`consignment_id?`, `since?`).
 
 ---
 
@@ -227,7 +236,7 @@ curl -s https://courier.auraajenticai.cloud/health | jq
 ```json
 {
   "ok": true,
-  "version": "2.7.1"
+  "version": "2.7.3"
 }
 ```
 
@@ -278,7 +287,7 @@ Add this configuration block to your client settings (`claude_desktop_config.jso
   "mcpServers": {
     "aura-courier": {
       "command": "npx",
-      "args": ["-y", "aura-courier-mcp@2.7.1"],
+      "args": ["-y", "aura-courier-mcp@2.7.3"],
       "env": {
         "PORT": "8080",
         "GOOGLE_MAPS_API_KEY": "<GOOGLE_MAPS_API_KEY>",
@@ -324,7 +333,7 @@ Or declare in your Antigravity `plugins.json`:
   }
 }
 ```
-Bundles the complete `courier-ops` skill (9 tools), `rules/COURIER_RULES.md` (smart auto-routing cascade & zero-mock policies), and `mcp_config.json`.
+Bundles the complete `courier-ops` skill (13 tools), `rules/COURIER_RULES.md` (smart auto-routing cascade & zero-mock policies), and `mcp_config.json`.
 
 ---
 
@@ -340,6 +349,10 @@ Bundles the complete `courier-ops` skill (9 tools), `rules/COURIER_RULES.md` (sm
 
 ## 9. Version History & Glama TDQS 5.0 Audit Log
 
+* **v2.7.3 (Nov 27, 2026)**:
+  - **Zero-Defect Security, SQL Schema & Registry Parity Release**: Fixed `courier_parcels` SQL column alignment & strict `AND tenant = $...` isolation across `update_parcel`, `cancel_parcel`, and 90-day PII retention; hardened `rate_limit.ts` against `X-Forwarded-For`/`CF-Connecting-IP` spoofing and added OAuth endpoint rate limits; replaced legacy browser demo keys with safe server-side `/api/public/fraud-demo`; enforced `GET /mcp` SSE session auth & query-token URL redaction; upgraded `Dockerfile` to multi-stage non-root (`USER node`); published `2.7.3` to `npmjs.org`.
+* **v2.7.2 (Nov 27, 2026)**:
+  - **Enterprise Security Hardening**: Fail-closed startup secret validation, timing-safe webhook verification + `409` replay defense, auth-first BYOK + official HTTPS carrier host allowlist (`maxRedirects: 0`), public tracking PII/COD redaction, concurrent + PostgreSQL durable `invoice` idempotency, and ambiguous-outcome cascade halt (`0` npm vulnerabilities).
 * **v2.7.1 (Nov 24, 2026)**:
   - **Global AI Agent Partner Directory Certification Ready**: Added MCP 2025-03-26 tool annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) on all 13 tools, `claude.com` + global AI/automation OAuth partner redirects, official Antigravity `$schema` + `serverUrl` + 13-tool `SKILL.md`, Official MCP Registry `remotes` in `server.json`, live `/terms` Terms of Service, and npm `2.7.1` sync.
 * **v2.7.0 (Nov 24, 2026)**:

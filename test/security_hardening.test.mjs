@@ -15,15 +15,19 @@ process.env.PATHAO_CLIENT_SECRET = "pathao_super_secret_do_not_leak_9999999999";
 process.env.STEADFAST_API_KEY = "sf_test_key_valid";
 process.env.STEADFAST_SECRET_KEY = "sf_test_secret_valid";
 
-const { app, clearWebhookReplayCache } = await import("../dist/http.js");
+import fs from "node:fs";
+import path from "node:path";
+const { app, clearWebhookReplayCache, runDataRetentionSweep } = await import("../dist/http.js");
 const {
   resolveAuthContext,
   validateSecurityConfig,
   registerApiKey,
   authenticateWebhook,
 } = await import("../dist/middleware/auth.js");
+const { resolveRateLimitIp } = await import("../dist/middleware/rate_limit.js");
 const { validateCarrierBaseUrl } = await import("../dist/config.js");
 const {
+  CourierRegistry,
   clearIdempotencyStore,
   clearWebhookEvents,
   setRegistryDbPool,
@@ -530,4 +534,254 @@ test("P1-04: Ambiguous non-timeout carrier failure (HTTP 502 or malformed 2xx) h
     SteadfastAdapter.prototype.createParcel = origSfCreate;
     PathaoAdapter.prototype.createParcel = origPathaoCreate;
   }
+});
+
+test("NEW-01: update_parcel, cancel_parcel & 90-day PII retention use real courier_parcels columns and strict tenant SQL scoping", async () => {
+  clearWebhookEvents();
+  const executedQueries = [];
+  const mockPool = {
+    async query(sql, params) {
+      executedQueries.push({ sql: String(sql), params: params || [] });
+      return { rowCount: 2, rows: [] };
+    },
+  };
+  setRegistryDbPool(mockPool);
+
+  const tenantAlphaKey = "tenant_alpha_sql_scope_key_1234567890";
+  const tenantBetaKey = "tenant_beta_sql_scope_key_0987654321";
+  registerApiKey(tenantAlphaKey, "tenant_alpha", ["read", "write"]);
+  registerApiKey(tenantBetaKey, "tenant_beta", ["read", "write"]);
+
+  const origCancel = PathaoAdapter.prototype.cancelParcel;
+  PathaoAdapter.prototype.cancelParcel = async function (cid) {
+    return { success: true, consignment_id: cid, status: "cancelled" };
+  };
+
+  try {
+    // 1. update_parcel scopes UPDATE to tenant_alpha & uses real columns (phone, address, raw->>'consignment_id')
+    const updRes = await fetch(`${baseUrl}/mcp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tenantAlphaKey}`,
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 21,
+        method: "tools/call",
+        params: {
+          name: "update_parcel",
+          arguments: {
+            courier: "steadfast",
+            consignment_id: "SF-UPD-9001",
+            recipient_phone: "01712340000",
+            recipient_address: "Banani Road 11, Dhaka",
+            cod_amount: 1850,
+            note: "Call before arrival",
+          },
+        },
+      }),
+    }).then((r) => r.json());
+    assert.equal(updRes.result.isError, false);
+    const updSql = executedQueries[0];
+    assert.ok(updSql, "update_parcel executed SQL query");
+    assert.ok(!updSql.sql.includes("recipient_phone") && !updSql.sql.includes("recipient_address"));
+    assert.ok(!/\bOR\s+consignment_id\s*=/.test(updSql.sql), "Must not reference non-existent consignment_id column");
+    assert.ok(updSql.sql.includes("raw->>'consignment_id'"));
+    assert.ok(updSql.sql.includes("AND tenant ="));
+    assert.ok(updSql.params.includes("tenant_alpha"));
+
+    // 2. cancel_parcel scopes SQL UPDATE + webhook event to tenant_alpha (invisible to tenant_beta)
+    const cancelRes = await fetch(`${baseUrl}/mcp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tenantAlphaKey}`,
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 22,
+        method: "tools/call",
+        params: {
+          name: "cancel_parcel",
+          arguments: { courier: "pathao", consignment_id: "PT-CAN-9002", reason: "Customer changed mind" },
+        },
+      }),
+    }).then((r) => r.json());
+    assert.equal(cancelRes.result.isError, false);
+    const canSql = executedQueries[1];
+    assert.ok(canSql.sql.includes("raw->>'consignment_id'"));
+    assert.ok(canSql.sql.includes("AND tenant = $2"));
+    assert.deepEqual(canSql.params, ["PT-CAN-9002", "tenant_alpha"]);
+
+    // Verify webhook event isolation: tenant_alpha sees cancel_PT-CAN-9002, tenant_beta sees 0 events
+    const alphaEvRes = await fetch(`${baseUrl}/mcp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${tenantAlphaKey}` },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 23,
+        method: "tools/call",
+        params: { name: "get_webhook_events", arguments: { consignment_id: "PT-CAN-9002" } },
+      }),
+    }).then((r) => r.json());
+    const alphaEv = JSON.parse(alphaEvRes.result.content[0].text);
+    assert.equal(alphaEv.data.count, 1);
+
+    const betaEvRes = await fetch(`${baseUrl}/mcp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${tenantBetaKey}` },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 24,
+        method: "tools/call",
+        params: { name: "get_webhook_events", arguments: { consignment_id: "PT-CAN-9002" } },
+      }),
+    }).then((r) => r.json());
+    const betaEv = JSON.parse(betaEvRes.result.content[0].text);
+    assert.equal(betaEv.data.count, 0);
+
+    // 3. 90-day PII retention sweep updates customer_name, phone, address (real schema)
+    const pruned = await runDataRetentionSweep(mockPool);
+    assert.equal(pruned, 2);
+    const retSql = executedQueries[2];
+    assert.ok(retSql.sql.includes("SET customer_name = 'ANONYMIZED'"));
+    assert.ok(retSql.sql.includes("phone = 'ANONYMIZED'"));
+    assert.ok(retSql.sql.includes("address = 'ANONYMIZED'"));
+    assert.ok(!retSql.sql.includes("recipient_name"));
+  } finally {
+    PathaoAdapter.prototype.cancelParcel = origCancel;
+    setRegistryDbPool(null);
+  }
+});
+
+test("NEW-02: Spoofed CF-Connecting-IP / X-Forwarded-For private IPs cannot bypass rate limiter & OAuth endpoints are throttled", async () => {
+  // 1. Unit check on resolveRateLimitIp: spoofed loopback/RFC1918 CF-Connecting-IP is ignored
+  const spoofedReq = {
+    headers: {
+      "cf-connecting-ip": "127.0.0.1",
+      "cf-ray": "fake-ray-id",
+      "x-forwarded-for": "10.0.0.1, 198.51.100.77",
+    },
+    ip: "198.51.100.77",
+    socket: { remoteAddress: "127.0.0.1" },
+  };
+  assert.equal(resolveRateLimitIp(spoofedReq), "198.51.100.77");
+
+  // Legitimate public CF-Connecting-IP + CF-Ray resolves cleanly
+  const legitCfReq = {
+    headers: {
+      "cf-connecting-ip": "203.0.113.88",
+      "cf-ray": "8e123456789abcde-SIN",
+    },
+    ip: "172.18.0.2",
+    socket: { remoteAddress: "172.18.0.2" },
+  };
+  assert.equal(resolveRateLimitIp(legitCfReq), "203.0.113.88");
+
+  // 2. OAuth /oauth/register enforces 20 req/min rate limit even when attacker spoofs CF-Connecting-IP: 10.0.0.1
+  let lastStatus = 201;
+  for (let i = 0; i < 22; i++) {
+    const res = await fetch(`${baseUrl}/oauth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-test-enforce-ratelimit": "1",
+        "cf-connecting-ip": "10.0.0.9",
+        "cf-ray": "spoofed-private-cf",
+        "x-forwarded-for": "127.0.0.1, 198.51.100.200",
+      },
+      body: JSON.stringify({
+        client_name: `Flood-${i}`,
+        redirect_uris: ["http://127.0.0.1:44123/cb"],
+      }),
+    });
+    lastStatus = res.status;
+    if (lastStatus === 429) break;
+  }
+  assert.equal(lastStatus, 429, "OAuth register flood must be throttled with HTTP 429 despite private-IP header spoofing");
+});
+
+test("NEW-03, NEW-04 & NEW-05: Zero revoked tokens in HTML, safe /api/public/fraud-demo, GET /mcp session auth, and /admin query-token block", async () => {
+  const repoDir = path.resolve(process.cwd());
+  for (const rel of ["index.html", "mcp_explorer.html", "validate_plugin.js"]) {
+    const content = fs.readFileSync(path.join(repoDir, rel), "utf8");
+    assert.ok(!content.includes("aura_ro_public_inspector_2026"), `${rel} must not contain revoked hardcoded token`);
+  }
+
+  // 1. Safe server-side public fraud demo validates BD mobile & masks phone
+  const badPhoneRes = await fetch(`${baseUrl}/api/public/fraud-demo`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone: "12345" }),
+  });
+  assert.equal(badPhoneRes.status, 400);
+
+  const origFraud = CourierRegistry.prototype.checkFraudRisk;
+  CourierRegistry.prototype.checkFraudRisk = async function (ph) {
+    return {
+      phone: ph,
+      risk_level: "LOW",
+      risk_score: 8,
+      delivery_success_rate: 96.4,
+      total_parcels: 28,
+      total_delivered: 27,
+      total_cancelled: 1,
+      sample_size: 28,
+      data_sources: ["Steadfast Nationwide DB"],
+      recommendation: "Safe for COD dispatch.",
+    };
+  };
+  try {
+    const okDemoRes = await fetch(`${baseUrl}/api/public/fraud-demo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: "+8801712345678" }),
+    });
+    assert.equal(okDemoRes.status, 200);
+    assert.equal(okDemoRes.headers.get("referrer-policy"), "no-referrer");
+    const demoJson = await okDemoRes.json();
+    assert.equal(demoJson.ok, true);
+    assert.equal(demoJson.data.risk_level, "LOW");
+    assert.equal(demoJson.data.phone_masked, "017****5678");
+    assert.ok(!JSON.stringify(demoJson).includes("01712345678"), "Raw phone number must be masked in public demo DTO");
+  } finally {
+    CourierRegistry.prototype.checkFraudRisk = origFraud;
+  }
+
+  // 2. NEW-04: Initialize MCP session, then unauthenticated GET /mcp with valid mcp-session-id MUST return 401
+  const initRes = await fetch(`${baseUrl}/mcp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+      Authorization: `Bearer ${process.env.AURA_API_KEY}`,
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 31,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-03-26",
+        capabilities: {},
+        clientInfo: { name: "sec-test", version: "2.7.3" },
+      },
+    }),
+  });
+  assert.equal(initRes.status, 200);
+  const sid = initRes.headers.get("mcp-session-id");
+  assert.ok(sid);
+
+  const unauthGetSse = await fetch(`${baseUrl}/mcp`, {
+    method: "GET",
+    headers: {
+      Accept: "text/event-stream",
+      "mcp-session-id": sid,
+    },
+  });
+  assert.equal(unauthGetSse.status, 401, "Unauthenticated GET /mcp with stolen session ID must return 401");
+
+  // 3. NEW-05: Query-parameter ?token= MUST NOT authenticate /admin/* endpoints
+  const adminQueryRes = await fetch(`${baseUrl}/admin/tokens?token=${process.env.AURA_ADMIN_KEY}`);
+  assert.equal(adminQueryRes.status, 401, "Query-string ?token= must be rejected on /admin/tokens");
 });

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { isIP } from "node:net";
 
 interface RateLimiterOptions {
   windowMs: number;
@@ -10,6 +11,54 @@ interface RateLimiterOptions {
 interface ClientRecord {
   count: number;
   resetAt: number;
+}
+
+function normalizeIpLiteral(raw: string): string {
+  const trimmed = raw.trim();
+  if (trimmed.startsWith("::ffff:")) {
+    return trimmed.slice(7);
+  }
+  return trimmed;
+}
+
+function isPrivateOrLoopbackIp(ip: string): boolean {
+  const norm = normalizeIpLiteral(ip).toLowerCase();
+  if (!norm || norm === "127.0.0.1" || norm === "::1" || norm === "0.0.0.0") return true;
+  if (norm.startsWith("127.") || norm.startsWith("10.") || norm.startsWith("192.168.") || norm.startsWith("169.254.")) {
+    return true;
+  }
+  if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(norm)) {
+    return true;
+  }
+  if (norm.startsWith("fc") || norm.startsWith("fd") || norm.startsWith("fe80:")) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * NEW-02 Fix: Spoof-resistant client IP resolution.
+ * - Never trusts client-prepended leftmost X-Forwarded-For entries or private/loopback header spoofs.
+ * - Only accepts CF-Connecting-IP when accompanied by CF-Ray AND when CF-Connecting-IP is a valid public IP.
+ * - Otherwise relies on Express req.ip (with `trust proxy = 1`, which resolves the single trusted reverse-proxy hop).
+ */
+export function resolveRateLimitIp(req: Request): string {
+  const cfIpRaw = req.headers["cf-connecting-ip"];
+  const cfRay = req.headers["cf-ray"];
+  if (typeof cfIpRaw === "string" && typeof cfRay === "string" && cfRay.trim().length > 0) {
+    const cfIp = normalizeIpLiteral(cfIpRaw);
+    if (isIP(cfIp) !== 0 && !isPrivateOrLoopbackIp(cfIp)) {
+      return cfIp;
+    }
+  }
+
+  const expressIp = typeof req.ip === "string" && req.ip.trim() ? normalizeIpLiteral(req.ip) : "";
+  if (expressIp && isIP(expressIp) !== 0) {
+    return expressIp;
+  }
+
+  const socketIp = req.socket?.remoteAddress ? normalizeIpLiteral(req.socket.remoteAddress) : "";
+  return socketIp || "unknown";
 }
 
 export function createRateLimiter(options: RateLimiterOptions) {
@@ -27,33 +76,12 @@ export function createRateLimiter(options: RateLimiterOptions) {
   }, 5 * 60 * 1000).unref();
 
   return (req: Request, res: Response, next: NextFunction): void => {
-    // Extract Client IP (supporting Cloudflare cf-connecting-ip and reverse proxies like Traefik / Nginx)
-    const cfIp = req.headers["cf-connecting-ip"];
-    const xForwardedFor = req.headers["x-forwarded-for"];
-    let clientIp = "";
-    if (typeof cfIp === "string") {
-      clientIp = cfIp.trim();
-    } else if (typeof xForwardedFor === "string") {
-      clientIp = xForwardedFor.split(",")[0].trim();
-    } else if (Array.isArray(xForwardedFor) && xForwardedFor.length > 0) {
-      clientIp = xForwardedFor[0].trim();
-    } else {
-      clientIp = req.socket?.remoteAddress || "unknown";
-    }
-
-    // Bypass loopback and internal orchestration networks
-    if (
-      clientIp === "127.0.0.1" ||
-      clientIp === "::1" ||
-      clientIp === "::ffff:127.0.0.1" ||
-      clientIp.startsWith("10.") ||
-      clientIp.startsWith("172.16.") ||
-      clientIp.startsWith("172.17.") ||
-      clientIp.startsWith("172.18.")
-    ) {
+    // Allow high-speed local test execution unless test explicitly requests rate-limit enforcement
+    if (process.env.NODE_ENV === "test" && req.headers["x-test-enforce-ratelimit"] !== "1") {
       return next();
     }
 
+    const clientIp = resolveRateLimitIp(req);
     const now = Date.now();
     let record = store.get(clientIp);
 

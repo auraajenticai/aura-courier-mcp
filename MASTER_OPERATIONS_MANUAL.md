@@ -1,4 +1,4 @@
-# 🚚 AURA COURIER MCP v2.5.0 — THE ENTERPRISE LOGISTICS MASTER MANUAL
+# 🚚 AURA COURIER MCP v2.7.3 — THE ENTERPRISE LOGISTICS MASTER MANUAL
 ### Universal Multi-Carrier Logistics Engine, Spatial Intelligence Hub & Zero-Risk COD Gateway
 **Published by Aura Agentic AI · Architected with DeepMind Principles & Google Maps Platform**
 
@@ -11,7 +11,7 @@
 ### Core Architectural Pillars
 ```mermaid
 graph TD
-    AI[AI Agent / Vertex AI / Dashboard] -->|Streamable-HTTP / MCP| MCP[Aura Courier MCP Server v2.4]
+    AI[AI Agent / Vertex AI / Dashboard] -->|Streamable-HTTP / MCP| MCP[Aura Courier MCP Server v2.7.3]
     
     subgraph "Intelligent Logic Engines"
         MCP --> ROUTER[Multi-Carrier Smart Router]

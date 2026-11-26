@@ -754,7 +754,8 @@ export class CourierRegistry {
   async updateParcel(
     courier: SupportedCourier,
     consignmentId: string,
-    updates: { recipient_phone?: string; recipient_address?: string; cod_amount?: number; note?: string }
+    updates: { recipient_phone?: string; recipient_address?: string; cod_amount?: number; note?: string },
+    tenantId?: string
   ): Promise<any> {
     const cid = String(consignmentId || "").trim();
     if (!cid) {
@@ -780,24 +781,36 @@ export class CourierRegistry {
 
     if (registryDbPool) {
       try {
+        const effectiveTenant = String(tenantId || "default").trim() || "default";
         const setClauses: string[] = ["updated_at = NOW()"];
         const vals: any[] = [];
         let pIndex = 1;
         if (updates.recipient_phone) {
-          setClauses.push(`recipient_phone = $${pIndex++}`);
+          setClauses.push(`phone = $${pIndex++}`);
           vals.push(updates.recipient_phone);
         }
         if (updates.recipient_address) {
-          setClauses.push(`recipient_address = $${pIndex++}`);
+          setClauses.push(`address = $${pIndex++}`);
           vals.push(updates.recipient_address);
         }
         if (updates.cod_amount !== undefined) {
           setClauses.push(`cod_amount = $${pIndex++}`);
           vals.push(updates.cod_amount);
         }
+        if (updates.note !== undefined) {
+          setClauses.push(`raw = jsonb_set(COALESCE(raw, '{}'::jsonb), '{delivery_note}', to_jsonb($${pIndex++}::text), true)`);
+          vals.push(String(updates.note));
+        }
+        const cidIdx = pIndex++;
         vals.push(cid);
+        let whereClause = `(tracking_code = $${cidIdx} OR raw->>'consignment_id' = $${cidIdx})`;
+        if (effectiveTenant !== "master") {
+          const tenantIdx = pIndex++;
+          vals.push(effectiveTenant);
+          whereClause += ` AND tenant = $${tenantIdx}`;
+        }
         await registryDbPool.query(
-          `UPDATE courier_parcels SET ${setClauses.join(", ")} WHERE tracking_code = $${pIndex} OR consignment_id = $${pIndex}`,
+          `UPDATE courier_parcels SET ${setClauses.join(", ")} WHERE ${whereClause}`,
           vals
         );
       } catch (dbErr: any) {
@@ -808,7 +821,12 @@ export class CourierRegistry {
     return upstreamResult;
   }
 
-async cancelParcel(courier: SupportedCourier, consignmentId: string, reason?: string): Promise<any> {
+  async cancelParcel(
+    courier: SupportedCourier,
+    consignmentId: string,
+    reason?: string,
+    tenantId?: string
+  ): Promise<any> {
     const cid = String(consignmentId || "").trim();
     if (!cid) {
       throw new McpToolError({
@@ -826,26 +844,41 @@ async cancelParcel(courier: SupportedCourier, consignmentId: string, reason?: st
     }
 
     const result = await (adapter as any).cancelParcel(cid, reason);
+    const effectiveTenant = String(tenantId || "default").trim() || "default";
 
     if (registryDbPool) {
       try {
-        await registryDbPool.query(
-          `UPDATE courier_parcels 
-           SET status = 'cancelled', updated_at = NOW() 
-           WHERE consignment_id = $1 OR tracking_code = $1`,
-          [cid]
-        );
-      } catch (_) {}
+        if (effectiveTenant === "master") {
+          await registryDbPool.query(
+            `UPDATE courier_parcels
+             SET status = 'cancelled', updated_at = NOW()
+             WHERE (tracking_code = $1 OR raw->>'consignment_id' = $1)`,
+            [cid]
+          );
+        } else {
+          await registryDbPool.query(
+            `UPDATE courier_parcels
+             SET status = 'cancelled', updated_at = NOW()
+             WHERE (tracking_code = $1 OR raw->>'consignment_id' = $1) AND tenant = $2`,
+            [cid, effectiveTenant]
+          );
+        }
+      } catch (dbErr: any) {
+        console.warn("[Registry] DB parcel cancellation update skipped:", dbErr?.message);
+      }
     }
 
-    recordWebhookEvent({
-      id: "cancel_" + cid,
-      consignment_id: cid,
-      courier,
-      status: result.status || "cancelled",
-      received_at: new Date().toISOString(),
-      payload: result,
-    });
+    recordWebhookEvent(
+      {
+        id: "cancel_" + cid,
+        consignment_id: cid,
+        courier,
+        status: result.status || "cancelled",
+        received_at: new Date().toISOString(),
+        payload: result,
+      },
+      effectiveTenant
+    );
 
     return result;
   }

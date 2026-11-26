@@ -4,16 +4,17 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.5.x   | :white_check_mark: |
-| 2.4.x   | :white_check_mark: |
-| < 2.4.0 | :x:                |
+| 2.7.x   | :white_check_mark: |
+| 2.6.x   | :white_check_mark: |
+| < 2.6.0 | :x:                |
 
-## Zero-Knowledge AES-256 Credential Vault Guarantee
+## Zero-Knowledge & Fail-Closed Security Architecture
 
-**Aura Courier MCP** enforces strict **Zero-Knowledge Cryptographic Isolation** for all merchant courier and e-commerce store credentials:
-1. **AES-256-CBC Encryption at Rest**: Whenever a merchant connects Steadfast, Pathao, RedX, Paperfly, WooCommerce, or Shopify API keys, credentials are immediately encrypted using AES-256-CBC before being stored in the isolated tenant vault.
-2. **Zero Admin Visibility**: Platform administrators and engineers cannot view, inspect, or export any client's raw courier API keys.
-3. **Transient In-Memory Execution**: Direct MCP header credentials (`x-steadfast-api-key`, `x-pathao-client-id`, etc.) exist strictly in isolated request memory for the duration of the tool call and are never written to disk or application logs.
+**Aura Courier MCP** enforces strict cryptographic isolation, fail-closed startup validation, and defense-in-depth protections:
+1. **Fail-Closed Secret Validation**: Production startup refuses weak, short, or placeholder secrets across `AURA_API_KEY`, `AURA_ADMIN_KEY`, `AURA_READONLY_KEY`, `AURA_WEBHOOK_SECRET`, and `AURA_OAUTH_SECRET`.
+2. **AES-256-GCM / SHA-256 Tenant Vault Isolation**: Dynamic tenant credentials and API key hashes are isolated per tenant in PostgreSQL (`aura_courier_runtime` least-privilege DB role) with strict `AND tenant = $...` SQL enforcement.
+3. **Transient Authenticated BYOK & Anti-SSRF Allowlist**: Direct MCP header credentials (`x-steadfast-api-key`, `x-pathao-client-id`, etc.) require prior Aura authentication, enforce complete credential bundles, exist strictly in isolated request memory, and restrict carrier base URLs to official HTTPS carrier hostnames (`maxRedirects: 0`).
+4. **OAuth 2.1 + PKCE (`S256`) & Replay-Protected Webhooks**: Supports RFC 9728 / RFC 8414 / RFC 7591 OAuth 2.1 with PKCE `S256`, spoof-resistant IP rate limiting, and timing-safe webhook verification with `±10m` replay protection (`HTTP 409`).
 
 ## Reporting a Vulnerability
 

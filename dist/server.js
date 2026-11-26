@@ -404,7 +404,7 @@ export async function executeToolCall(registry, name, args = {}, tenantId = "def
                 return { isError: false, envelope: wrapSuccess(result, "live_api") };
             }
             case "cancel_parcel": {
-                const result = await registry.cancelParcel(args?.courier, String(args?.consignment_id ?? ""), args?.reason ? String(args.reason) : undefined);
+                const result = await registry.cancelParcel(args?.courier, String(args?.consignment_id ?? ""), args?.reason ? String(args.reason) : undefined, tenantId);
                 return { isError: false, envelope: wrapSuccess(result, "live_api") };
             }
             case "update_parcel": {
@@ -413,7 +413,7 @@ export async function executeToolCall(registry, name, args = {}, tenantId = "def
                     recipient_address: args?.recipient_address ? String(args.recipient_address) : undefined,
                     cod_amount: args?.cod_amount !== undefined ? Number(args.cod_amount) : undefined,
                     note: args?.note ? String(args.note) : undefined,
-                });
+                }, tenantId);
                 return { isError: false, envelope: wrapSuccess(result, "live_api") };
             }
             case "bulk_create_parcels": {

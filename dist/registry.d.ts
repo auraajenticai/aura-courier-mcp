@@ -44,8 +44,8 @@ export declare class CourierRegistry {
         recipient_address?: string;
         cod_amount?: number;
         note?: string;
-    }): Promise<any>;
-    cancelParcel(courier: SupportedCourier, consignmentId: string, reason?: string): Promise<any>;
+    }, tenantId?: string): Promise<any>;
+    cancelParcel(courier: SupportedCourier, consignmentId: string, reason?: string, tenantId?: string): Promise<any>;
     /**
      * Task T8 — bulk_create_parcels(items[], dry_run?)
      */

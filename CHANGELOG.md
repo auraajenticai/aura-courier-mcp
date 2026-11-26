@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.7.3] - 2026-11-27
+
+### Security, Reliability & Parity Hardening
+- **PostgreSQL Schema Alignment & Tenant SQL Isolation (`src/registry.ts`, `src/server.ts`, `src/http.ts`)**: Aligned `update_parcel`, `cancel_parcel`, and the 90-day PII retention sweep with live `courier_parcels` columns (`customer_name`, `phone`, `address`, `raw->>'consignment_id'`) and enforced `AND tenant = $...` isolation across updates, cancellations, and synthetic cancellation webhook events.
+- **Spoof-Resistant Rate Limiter & OAuth Throttling (`src/middleware/rate_limit.ts`, `src/middleware/oauth.ts`)**: Eliminated `X-Forwarded-For` / `CF-Connecting-IP` private-IP bypasses, validated `CF-Connecting-IP` only with `CF-Ray` + public IP checks, and added dedicated rate limiting on `POST /oauth/register`, `POST /oauth/authorize`, and `POST /oauth/token`.
+- **Safe Zero-Token Public Fraud Demo & Explorer (`src/http.ts`, `index.html`, `mcp_explorer.html`)**: Replaced legacy browser demo tokens with a strictly rate-limited server-side `POST /api/public/fraud-demo` endpoint (`10 req/min/IP`, zero token exposure in HTML) and updated `/mcp` browser explorer for clean `tools/list` discovery and optional user-supplied Bearer tokens.
+- **Defense-in-Depth `GET /mcp` Auth & Query-Token Scrubbing (`src/http.ts`, `src/middleware/auth.ts`)**: Enforced `req.auraAuth.authenticated` on `GET /mcp` SSE stream resumption, restricted query-string tokens strictly to `/mcp` & `/sse` with immediate URL redaction and `Referrer-Policy: no-referrer`.
+- **Multi-Stage Non-Root Docker Runtime & Full `2.7.3` npm/Manifest Parity (`Dockerfile`, `.github/workflows/ci.yml`)**: Converted `Dockerfile` to a deterministic 2-stage `npm ci --omit=dev` non-root (`USER node`) runtime, added `git diff --exit-code dist/` in CI, cleaned repository metadata clutter, and synchronized `package.json`, `server.json`, `plugin.json`, HTML docs, and `npmjs.org` to `v2.7.3`.
+
+## [2.7.2] - 2026-11-27
+
+### Critical Security & Idempotency Remediation
+- **Fail-Closed Secret Validation (`P0-01`)**: Removed all fallback default keys; enforced strong minimum-entropy secrets on startup.
+- **Webhook Signature & Replay Defense (`P0-02`)**: Removed path-token bypass and secret header echo; added timing-safe secret validation, `±10m` timestamp check, and `HTTP 409` duplicate event replay guard.
+- **Auth-First BYOK & Anti-SSRF Carrier Host Allowlist (`P0-03`, `P1-01`)**: Enforced authentication before BYOK evaluation, complete per-carrier credential bundles, `/sse` auth, official `https:` carrier host allowlist, and `maxRedirects: 0`.
+- **Public Tracking Redaction & Durable Idempotency (`P1-02`, `P1-03`, `P1-04`, `P1-05`)**: Sanitized public `/track/:code` DTOs, added concurrent in-flight + PostgreSQL durable `invoice` idempotency, halted auto-cascade on ambiguous `5xx`/malformed upstream responses, and upgraded dependencies (`0` npm vulnerabilities).
+
 ## [2.7.1] - 2026-11-24
 
 ### Added & Improved (Global AI Partner Directory Readiness)

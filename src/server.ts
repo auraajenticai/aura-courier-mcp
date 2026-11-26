@@ -445,7 +445,8 @@ export async function executeToolCall(
         const result = await registry.cancelParcel(
           args?.courier as SupportedCourier,
           String(args?.consignment_id ?? ""),
-          args?.reason ? String(args.reason) : undefined
+          args?.reason ? String(args.reason) : undefined,
+          tenantId
         );
         return { isError: false, envelope: wrapSuccess(result, "live_api") };
       }
@@ -459,7 +460,8 @@ export async function executeToolCall(
             recipient_address: args?.recipient_address ? String(args.recipient_address) : undefined,
             cod_amount: args?.cod_amount !== undefined ? Number(args.cod_amount) : undefined,
             note: args?.note ? String(args.note) : undefined,
-          }
+          },
+          tenantId
         );
         return { isError: false, envelope: wrapSuccess(result, "live_api") };
       }
