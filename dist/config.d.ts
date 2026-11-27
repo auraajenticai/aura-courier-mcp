@@ -36,14 +36,6 @@ export interface CourierConfig {
         apiKey: string;
         enabled: boolean;
     };
-    extraFraudCreds?: {
-        carrybeeEmail: string;
-        carrybeePassword: string;
-        ecourierApiKey: string;
-        ecourierApiSecret: string;
-        ecourierUserId: string;
-        parceldexApiKey: string;
-    };
 }
 export type EnvSource = Record<string, string | undefined>;
 export declare const ALLOWED_CARRIER_HOSTS: Record<"steadfast" | "pathao" | "redx" | "paperfly", readonly string[]>;

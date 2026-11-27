@@ -649,7 +649,7 @@ export class CourierRegistry {
   async checkFraudRisk(phone: string): Promise<FraudRiskScoreResponse> {
     const steadfast = this.adapters.get("steadfast") as SteadfastAdapter | undefined;
     const pathao = this.adapters.get("pathao") as PathaoAdapter | undefined;
-    return await FraudRiskEngine.evaluateRisk(phone, steadfast, pathao, this.config);
+    return await FraudRiskEngine.evaluateRisk(phone, steadfast, pathao, this.config, registryDbPool);
   }
 
   async validateAddress(req: AddressValidationRequest): Promise<AddressValidationResponse> {

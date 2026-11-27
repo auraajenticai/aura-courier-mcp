@@ -564,7 +564,7 @@ export class CourierRegistry {
     async checkFraudRisk(phone) {
         const steadfast = this.adapters.get("steadfast");
         const pathao = this.adapters.get("pathao");
-        return await FraudRiskEngine.evaluateRisk(phone, steadfast, pathao, this.config);
+        return await FraudRiskEngine.evaluateRisk(phone, steadfast, pathao, this.config, registryDbPool);
     }
     async validateAddress(req) {
         return await this.googleMaps.validateAndGeocode(req);

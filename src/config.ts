@@ -48,14 +48,6 @@ export interface CourierConfig {
     apiKey: string;
     enabled: boolean;
   };
-  extraFraudCreds?: {
-    carrybeeEmail: string;
-    carrybeePassword: string;
-    ecourierApiKey: string;
-    ecourierApiSecret: string;
-    ecourierUserId: string;
-    parceldexApiKey: string;
-  };
 }
 
 export type EnvSource = Record<string, string | undefined>;
@@ -154,14 +146,6 @@ export function loadConfig(src: EnvSource = process.env): CourierConfig {
     googleMaps: {
       apiKey: googleMapsKey,
       enabled: Boolean(googleMapsKey),
-    },
-    extraFraudCreds: {
-      carrybeeEmail: src.CARRYBEE_EMAIL || "",
-      carrybeePassword: src.CARRYBEE_PASSWORD || "",
-      ecourierApiKey: src.ECOURIER_API_KEY || "",
-      ecourierApiSecret: src.ECOURIER_API_SECRET || "",
-      ecourierUserId: src.ECOURIER_USER_ID || "",
-      parceldexApiKey: src.PARCELDEX_API_KEY || "",
     },
   };
 }

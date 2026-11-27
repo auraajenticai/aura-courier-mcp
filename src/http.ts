@@ -180,12 +180,6 @@ export function keysFromRequest(req: Request): EnvSource {
     PAPERFLY_PASSWORD: pick("x-paperfly-password", "PAPERFLY_PASSWORD"),
     PAPERFLY_STORE_NAME: pick("x-paperfly-store-name", "PAPERFLY_STORE_NAME"),
     PAPERFLY_BASE_URL: pickBaseUrl("paperfly", "x-paperfly-base-url", "PAPERFLY_BASE_URL", "https://api.paperfly.com.bd"),
-    CARRYBEE_EMAIL: pick("x-carrybee-email", "CARRYBEE_EMAIL"),
-    CARRYBEE_PASSWORD: pick("x-carrybee-password", "CARRYBEE_PASSWORD"),
-    ECOURIER_API_KEY: pick("x-ecourier-api-key", "ECOURIER_API_KEY"),
-    ECOURIER_API_SECRET: pick("x-ecourier-api-secret", "ECOURIER_API_SECRET"),
-    ECOURIER_USER_ID: pick("x-ecourier-user-id", "ECOURIER_USER_ID"),
-    PARCELDEX_API_KEY: pick("x-parceldex-api-key", "PARCELDEX_API_KEY"),
     GOOGLE_MAPS_API_KEY: pick("x-google-maps-key", "GOOGLE_MAPS_API_KEY", true),
   };
 }

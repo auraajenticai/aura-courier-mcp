@@ -95,13 +95,5 @@ export function loadConfig(src = process.env) {
             apiKey: googleMapsKey,
             enabled: Boolean(googleMapsKey),
         },
-        extraFraudCreds: {
-            carrybeeEmail: src.CARRYBEE_EMAIL || "",
-            carrybeePassword: src.CARRYBEE_PASSWORD || "",
-            ecourierApiKey: src.ECOURIER_API_KEY || "",
-            ecourierApiSecret: src.ECOURIER_API_SECRET || "",
-            ecourierUserId: src.ECOURIER_USER_ID || "",
-            parceldexApiKey: src.PARCELDEX_API_KEY || "",
-        },
     };
 }

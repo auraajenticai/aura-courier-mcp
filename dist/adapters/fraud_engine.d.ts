@@ -6,12 +6,11 @@ export declare class FraudRiskEngine {
     private static checkSteadfastWeb;
     private static checkRedxNationwide;
     private static checkPaperflySmartCheck;
-    private static checkCarrybee;
-    private static checkEcourier;
     /**
-     * Real-Time All-Bangladesh Multi-Carrier Fraud & Delivery Risk Evaluation (v2.7.4)
-     * Executes parallel live lookups across Steadfast, Pathao, RedX, Paperfly, CarryBee, eCourier & ParcelDex.
-     * Strictly Zero Mock Data: non-connected or inactive carrier accounts return `null` counts with transparent status.
+     * Real-Time Official 4-Courier Fraud & Delivery Risk Evaluation (v2.7.5)
+     * Executes parallel live lookups across Aura Courier MCP's 4 official carriers:
+     * Steadfast, Pathao, RedX, and Paperfly (plus verified PostgreSQL consignment history).
+     * Strictly Zero Mock Data: non-queried or zero-record carrier APIs return `null` counts with clean SaaS status.
      */
-    static evaluateRisk(phoneNumber: string, steadfastAdapter?: SteadfastAdapter, pathaoAdapter?: PathaoAdapter, config?: CourierConfig): Promise<FraudRiskScoreResponse>;
+    static evaluateRisk(phoneNumber: string, steadfastAdapter?: SteadfastAdapter, pathaoAdapter?: PathaoAdapter, config?: CourierConfig, dbPool?: any): Promise<FraudRiskScoreResponse>;
 }

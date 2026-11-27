@@ -74,7 +74,7 @@ export interface BalanceResponse {
 export interface CarrierFraudBreakdownItem {
   courier: string;
   courier_name: string;
-  status: "LIVE" | "NOT_CONNECTED" | "ACCOUNT_INACTIVE" | "UPSTREAM_UNAVAILABLE";
+  status: "LIVE" | "API_CONNECTED" | "NOT_CONNECTED" | "ACCOUNT_INACTIVE" | "UPSTREAM_UNAVAILABLE";
   total_parcels: number | null;
   total_delivered: number | null;
   total_cancelled: number | null;
