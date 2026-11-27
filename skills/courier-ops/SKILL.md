@@ -7,7 +7,7 @@ description: >-
   carrier rates, or resolving NDR delivery issues across Steadfast, Pathao, RedX, and Paperfly.
 ---
 
-# Bangladesh Courier Operations & Zero-Risk COD Hub (v2.7.4)
+# Bangladesh Courier Operations & Zero-Risk COD Hub (v2.7.5)
 
 This skill provides complete operational runbooks, tool execution patterns, and domain intelligence for managing nationwide e-commerce logistics across Bangladesh via the **Aura Courier MCP** remote server (`https://courier.auraajenticai.cloud/mcp`, OAuth 2.1 + PKCE `S256` & Dual-Auth).
 

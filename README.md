@@ -1,10 +1,10 @@
-# 🚚 AURA COURIER MCP v2.7.4 — THE ENTERPRISE LOGISTICS MASTER MANUAL
+# 🚚 AURA COURIER MCP v2.7.5 — THE ENTERPRISE LOGISTICS MASTER MANUAL
 ### Universal Multi-Carrier Logistics Engine, Spatial Intelligence Hub & Zero-Risk COD Gateway
 **Published by Aura Agentic AI · Architected with DeepMind Principles & Google Maps Platform**
 
 [![Google Cloud Partner Advantage](https://img.shields.io/badge/Google_Cloud_Partner-Aura_Ajentic_AI-4285F4?logo=google-cloud&logoColor=white)](https://cloud.google.com/find-a-partner/partner/aura-ajentic-ai)
 [![auraajenticai/aura-courier-mcp MCP server](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp/badges/score.svg)](https://glama.ai/mcp/servers/auraajenticai/aura-courier-mcp)
-[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.7.4-0676FF?logo=google&logoColor=white)](plugin.json)
+[![Antigravity Plugin](https://img.shields.io/badge/Antigravity_Plugin-v2.7.5-0676FF?logo=google&logoColor=white)](plugin.json)
 [![User Guide BN/EN](https://img.shields.io/badge/User_Guide-বাংলা_%26_English-f59e0b)](https://courier.auraajenticai.cloud/guide)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Status](https://img.shields.io/badge/Status-Production%20Active-success.svg)](https://courier.auraajenticai.cloud)
@@ -24,7 +24,7 @@
 ### Core Architectural Pillars
 ```mermaid
 graph TD
-    AI[AI Agent / Vertex AI / Dashboard] -->|Streamable-HTTP / MCP| MCP[Aura Courier MCP Server v2.7.4]
+    AI[AI Agent / Vertex AI / Dashboard] -->|Streamable-HTTP / MCP| MCP[Aura Courier MCP Server v2.7.5]
     
     subgraph "Intelligent Logic Engines"
         MCP --> ROUTER[Multi-Carrier Smart Router]
@@ -236,7 +236,7 @@ curl -s https://courier.auraajenticai.cloud/health | jq
 ```json
 {
   "ok": true,
-  "version": "2.7.4"
+  "version": "2.7.5"
 }
 ```
 
@@ -287,7 +287,7 @@ Add this configuration block to your client settings (`claude_desktop_config.jso
   "mcpServers": {
     "aura-courier": {
       "command": "npx",
-      "args": ["-y", "aura-courier-mcp@2.7.4"],
+      "args": ["-y", "aura-courier-mcp@2.7.5"],
       "env": {
         "PORT": "8080",
         "GOOGLE_MAPS_API_KEY": "<GOOGLE_MAPS_API_KEY>",
@@ -349,8 +349,8 @@ Bundles the complete `courier-ops` skill (13 tools), `rules/COURIER_RULES.md` (s
 
 ## 9. Version History & Glama TDQS 5.0 Audit Log
 
-* **v2.7.4 (Nov 27, 2026)**:
-  - **Zero-Defect Security, SQL Schema & Registry Parity Release**: Fixed `courier_parcels` SQL column alignment & strict `AND tenant = $...` isolation across `update_parcel`, `cancel_parcel`, and 90-day PII retention; hardened `rate_limit.ts` against `X-Forwarded-For`/`CF-Connecting-IP` spoofing and added OAuth endpoint rate limits; replaced legacy browser demo keys with safe server-side `/api/public/fraud-demo`; enforced `GET /mcp` SSE session auth & query-token URL redaction; upgraded `Dockerfile` to multi-stage non-root (`USER node`); published `2.7.4` to `npmjs.org`.
+* **v2.7.5 (Nov 27, 2026)**:
+  - **Zero-Defect Security, SQL Schema & Registry Parity Release**: Fixed `courier_parcels` SQL column alignment & strict `AND tenant = $...` isolation across `update_parcel`, `cancel_parcel`, and 90-day PII retention; hardened `rate_limit.ts` against `X-Forwarded-For`/`CF-Connecting-IP` spoofing and added OAuth endpoint rate limits; replaced legacy browser demo keys with safe server-side `/api/public/fraud-demo`; enforced `GET /mcp` SSE session auth & query-token URL redaction; upgraded `Dockerfile` to multi-stage non-root (`USER node`); published `2.7.5` to `npmjs.org`.
 * **v2.7.2 (Nov 27, 2026)**:
   - **Enterprise Security Hardening**: Fail-closed startup secret validation, timing-safe webhook verification + `409` replay defense, auth-first BYOK + official HTTPS carrier host allowlist (`maxRedirects: 0`), public tracking PII/COD redaction, concurrent + PostgreSQL durable `invoice` idempotency, and ambiguous-outcome cascade halt (`0` npm vulnerabilities).
 * **v2.7.1 (Nov 24, 2026)**:

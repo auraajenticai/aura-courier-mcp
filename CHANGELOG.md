@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.7.5] - 2026-11-28
+- **Official 4-Courier Live Fraud Engine & Complete Registry Parity (2.7.5)**: Parallel real-time fraud & return-rate lookup across Pathao, Steadfast, RedX, Paperfly, and Aura Merchant Network (Zero Mock Data, clean API Connected SaaS telemetry), synchronized across courier.auraajenticai.cloud, client.auraajenticai.cloud, 
+pmjs.org, GitHub Release, and Glama Auto-Release.
+
+## [2.7.4] - 2026-11-27
+- **Multi-Network Fraud Engine & 13-Tool Client Dashboard Integration**: Added parallel BD carrier fraud telemetry and complete 13-tool MCP parity across #view-courier, #view-risk, and #view-inbox.
 ## [2.7.3] - 2026-11-27
 
 ### Security, Reliability & Parity Hardening
